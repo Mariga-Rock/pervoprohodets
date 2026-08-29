@@ -931,238 +931,14 @@ class EventManager:
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-change-in-production'
 
-# ---------- ТОЛЬКО ДВА SVG-ИЗОБРАЖЕНИЯ ----------
+# ---------- ЛОКАЛЬНЫЕ JPG-ИЗОБРАЖЕНИЯ (папка static/images) ----------
 IMAGES = [
-    # Первое изображение (Енисейск, царевна и Никита)
-    """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 650 800" width="100%" height="auto">
-  <defs>
-    <style>
-      .bg-paper { fill: #EADBC8; }
-      .line-main { stroke: #1A110B; stroke-width: 3.5; stroke-linejoin: round; stroke-linecap: round; fill: none; }
-      .line-thin { stroke: #1A110B; stroke-width: 1.8; stroke-linejoin: round; stroke-linecap: round; fill: none; }
-      .sky { fill: #FDF3E7; }
-      .taiga-distant { fill: #1C3A27; }
-      .yenisey-blue { fill: #204060; }
-      .yenisey-light { fill: #407090; }
-      .town-wood { fill: #6B4E3D; }
-      .town-roof { fill: #9E2A2B; }
-      .church-white { fill: #FFFDF9; }
-      .gold-decor { fill: #D4AF37; }
-      .grass-base { fill: #3A5F39; }
-      .grass-light { fill: #52804F; }
-      .tsarevna-dress { fill: #1D3557; }
-      .nikita-coat { fill: #DDA15E; }
-    </style>
-    <pattern id="coat-pattern" width="30" height="30" patternUnits="userSpaceOnUse">
-      <path d="M 0,15 Q 7.5,7.5 15,15 T 30,15" stroke="#1A110B" stroke-width="1" fill="none" />
-      <circle cx="15" cy="15" r="3" fill="#9E2A2B" />
-    </pattern>
-  </defs>
-
-  <rect width="650" height="800" class="bg-paper" />
-
-  <g id="illustration-window" transform="translate(35, 35)">
-    <rect width="580" height="730" class="sky" />
-    <path d="M 310,120 A 40,40 0 0,1 350,160 A 38,38 0 0,0 315,123 Z" fill="#EADBC8" class="line-thin" />
-
-    <path d="M -10,320 Q 150,280 300,295 T 590,280 L 590,400 L -10,400 Z" class="taiga-distant line-main" />
-
-    <g id="eniseysk-skyline" transform="translate(250, 180)">
-      <path d="M 0,120 Q 100,100 200,115 T 340,110 L 340,160 L 0,160 Z" fill="#8C6239" class="line-main" />
-      <rect x="120" y="70" width="140" height="45" class="town-wood line-main" />
-      <line x1="120" y1="85" x2="260" y2="80" class="line-thin" />
-      <rect x="200" y="30" width="45" height="45" class="town-wood line-main" />
-      <path d="M 195,30 L 222,-5 L 250,30 Z" class="town-roof line-main" />
-      <path d="M 50,115 L 50,60 L 110,50 L 110,115 Z" class="church-white line-main" />
-      <path d="M 65,52 Q 80,25 80,25 Q 80,25 80,45 L 65,52 Z" class="gold-decor line-main" />
-    </g>
-
-    <path d="M -10,340 Q 250,320 590,345 L 590,480 L -10,480 Z" class="yenisey-blue line-main" />
-    <path d="M 20,370 Q 300,350 560,375" class="yenisey-light line-main" />
-    <path d="M -10,410 Q 200,390 580,415" class="yenisey-light line-thin" />
-    <path d="M 40,445 Q 350,425 540,450" class="yenisey-light line-thin" />
-
-    <path d="M -10,450 Q 200,410 400,440 T 590,420 L 590,740 L -10,740 Z" class="grass-base line-main" />
-    <path d="M -10,520 Q 250,470 590,530 L 590,740 L -10,740 Z" class="grass-light line-thin" />
-
-    <!-- Левая береза -->
-    <path d="M 25,740 Q 40,400 30,50 L 45,50 Q 55,400 45,740 Z" fill="#FFFDF9" class="line-main" />
-    <path d="M 33,650 Q 40,652 43,651 M 28,520 Q 35,521 38,519 M 32,380 Q 42,382 44,381 M 30,220 Q 38,222 42,221" class="line-main" />
-    <path d="M 35,150 Q 80,180 110,240" fill="none" class="line-main" />
-    <path d="M 70,175 Q 85,190 80,205 Z" fill="#52804F" class="line-thin" />
-    <path d="M 95,200 Q 110,215 105,230 Z" fill="#52804F" class="line-thin" />
-
-    <!-- Центральная береза -->
-    <path d="M 245,740 Q 260,350 220,50 L 235,50 Q 275,350 262,740 Z" fill="#FFFDF9" class="line-main" />
-    <path d="M 254,610 Q 260,611 262,610 M 248,480 Q 255,482 258,481 M 238,300 Q 246,301 249,300 M 225,140 Q 232,141 234,140" class="line-main" />
-    <path d="M 230,250 Q 180,280 150,350" fill="none" class="line-main" />
-    <path d="M 195,272 Q 180,285 185,300 Z" fill="#52804F" class="line-thin" />
-
-    <!-- Царевна -->
-    <g id="tsarevna" transform="translate(45, 230)">
-      <path d="M 20,440 L 50,130 L 100,130 L 140,440 Z" class="tsarevna-dress line-main" />
-      <path d="M 75,130 L 75,440" class="gold-decor line-thin" stroke-width="3" />
-      <path d="M 75,250 Q 40,220 35,260 C 40,300 70,290 75,320" class="gold-decor line-thin" />
-      <path d="M 75,250 Q 110,220 115,260 C 110,300 80,290 75,320" class="gold-decor line-thin" />
-      <path d="M 75,350 Q 30,320 25,370 C 35,420 70,400 75,430" class="gold-decor line-thin" />
-      <path d="M 75,350 Q 120,320 125,370 C 115,420 80,400 75,430" class="gold-decor line-thin" />
-      <path d="M 50,130 C 25,140 10,170 15,200 C 20,220 40,210 55,180 Z" fill="#FFFDF9" class="line-main" />
-      <line x1="25" y1="160" x2="35" y2="195" class="line-thin" />
-      <line x1="35" y1="155" x2="48" y2="185" class="line-thin" />
-      <path d="M 45,35 C 20,35 5,55 10,85 C 30,75 50,75 80,85 C 85,55 70,35 45,35 Z" class="gold-decor line-main" />
-      <path d="M 12,75 Q 25,50 45,50 Q 65,50 78,75" fill="none" class="line-thin" stroke-width="2.5" />
-      <circle cx="25" cy="50" r="3" fill="#FFFDF9" /><circle cx="45" cy="42" r="3" fill="#FFFDF9" /><circle cx="65" cy="50" r="3" fill="#FFFDF9" />
-      <path d="M 75,70 C 100,80 120,120 125,230 L 95,230 C 90,150 80,100 75,70 Z" fill="#EADBC8" opacity="0.9" class="line-thin" />
-      <circle cx="50" cy="85" r="16" fill="#FFF0E0" class="line-main" />
-      <path d="M 42,85 Q 45,83 48,85 M 54,85 Q 57,83 60,85" fill="none" class="line-thin" stroke-width="2" />
-      <path d="M 48,93 Q 51,96 54,93" fill="none" stroke="#9E2A2B" stroke-width="2" />
-    </g>
-
-    <!-- Никита -->
-    <g id="nikita" transform="translate(350, 110)">
-      <path d="M 40,430 L 10,430 L 40,160 L 90,140 L 130,190 L 180,410 L 130,430 Z" class="nikita-coat line-main" />
-      <path d="M 40,430 L 10,430 L 40,160 L 90,140 L 130,190 L 180,410 L 130,430 Z" fill="url(#coat-pattern)" opacity="0.6" />
-      <path d="M 42,280 Q 90,300 138,275 L 142,295 Q 90,320 38,300 Z" class="gold-decor line-main" />
-      <path d="M 42,290 Q 30,340 50,420 L 70,415 Q 52,340 58,295 Z" class="gold-decor line-main" />
-      <line x1="50" y1="420" x2="70" y2="415" class="line-main" stroke-dasharray="3 3" />
-      <path d="M 50,430 L 45,510 Q 30,520 15,515 L 25,495 Q 40,495 40,430 Z" fill="#1C3A27" class="line-main" />
-      <path d="M 120,430 L 125,510 Q 140,520 155,515 L 145,495 Q 130,495 130,430 Z" fill="#1C3A27" class="line-main" />
-      <path d="M 45,510 L 35,515 L 40,505 Z" class="gold-decor" />
-      <path d="M 125,510 L 135,515 L 130,505 Z" class="gold-decor" />
-      <path d="M 40,140 Q 65,100 90,110 L 105,145 Z" fill="#1D3557" class="line-main" />
-      <path d="M 30,145 C 50,135 90,135 115,150 L 105,165 C 80,150 50,150 35,160 Z" class="gold-decor line-main" />
-      <path d="M 40,170 Q -10,160 -30,175 L -25,190 Q 0,180 40,195 Z" fill="#DDA15E" class="line-main" />
-      <path d="M 40,185 Q 0,200 -15,225 L 0,235 Q 15,210 45,198 Z" fill="#DDA15E" class="line-main" />
-      <path d="M -30,175 Q -45,180 -40,195 Q -30,195 -25,190 Z" fill="#FFF0E0" class="line-main" />
-      <path d="M -15,225 Q -25,240 -15,250 Q -2,245 0,235 Z" fill="#FFF0E0" class="line-main" />
-    </g>
-
-    <!-- Ковёр из цветов -->
-    <g id="bilibin-flowers" transform="translate(40, 640)">
-      <circle cx="50" cy="40" r="8" fill="#FFFDF9" class="line-thin" /><circle cx="50" cy="40" r="2.5" class="gold-decor" />
-      <circle cx="80" cy="60" r="8" fill="#FFFDF9" class="line-thin" /><circle cx="80" cy="60" r="2.5" class="gold-decor" />
-      <circle cx="140" cy="30" r="9" fill="#FFFDF9" class="line-thin" /><circle cx="140" cy="30" r="3" class="gold-decor" />
-      <circle cx="220" cy="50" r="8" fill="#FFFDF9" class="line-thin" /><circle cx="220" cy="50" r="2.5" class="gold-decor" />
-      <circle cx="340" cy="40" r="8" fill="#FFFDF9" class="line-thin" /><circle cx="340" cy="40" r="2.5" class="gold-decor" />
-      <circle cx="420" cy="65" r="9" fill="#FFFDF9" class="line-thin" /><circle cx="420" cy="65" r="3" class="gold-decor" />
-      <circle cx="480" cy="35" r="8" fill="#FFFDF9" class="line-thin" /><circle cx="480" cy="35" r="2.5" class="gold-decor" />
-    </g>
-  </g>
-</svg>""",
-    # Второе изображение (Красноярск, царевна и Никита)
-    """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 650 800" width="100%" height="auto">
-  <defs>
-    <style>
-      .bg-paper { fill: #EADBC8; }
-      .line-main { stroke: #1A110B; stroke-width: 3.5; stroke-linejoin: round; stroke-linecap: round; fill: none; }
-      .line-thin { stroke: #1A110B; stroke-width: 1.8; stroke-linejoin: round; stroke-linecap: round; fill: none; }
-      .sky { fill: #FDF3E7; }
-      .sayan-rock-shadow { fill: #52372E; }
-      .sayan-rock-light { fill: #8F5B4E; }
-      .sayan-rock-bright { fill: #BA7D6E; }
-      .yenisey-blue { fill: #1D3557; }
-      .yenisey-light { fill: #457B9D; }
-      .grass-base { fill: #2E4F2D; }
-      .grass-light { fill: #447043; }
-      .tsarevna-dress { fill: #1D3557; }
-      .nikita-coat { fill: #DDA15E; }
-      .taiga-dark { fill: #0B2516; }
-    </style>
-    <pattern id="coat-pattern-krsk" width="30" height="30" patternUnits="userSpaceOnUse">
-      <path d="M 0,15 Q 7.5,7.5 15,15 T 30,15" stroke="#1A110B" stroke-width="1" fill="none" />
-      <circle cx="15" cy="15" r="3" fill="#9E2A2B" />
-    </pattern>
-  </defs>
-
-  <rect width="650" height="800" class="bg-paper" />
-
-  <g id="krasnoyarsk-scene" transform="translate(35, 35)">
-    <rect width="580" height="730" class="sky" />
-    <path d="M 310,120 A 40,40 0 0,1 350,160 A 38,38 0 0,0 315,123 Z" fill="#EADBC8" class="line-thin" />
-
-    <g id="pillars-background" transform="translate(180, 80)">
-      <path d="M 40,320 L 35,120 Q 35,40 60,40 Q 80,40 85,100 L 95,70 Q 105,30 125,30 Q 145,30 145,90 L 155,60 Q 165,15 185,15 Q 210,15 205,100 L 215,80 Q 225,45 245,45 Q 265,45 260,180 L 280,320 Z" class="sayan-rock-shadow line-main" />
-      <path d="M 55,41 L 60,40 Q 80,40 85,100 L 95,70 Q 105,30 125,30 Q 145,30 145,90 L 155,60 Q 165,15 185,15 Q 210,15 205,100 L 215,80 Q 225,45 245,45 Q 265,45 260,180 L 275,320 L 245,320 L 235,160 L 180,320 L 165,130 L 120,320 L 105,150 L 55,320 Z" class="sayan-rock-light line-thin" />
-      <path d="M 70,42 L 85,100 L 80,140 L 68,60 Z M 130,32 L 145,90 L 140,150 L 132,60 Z M 190,16 L 205,100 L 195,160 L 188,40 Z" class="sayan-rock-bright" />
-      <path d="M 55,80 Q 70,85 80,80 M 45,140 Q 65,145 100,135 M 110,70 Q 125,75 140,70 M 115,120 Q 135,125 155,115 M 165,50 Q 185,55 200,50 M 165,100 Q 190,105 210,95" fill="none" class="line-thin" />
-    </g>
-
-    <path d="M -10,360 L 30,330 L 50,345 L 80,310 L 120,350 L 170,300 L 220,345 L 290,295 L 360,350 L 450,315 L 590,360 L 590,440 L -10,440 Z" class="taiga-dark line-main" />
-
-    <path d="M -10,410 Q 250,390 590,415 L 590,520 L -10,520 Z" class="yenisey-blue line-main" />
-    <path d="M 20,440 Q 300,420 560,445" class="yenisey-light line-main" />
-    <path d="M -10,480 Q 200,460 580,485" class="yenisey-light line-thin" />
-
-    <path d="M -10,500 Q 200,460 400,490 T 590,470 L 590,740 L -10,740 Z" class="grass-base line-main" />
-    <path d="M -10,560 Q 250,510 590,570 L 590,740 L -10,740 Z" class="grass-light line-thin" />
-
-    <!-- Левая береза -->
-    <path d="M 25,740 Q 40,400 30,50 L 45,50 Q 55,400 45,740 Z" fill="#FFFDF9" class="line-main" />
-    <path d="M 33,650 Q 40,652 43,651 M 28,520 Q 35,521 38,519 M 32,380 Q 42,382 44,381" class="line-main" />
-    <path d="M 35,150 Q 80,180 110,240" fill="none" class="line-main" />
-    <path d="M 70,175 Q 85,190 80,205 Z" fill="#447043" class="line-thin" />
-    <path d="M 95,200 Q 110,215 105,230 Z" fill="#447043" class="line-thin" />
-
-    <!-- Центральная береза -->
-    <path d="M 245,740 Q 260,350 220,50 L 235,50 Q 275,350 262,740 Z" fill="#FFFDF9" class="line-main" />
-    <path d="M 254,610 Q 260,611 262,610 M 248,480 Q 255,482 258,481 M 238,300 Q 246,301 249,300" class="line-main" />
-    <path d="M 230,250 Q 180,280 150,350" fill="none" class="line-main" />
-    <path d="M 195,272 Q 180,285 185,300 Z" fill="#447043" class="line-thin" />
-
-    <!-- Царевна -->
-    <g id="tsarevna-character" transform="translate(45, 230)">
-      <path d="M 20,440 L 50,130 L 100,130 L 140,440 Z" class="tsarevna-dress line-main" />
-      <path d="M 75,130 L 75,440" stroke="#D4AF37" stroke-width="3" fill="none" />
-      <path d="M 75,250 Q 40,220 35,260 C 40,300 70,290 75,320 M 75,250 Q 110,220 115,260 C 110,300 80,290 75,320" stroke="#D4AF37" stroke-width="1.8" fill="none" />
-      <path d="M 75,350 Q 30,320 25,370 C 35,420 70,400 75,430 M 75,350 Q 120,320 125,370 C 115,420 80,400 75,430" stroke="#D4AF37" stroke-width="1.8" fill="none" />
-      <path d="M 50,130 C 25,140 10,170 15,200 C 20,220 40,210 55,180 Z" fill="#FFFDF9" class="line-main" />
-      <line x1="25" y1="160" x2="35" y2="195" class="line-thin" />
-      <path d="M 45,35 C 20,35 5,55 10,85 C 30,75 50,75 80,85 C 85,55 70,35 45,35 Z" fill="#D4AF37" class="line-main" />
-      <path d="M 12,75 Q 25,50 45,50 Q 65,50 78,75" fill="none" class="line-thin" stroke-width="2.5" />
-      <circle cx="25" cy="50" r="3" fill="#FFFDF9" /><circle cx="45" cy="42" r="3" fill="#FFFDF9" /><circle cx="65" cy="50" r="3" fill="#FFFDF9" />
-      <path d="M 75,70 C 100,80 120,120 125,230 L 95,230 C 90,150 80,100 75,70 Z" fill="#EADBC8" opacity="0.85" class="line-thin" />
-      <circle cx="50" cy="85" r="16" fill="#FFF0E0" class="line-main" />
-      <path d="M 42,85 Q 45,83 48,85 M 54,85 Q 57,83 60,85" fill="none" class="line-thin" stroke-width="2" />
-      <path d="M 48,93 Q 51,96 54,93" fill="none" stroke="#9E2A2B" stroke-width="2" />
-    </g>
-
-    <!-- Никита -->
-    <g id="nikita-character" transform="translate(350, 110)">
-      <path d="M 40,430 L 10,430 L 40,160 L 90,140 L 130,190 L 180,410 L 130,430 Z" class="nikita-coat line-main" />
-      <path d="M 40,430 L 10,430 L 40,160 L 90,140 L 130,190 L 180,410 L 130,430 Z" fill="url(#coat-pattern-krsk)" opacity="0.65" />
-      <path d="M 42,280 Q 90,300 138,275 L 142,295 Q 90,320 38,300 Z" fill="#D4AF37" class="line-main" />
-      <path d="M 42,290 Q 30,340 50,420 L 70,415 Q 52,340 58,295 Z" fill="#D4AF37" class="line-main" />
-      <line x1="50" y1="420" x2="70" y2="415" class="line-main" stroke-dasharray="3 3" />
-      <path d="M 50,430 L 45,510 Q 30,520 15,515 L 25,495 Q 40,495 40,430 Z" fill="#1C3A27" class="line-main" />
-      <path d="M 120,430 L 125,510 Q 140,520 155,515 L 145,495 Q 130,495 130,430 Z" fill="#1C3A27" class="line-main" />
-      <path d="M 40,140 Q 65,100 90,110 L 105,145 Z" fill="#1D3557" class="line-main" />
-      <path d="M 30,145 C 50,135 90,135 115,150 L 105,165 C 80,150 50,150 35,160 Z" fill="#D4AF37" class="line-main" />
-      <path d="M 40,170 Q -10,160 -30,175 L -25,190 Q 0,180 40,195 Z" fill="#DDA15E" class="line-main" />
-      <path d="M 40,185 Q 0,200 -15,225 L 0,235 Q 15,210 45,198 Z" fill="#DDA15E" class="line-main" />
-      <path d="M -30,175 Q -45,180 -40,195 Q -30,195 -25,190 Z" fill="#FFF0E0" class="line-main" />
-      <path d="M -15,225 Q -25,240 -15,250 Q -2,245 0,235 Z" fill="#FFF0E0" class="line-main" />
-    </g>
-
-    <!-- Ковёр из цветов -->
-    <g id="carpet-of-flowers" transform="translate(40, 640)">
-      <circle cx="50" cy="40" r="8" fill="#FFFDF9" class="line-thin" /><circle cx="50" cy="40" r="2.5" fill="#D4AF37" />
-      <circle cx="80" cy="60" r="8" fill="#FFFDF9" class="line-thin" /><circle cx="80" cy="60" r="2.5" fill="#D4AF37" />
-      <circle cx="140" cy="30" r="9" fill="#FFFDF9" class="line-thin" /><circle cx="140" cy="30" r="3" fill="#D4AF37" />
-      <circle cx="220" cy="50" r="8" fill="#FFFDF9" class="line-thin" /><circle cx="220" cy="50" r="2.5" fill="#D4AF37" />
-      <circle cx="340" cy="40" r="8" fill="#FFFDF9" class="line-thin" /><circle cx="340" cy="40" r="2.5" fill="#D4AF37" />
-      <circle cx="420" cy="65" r="9" fill="#FFFDF9" class="line-thin" /><circle cx="420" cy="65" r="3" fill="#D4AF37" />
-      <path d="M 20,70 Q 40,50 60,65 Q 45,80 20,70 Z" fill="#9E2A2B" class="line-thin" />
-      <path d="M 240,75 Q 260,55 280,70 Q 265,85 240,75 Z" fill="#9E2A2B" class="line-thin" />
-      <path d="M 500,60 Q 520,40 540,55 Q 525,70 500,60 Z" fill="#9E2A2B" class="line-thin" />
-      <path d="M 200,60 L 185,40 L 192,40 L 175,20 L 190,20 L 170,0 L 200,-30 L 230,0 L 210,20 L 225,20 L 208,40 L 215,40 Z" class="taiga-dark line-main" />
-    </g>
-
-    <rect width="580" height="730" fill="none" class="line-main" stroke-width="4" />
-  </g>
-</svg>""",
+    'static/images/image1.jpg',
+    'static/images/image2.jpg',
+    'static/images/image3.jpg',
 ]
 
-# ============================ СТРАНИЦА ПОЛИТИКИ КОНФИДЕНЦИАЛЬНОСТИ (общая версия) ============================
+# ============================ СТРАНИЦА ПОЛИТИКИ КОНФИДЕНЦИАЛЬНОСТИ ============================
 PRIVACY_HTML = """
 <!DOCTYPE html>
 <html>
@@ -1309,9 +1085,9 @@ def index():
     status = game.get_status_text()
     messages = game.messages[-50:]
     image_index = session.get('image_index', 0)
-    image_html = IMAGES[image_index]
+    image_url = IMAGES[image_index]
 
-    return render_template_string(HTML_TEMPLATE, status=status, messages=messages, image_html=image_html)
+    return render_template_string(HTML_TEMPLATE, status=status, messages=messages, image_url=image_url)
 
 @app.route('/reset')
 def reset():
@@ -1323,7 +1099,7 @@ def reset():
 def privacy():
     return render_template_string(PRIVACY_HTML)
 
-# ============================ HTML ШАБЛОН (обновлённый футер) ============================
+# ============================ HTML ШАБЛОН ============================
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html>
@@ -1360,7 +1136,7 @@ HTML_TEMPLATE = """
             flex-direction: column;
             gap: 20px;
         }
-        .side-column svg {
+        .side-column img {
             width: 100%;
             height: auto;
             border-radius: 8px;
@@ -1563,7 +1339,7 @@ HTML_TEMPLATE = """
             .container { flex-direction: column; }
             .side-column { order: 2; }
             .main-column { order: 1; }
-            .side-column svg { max-width: 300px; margin: 0 auto; }
+            .side-column img { max-width: 300px; margin: 0 auto; }
         }
     </style>
 </head>
@@ -1702,17 +1478,15 @@ HTML_TEMPLATE = """
                 </form>
                 <p style="font-size:12px; color:#888;">(откроется почтовый клиент)</p>
             </div>
-            <!-- Футер с авторскими правами -->
             <div class="footer">
                 <p>© 2026 «Первопроходец Сибири». Все права защищены.</p>
-                <p>Игра создана по мотивам игры «Оператор биореактора». Все материалы являются вымышленными.</p>
                 <p>При использовании материалов сайта ссылка на источник обязательна.</p>
                 <p><a href="/privacy">Политика конфиденциальности</a> | <a href="#">Пользовательское соглашение</a></p>
             </div>
         </div>
         <div class="side-column">
             <div class="image-container">
-                {{ image_html | safe }}
+                <img src="{{ image_url }}" alt="Иллюстрация Сибири">
             </div>
             <div class="ad-block">
                 <p>Здесь может быть ваша реклама</p>

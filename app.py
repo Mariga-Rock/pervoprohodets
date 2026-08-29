@@ -1,6 +1,6 @@
 import random
 import pickle
-from flask import Flask, request, render_template_string, session, redirect, url_for
+from flask import Flask, request, render_template, session, redirect, url_for
 
 # ============================ ИГРОВАЯ ЛОГИКА ============================
 class Traveler:
@@ -151,6 +151,7 @@ class Game:
             if current_level > s.last_offer_level:
                 self.offer_charter_choice()
 
+    # --------------------- МЕТОДЫ ЛЕЧЕНИЯ И ПРОВЕРОК --------------------
     def heal_scurvy_with_cabbage(self):
         s = self.settlement
         sick = [t for t in s.living_travelers() if t.scurvy]
@@ -211,6 +212,7 @@ class Game:
             self.add_message("❌ Неверный выбор. Попробуй ещё раз.")
             self.check_debt()
 
+    # --------------------- ВЫБОР ПРИ 5 ГРАМОТАХ ------------------------
     def offer_charter_choice(self):
         s = self.settlement
         self._charter_level = s.charters // 5
@@ -240,6 +242,7 @@ class Game:
             self.add_message("❌ Неверный ввод. Попробуй ещё раз.")
             self.offer_charter_choice()
 
+    # --------------------- ОСНОВНЫЕ МЕТОДЫ ИГРЫ (CMD_*) -----------------
     def synergy_multiplier(self, count):
         if count <= 0: return 0
         if count == 1: return 1.0
@@ -337,6 +340,7 @@ class Game:
             return True
         return False
 
+    # ----- КОМАНДЫ -----
     def cmd_help(self, args):
         self.add_message(self.get_help_text())
 
@@ -544,6 +548,7 @@ class Game:
         random_factor = random.uniform(0.8, 1.2)
         fur_gained = int(base_fur * land_bonus * animal_bonus * penalty * random_factor)
         if fur_gained < 0: fur_gained = 0
+        # Встреча с разбойниками
         bandit_chance = 0.2 if not s.palisade else 0.1
         if random.random() < bandit_chance:
             self.add_message("\n🏴 ВНИМАНИЕ! На ваш отряд напали разбойники!")
@@ -931,144 +936,8 @@ class EventManager:
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-change-in-production'
 
-# ---------- ЛОКАЛЬНЫЕ JPG-ИЗОБРАЖЕНИЯ (папка static/images) ----------
-IMAGES = [
-    'static/images/image1.jpg',
-    'static/images/image2.jpg',
-    'static/images/image3.jpg',
-]
-
-# ============================ СТРАНИЦА ПОЛИТИКИ КОНФИДЕНЦИАЛЬНОСТИ ============================
-PRIVACY_HTML = """
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Политика конфиденциальности — Первопроходец Сибири</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            font-family: 'Courier New', monospace;
-            background: #2e2e2e;
-            color: #e0e0e0;
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            max-width: 900px;
-            margin: auto;
-            background: #3c3c3c;
-            padding: 30px;
-            border-radius: 10px;
-            line-height: 1.6;
-        }
-        h1, h2, h3 {
-            color: #8ab;
-        }
-        h1 {
-            text-align: center;
-            border-bottom: 1px solid #555;
-            padding-bottom: 15px;
-        }
-        a {
-            color: #8ab;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-        .back-link {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 8px 16px;
-            background: #4a5a6a;
-            border-radius: 5px;
-            color: #fff;
-        }
-        .back-link:hover {
-            background: #5a7a9a;
-            text-decoration: none;
-        }
-        hr {
-            border: 0;
-            height: 1px;
-            background: #555;
-            margin: 25px 0;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Политика в отношении обработки персональных данных</h1>
-        <p><strong>Дата опубликования:</strong> 28.08.2025</p>
-        <hr>
-
-        <p>Эта Политика конфиденциальности («Политика») описывает, как Администрация сайта игры «Первопроходец Сибири» (далее – «Оператор») обрабатывает и защищает персональные данные пользователей и посетителей сайта. Мы уважаем ваше право на конфиденциальность и стремимся обеспечить надежную защиту ваших данных.</p>
-
-        <h2>Кто мы?</h2>
-        <p>Мы – команда разработчиков игры «Первопроходец Сибири». Мы являемся оператором персональных данных и принимаем все необходимые меры для их безопасности в соответствии с законодательством Российской Федерации.</p>
-
-        <h2>О чем эта Политика?</h2>
-        <p>В Политике мы объясняем, какие данные мы собираем, как мы их используем, храним и защищаем, а также какие права у вас есть как у субъекта персональных данных.</p>
-
-        <h2>Что такое персональные данные?</h2>
-        <p>Персональные данные — это любая информация, которая позволяет идентифицировать конкретное физическое лицо (например, имя, адрес электронной почты, IP-адрес, данные cookie). Мы обрабатываем только те данные, которые вы добровольно предоставляете при использовании нашего сайта и игры.</p>
-
-        <h2>Какие персональные данные мы собираем?</h2>
-        <p>Мы можем собирать следующую информацию:</p>
-        <ul>
-            <li>IP-адрес, сведения о браузере и устройстве;</li>
-            <li>данные cookie (файлы, сохраняемые в вашем браузере для обеспечения работы сайта);</li>
-            <li>информацию о действиях на сайте (посещенные страницы, время пребывания, источники перехода);</li>
-            <li>любую информацию, которую вы добровольно сообщаете нам через формы обратной связи.</li>
-        </ul>
-
-        <h2>Чьи данные мы обрабатываем?</h2>
-        <p>Мы обрабатываем персональные данные всех пользователей и посетителей нашего сайта и игры.</p>
-
-        <h2>Какие права есть у вас?</h2>
-        <ul>
-            <li><strong>Право на доступ.</strong> Вы можете запросить копию ваших данных.</li>
-            <li><strong>Право на исправление.</strong> Вы можете попросить нас исправить неточные или неполные данные.</li>
-            <li><strong>Право на удаление («забвение»).</strong> Вы можете запросить удаление ваших данных.</li>
-            <li><strong>Право на отзыв согласия.</strong> Вы можете в любой момент отозвать согласие на обработку данных.</li>
-            <li><strong>Право на отключение cookie.</strong> Вы можете управлять файлами cookie в настройках браузера.</li>
-            <li><strong>Право на обжалование.</strong> Вы можете обратиться в уполномоченный орган (Роскомнадзор) для защиты своих прав.</li>
-        </ul>
-
-        <h2>Какие средства веб-аналитики мы используем?</h2>
-        <p>Мы используем Яндекс.Метрику и Google Analytics для сбора обезличенной статистики о посещениях сайта. Эти сервисы могут получать технические данные (IP-адрес, тип устройства, файлы cookie, сведения о просмотренных страницах). Все данные используются только в агрегированном виде для улучшения работы сайта и игры.</p>
-
-        <h2>Как мы обрабатываем данные?</h2>
-        <p>Мы обрабатываем персональные данные автоматизированным и неавтоматизированным способами. Действия включают: сбор, запись, систематизацию, накопление, хранение, уточнение, извлечение, использование, передачу (в пределах, предусмотренных законом), обезличивание, блокирование, удаление и уничтожение данных.</p>
-
-        <h2>Как мы обеспечиваем безопасность данных?</h2>
-        <p>Мы используем организационные и технические меры для защиты персональных данных от несанкционированного доступа, утраты или разглашения. Доступ к данным имеют только авторизованные сотрудники, и мы регулярно обновляем наши системы безопасности.</p>
-
-        <h2>Кому передаем данные?</h2>
-        <p>Мы не передаем ваши персональные данные третьим лицам, за исключением случаев, когда это прямо требуется законом. Мы можем передавать обезличенную статистику партнёрам (например, сервисам аналитики) для улучшения качества услуг.</p>
-
-        <h2>Где хранятся ваши данные?</h2>
-        <p>Все персональные данные хранятся на серверах, расположенных на территории Российской Федерации.</p>
-
-        <h2>Как мы актуализируем Политику?</h2>
-        <p>Мы можем изменять или дополнять Политику без предварительного уведомления. Новая версия публикуется на этой странице с указанием даты вступления в силу. Продолжая использовать сайт, вы принимаете условия новой редакции.</p>
-
-        <h2>Как с нами связаться?</h2>
-        <p>По любым вопросам, связанным с обработкой персональных данных, вы можете обратиться к нам по адресу электронной почты: <a href="mailto:support@game.example">support@game.example</a>. Мы ответим вам в течение 10 рабочих дней.</p>
-
-        <hr>
-        <a href="/" class="back-link">← Вернуться в игру</a>
-    </div>
-</body>
-</html>
-"""
-
-# ============================ FLASK РОУТЫ ============================
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    if 'image_index' not in session:
-        session['image_index'] = 0
-
     if 'game_state' not in session:
         game = Game()
         session['game_state'] = pickle.dumps(game)
@@ -1079,463 +948,17 @@ def index():
         command = request.form.get('command', '').strip().lower()
         if command:
             game.process_command(command)
-            session['image_index'] = (session.get('image_index', 0) + 1) % len(IMAGES)
             session['game_state'] = pickle.dumps(game)
 
     status = game.get_status_text()
     messages = game.messages[-50:]
-    image_index = session.get('image_index', 0)
-    image_url = IMAGES[image_index]
 
-    return render_template_string(HTML_TEMPLATE, status=status, messages=messages, image_url=image_url)
+    return render_template('index.html', status=status, messages=messages)
 
 @app.route('/reset')
 def reset():
     session.pop('game_state', None)
-    session.pop('image_index', None)
     return redirect(url_for('index'))
-
-@app.route('/privacy')
-def privacy():
-    return render_template_string(PRIVACY_HTML)
-
-# ============================ HTML ШАБЛОН ============================
-HTML_TEMPLATE = """
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Первопроходец Сибири</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        * { box-sizing: border-box; }
-        body {
-            font-family: 'Courier New', monospace;
-            background: #2e2e2e;
-            color: #e0e0e0;
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            max-width: 1200px;
-            margin: auto;
-            background: #3c3c3c;
-            padding: 20px;
-            border-radius: 10px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-        .main-column {
-            flex: 2;
-            min-width: 300px;
-        }
-        .side-column {
-            flex: 1;
-            min-width: 200px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        .side-column img {
-            width: 100%;
-            height: auto;
-            border-radius: 8px;
-            border: 2px solid #5a7a9a;
-            background: #222;
-        }
-        .status {
-            background: #222;
-            padding: 15px;
-            border-radius: 8px;
-            white-space: pre-wrap;
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
-        .messages {
-            background: #1a1a1a;
-            padding: 15px;
-            border-radius: 8px;
-            max-height: 400px;
-            overflow-y: auto;
-        }
-        .msg {
-            border-bottom: 1px solid #444;
-            padding: 3px 0;
-        }
-        .input-form {
-            display: flex;
-            margin-top: 15px;
-            flex-wrap: wrap;
-        }
-        .input-form input {
-            flex: 1;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            background: #555;
-            color: #fff;
-            min-width: 150px;
-        }
-        .input-form button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            background: #5a7a9a;
-            color: #fff;
-            font-size: 16px;
-            margin-left: 10px;
-            cursor: pointer;
-        }
-        .input-form button:hover { background: #6a8aaa; }
-        .help-toggle {
-            background: #4a5a6a;
-            border: none;
-            color: #fff;
-            padding: 8px 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        .help-box {
-            background: #2a2a2a;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 10px;
-            display: none;
-            max-height: 300px;
-            overflow-y: auto;
-            font-size: 14px;
-        }
-        .help-box ul {
-            list-style: none;
-            padding-left: 0;
-        }
-        .help-box li {
-            padding: 4px 0;
-            border-bottom: 1px solid #444;
-        }
-        .help-box .cmd {
-            color: #8ab;
-            font-weight: bold;
-        }
-        .help-box .desc {
-            color: #ccc;
-        }
-        .commands-panel {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            margin-top: 10px;
-        }
-        .commands-panel button {
-            background: #4a5a6a;
-            border: none;
-            color: #fff;
-            padding: 6px 12px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 13px;
-        }
-        .commands-panel button:hover { background: #5a7a9a; }
-        .ad-block {
-            background: #2a2a2a;
-            padding: 10px;
-            border-radius: 8px;
-            text-align: center;
-            font-size: 12px;
-            color: #888;
-            border: 1px dashed #555;
-        }
-        .feedback-toggle {
-            background: #4a5a6a;
-            border: none;
-            color: #fff;
-            padding: 8px 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        .feedback-box {
-            margin-top: 10px;
-            padding: 15px;
-            background: #2a2a2a;
-            border-radius: 8px;
-            display: none;
-        }
-        .feedback-box textarea {
-            width: 100%;
-            padding: 8px;
-            border: none;
-            border-radius: 5px;
-            background: #444;
-            color: #fff;
-            resize: vertical;
-        }
-        .feedback-box button {
-            margin-top: 8px;
-            background: #5a7a9a;
-            border: none;
-            color: #fff;
-            padding: 8px 16px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .feedback-box a {
-            color: #8ab;
-        }
-        .faq-toggle {
-            background: #4a5a6a;
-            border: none;
-            color: #fff;
-            padding: 8px 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        .faq-box {
-            margin-top: 10px;
-            padding: 15px;
-            background: #2a2a2a;
-            border-radius: 8px;
-            display: none;
-        }
-        .faq-box h3 {
-            margin-top: 0;
-        }
-        .faq-item {
-            margin-bottom: 12px;
-        }
-        .faq-item .q {
-            font-weight: bold;
-            color: #8ab;
-        }
-        .faq-item .a {
-            color: #ccc;
-            margin-top: 4px;
-        }
-        .separator {
-            border: 0;
-            height: 1px;
-            background: #555;
-            margin: 15px 0;
-        }
-        .footer {
-            margin-top: 20px;
-            padding: 15px 0 5px 0;
-            border-top: 1px solid #555;
-            font-size: 13px;
-            color: #999;
-            text-align: center;
-        }
-        .footer a {
-            color: #8ab;
-            text-decoration: none;
-        }
-        .footer a:hover {
-            text-decoration: underline;
-        }
-        @media (max-width: 768px) {
-            .container { flex-direction: column; }
-            .side-column { order: 2; }
-            .main-column { order: 1; }
-            .side-column img { max-width: 300px; margin: 0 auto; }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="main-column">
-            <h1>Первопроходец Сибири</h1>
-            <div class="status">{{ status }}</div>
-            <div class="messages">
-                {% for msg in messages %}
-                    <div class="msg">{{ msg }}</div>
-                {% endfor %}
-            </div>
-            <form method="POST" class="input-form">
-                <input type="text" name="command" id="commandInput" placeholder="Введите команду..." autofocus>
-                <button type="submit">Отправить</button>
-            </form>
-            <div class="commands-panel">
-                <button onclick="insertCommand('отправить ');">🚀 отправить</button>
-                <button onclick="insertCommand('продать пушнину ');">💰 продать пушнину</button>
-                <button onclick="insertCommand('послать пушнину в царскую казну ');">👑 послать пушнину в царскую казну</button>
-                <button onclick="insertCommand('купить экипировку ');">🛠️ купить экипировку</button>
-                <button onclick="insertCommand('купить собаку ');">🐕 купить собаку</button>
-                <button onclick="insertCommand('купить лошадь ');">🐎 купить лошадь</button>
-                <button onclick="insertCommand('купить капусту ');">🥬 купить капусту</button>
-                <button onclick="insertCommand('построить храм');" style="display:inline-flex; align-items:center; gap:6px;">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="20" height="20" style="flex-shrink:0;">
-                        <g opacity="0.05"><circle cx="50" cy="50" r="45" fill="#ffd700"/></g>
-                        <g fill="#b2d8d8" stroke="#9bc2c2" stroke-width="0.5" stroke-linejoin="round">
-                            <path d="M 20 80 Q 20 68, 25 68 Q 30 68, 30 80 Q 30 68, 35 68 Q 40 68, 40 80 Q 40 68, 45 68 Q 50 68, 50 80 Q 50 68, 55 68 Q 60 68, 60 80 Q 60 68, 65 68 Q 70 68, 70 80 Q 70 68, 75 68 Q 80 68, 80 80 Z"/>
-                            <rect x="42" y="38" width="16" height="25"/>
-                            <rect x="23" y="48" width="14" height="15"/>
-                            <rect x="63" y="48" width="14" height="15"/>
-                        </g>
-                        <g fill="#9bc2c2">
-                            <path d="M 47 48 A 3 3 0 0 1 53 48 V 56 H 47 Z"/>
-                            <path d="M 27 55 A 2 2 0 0 1 31 55 V 60 H 27 Z"/>
-                            <path d="M 69 55 A 2 2 0 0 1 73 55 V 60 H 69 Z"/>
-                        </g>
-                        <g fill="#ffcc00" stroke="#e6b800" stroke-width="0.5">
-                            <path d="M 50 20 C 53 28, 61 30, 58 38 C 55 40, 45 40, 42 38 C 39 30, 47 28, 50 20 Z"/>
-                            <path d="M 30 34 C 32 40, 39 41, 37 48 C 35 49, 25 49, 23 48 C 21 41, 28 40, 30 34 Z"/>
-                            <path d="M 70 34 C 72 40, 79 41, 77 48 C 75 49, 65 49, 63 48 C 21 41, 68 40, 70 34 Z"/>
-                        </g>
-                        <g stroke="#ffcc00" stroke-width="1.5" stroke-linecap="round">
-                            <line x1="50" y1="11" x2="50" y2="20"/>
-                            <line x1="47" y1="14" x2="53" y2="14"/>
-                            <line x1="48" y1="17" x2="52" y2="17"/>
-                            <line x1="30" y1="27" x2="30" y2="34"/>
-                            <line x1="28" y1="29" x2="32" y2="29"/>
-                            <line x1="70" y1="27" x2="70" y2="34"/>
-                            <line x1="68" y1="29" x2="72" y2="29"/>
-                        </g>
-                    </svg>
-                    построить храм
-                </button>
-                <button onclick="insertCommand('построить частокол');">🪵 построить частокол</button>
-                <button onclick="insertCommand('подкупить разбойников ');">🤝 подкупить разбойников</button>
-                <button onclick="insertCommand('отправить семье ');">📨 отправить семье</button>
-                <button onclick="insertCommand('основать город ');">🏙️ основать город</button>
-                <button onclick="insertCommand('пожертвовать науке ');">🔬 пожертвовать науке</button>
-                <button onclick="insertCommand('пожертвовать сирым ');">❤️ пожертвовать сирым</button>
-                <button onclick="insertCommand('статус');">📊 статус</button>
-                <button onclick="insertCommand('следующий сезон');">➡️ следующий сезон</button>
-                <button onclick="insertCommand('пропустить год');">⏩ пропустить год</button>
-                <button onclick="insertCommand('помощь');">❓ помощь</button>
-            </div>
-            <button class="help-toggle" onclick="toggleHelp()">📖 Показать справку</button>
-            <div class="help-box" id="helpBox">
-                <h3>Список команд</h3>
-                <ul>
-                    <li><span class="cmd">отправить &lt;кол-во&gt; &lt;регион&gt;</span> <span class="desc">– экспедиция (только летом). Регион: 'новый' или номер.</span></li>
-                    <li><span class="cmd">продать пушнину &lt;кол-во&gt;</span> <span class="desc">– продать пушнину (только осенью).</span></li>
-                    <li><span class="cmd">послать пушнину в царскую казну &lt;кол-во&gt;</span> <span class="desc">– за это государь пожалует тебе грамоту (100 = 1).</span></li>
-                    <li><span class="cmd">купить экипировку &lt;кол-во&gt;</span> <span class="desc">– купить экипировку (5 руб/ед).</span></li>
-                    <li><span class="cmd">купить собаку [кол-во]</span> <span class="desc">– купить собак (50 руб/шт).</span></li>
-                    <li><span class="cmd">купить лошадь [кол-во]</span> <span class="desc">– купить лошадей (50 руб/шт).</span></li>
-                    <li><span class="cmd">купить квашеную капусту &lt;кол-во&gt;</span> <span class="desc">– только осенью (10 руб/ед). Излечивает от цинги и спасает от зимнего голода.</span></li>
-                    <li><span class="cmd">построить храм</span> <span class="desc">– полезно для прекращения пьянства и разгула (500 руб).</span></li>
-                    <li><span class="cmd">построить частокол</span> <span class="desc">– спасает от разбойников (100 руб).</span></li>
-                    <li><span class="cmd">подкупить разбойников &lt;сумма&gt;</span> <span class="desc">– откупиться от разбойников на сезон.</span></li>
-                    <li><span class="cmd">отправить семье &lt;сумма&gt;</span> <span class="desc">– отправить деньги семье.</span></li>
-                    <li><span class="cmd">основать город &lt;название&gt;</span> <span class="desc">– основать город (требуется 5+5*число городов грамот).</span></li>
-                    <li><span class="cmd">пожертвовать науке &lt;сумма&gt;</span> <span class="desc">– пожертвовать на науку (≥200 руб) – статус мецената.</span></li>
-                    <li><span class="cmd">пожертвовать сирым &lt;сумма&gt;</span> <span class="desc">– пожертвовать на помощь сирым (≥150 руб) – статус благотворителя.</span></li>
-                    <li><span class="cmd">статус</span> <span class="desc">– показать состояние.</span></li>
-                    <li><span class="cmd">следующий сезон</span> <span class="desc">– перейти к следующему сезону.</span></li>
-                    <li><span class="cmd">пропустить год</span> <span class="desc">– пропустить год (50 руб + 2 капусты).</span></li>
-                    <li><span class="cmd">помощь</span> <span class="desc">– показать эту справку.</span></li>
-                    <li><span class="cmd">выход</span> <span class="desc">– выйти.</span></li>
-                </ul>
-                <h3>Сезоны года</h3>
-                <ul>
-                    <li><span class="cmd">🌸 Весна</span> – время подготовки к новому сезону. Можно закупать экипировку и животных.</li>
-                    <li><span class="cmd">☀️ Лето</span> – основное время для экспедиций. Отправляй путешественников в новые земли или в уже открытые регионы. С приходом лета все больные цингой излечиваются!</li>
-                    <li><span class="cmd">🍂 Осень</span> – завершение охоты, подсчёт добычи. Только осенью можно продавать пушнину купцам и покупать квашеную капусту. Возможны набеги разбойников.</li>
-                    <li><span class="cmd">❄️ Зима</span> – дальние походы невозможны. Тратится экипировка и пушнина на отопление и пропитание. Если запасы на исходе – люди гибнут, но только если нет достаточно квашеной капусты (1 капуста на каждого путешественника). Капуста спасает от голода!</li>
-                </ul>
-                <p><span class="cmd">⚠️ Пьянство и разгул</span> наступают каждый раз, когда количество денег превышает 2000 рублей (или 3000, если построен храм).</p>
-            </div>
-            <hr class="separator">
-            <button class="faq-toggle" onclick="toggleFAQ()">ЧаВо</button>
-            <div class="faq-box" id="faqBox">
-                <h3>Часто задаваемые вопросы</h3>
-                <div class="faq-item">
-                    <div class="q">Как сохранить прогресс?</div>
-                    <div class="a">В веб-версии игра автоматически сохраняется в вашем браузере (сессия). При закрытии вкладки вы можете продолжить с того же места, просто открыв страницу заново. Если хотите начать заново, нажмите кнопку «Сбросить игру» внизу страницы.</div>
-                </div>
-                <div class="faq-item">
-                    <div class="q">Есть ли уровни или финальная цель?</div>
-                    <div class="a">Игра не имеет линейных уровней – это открытый симулятор с двумя основными целями: получить 5 грамот (чтобы основать город) или накопить 100 грамот (для великой победы). Вы сами выбираете темп и стратегию.</div>
-                </div>
-                <div class="faq-item">
-                    <div class="q">Можно ли играть на мобильном телефоне?</div>
-                    <div class="a">Да, интерфейс адаптирован под экраны любых размеров. Все кнопки и поля ввода удобны даже на смартфонах.</div>
-                </div>
-                <div class="faq-item">
-                    <div class="q">Что делать, если я не знаю команд?</div>
-                    <div class="a">Просто введите «помощь» – игра покажет полный список доступных команд с кратким описанием. Также есть кнопки с иконками для быстрого ввода основных действий.</div>
-                </div>
-                <div class="faq-item">
-                    <div class="q">Как узнать текущее состояние?</div>
-                    <div class="a">Команда «статус» выводит подробную сводку: ресурсы, количество путешественников, грамоты, построенные города и даже настроение в поселении.</div>
-                </div>
-                <div class="faq-item">
-                    <div class="q">Сложно ли научиться играть?</div>
-                    <div class="a">Нет! Несмотря на глубину стратегии, первые ходы просты и понятны. Постепенно вы раскроете все механики – игра мягко учит вас через собственные ошибки и случайные события.</div>
-                </div>
-            </div>
-            <button class="feedback-toggle" onclick="toggleFeedback()">Обратная связь</button>
-            <div class="feedback-box" id="feedbackBox">
-                <h4>Напишите автору игры:</h4>
-                <form action="mailto:author@example.com" method="post" enctype="text/plain">
-                    <textarea name="body" rows="3" placeholder="Ваше сообщение..."></textarea>
-                    <button type="submit">Отправить по почте</button>
-                </form>
-                <p style="font-size:12px; color:#888;">(откроется почтовый клиент)</p>
-            </div>
-            <div class="footer">
-                <p>© 2026 «Первопроходец Сибири». Все права защищены.</p>
-                <p>При использовании материалов сайта ссылка на источник обязательна.</p>
-                <p><a href="/privacy">Политика конфиденциальности</a> | <a href="#">Пользовательское соглашение</a></p>
-            </div>
-        </div>
-        <div class="side-column">
-            <div class="image-container">
-                <img src="{{ image_url }}" alt="Иллюстрация Сибири">
-            </div>
-            <div class="ad-block">
-                <p>Здесь может быть ваша реклама</p>
-            </div>
-        </div>
-    </div>
-    <script>
-        function insertCommand(cmd) {
-            var input = document.getElementById('commandInput');
-            input.value = cmd;
-            input.focus();
-        }
-        function toggleHelp() {
-            var box = document.getElementById('helpBox');
-            var btn = document.querySelector('.help-toggle');
-            if (box.style.display === 'block') {
-                box.style.display = 'none';
-                btn.textContent = '📖 Показать справку';
-            } else {
-                box.style.display = 'block';
-                btn.textContent = '📕 Скрыть справку';
-            }
-        }
-        function toggleFeedback() {
-            var box = document.getElementById('feedbackBox');
-            var btn = document.querySelector('.feedback-toggle');
-            if (box.style.display === 'block') {
-                box.style.display = 'none';
-                btn.textContent = 'Обратная связь';
-            } else {
-                box.style.display = 'block';
-                btn.textContent = 'Закрыть форму';
-            }
-        }
-        function toggleFAQ() {
-            var box = document.getElementById('faqBox');
-            var btn = document.querySelector('.faq-toggle');
-            if (box.style.display === 'block') {
-                box.style.display = 'none';
-                btn.textContent = 'ЧаВо';
-            } else {
-                box.style.display = 'block';
-                btn.textContent = 'Скрыть ЧаВо';
-            }
-        }
-    </script>
-</body>
-</html>
-"""
 
 if __name__ == '__main__':
     app.run(debug=True)

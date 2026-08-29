@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Первопроходец Сибири</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Courier New', monospace;
+            background: #2e2e2e;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            background: #3c3c3c;
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .main-column {
+            flex: 2;
+            min-width: 300px;
+        }
+        .side-column {
+            flex: 1;
+            min-width: 200px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .side-column img {
+            width: 100%;
+            border-radius: 8px;
+            border: 2px solid #5a7a9a;
+            background: #222;
+        }
+        .status {
+            background: #222;
+            padding: 15px;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .messages {
+            background: #1a1a1a;
+            padding: 15px;
+            border-radius: 8px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .msg {
+            border-bottom: 1px solid #444;
+            padding: 3px 0;
+        }
+        .input-form {
+            display: flex;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        .input-form input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            background: #555;
+            color: #fff;
+            min-width: 150px;
+        }
+        .input-form button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background: #5a7a9a;
+            color: #fff;
+            font-size: 16px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+        .input-form button:hover { background: #6a8aaa; }
+        .help-toggle {
+            background: #4a5a6a;
+            border: none;
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .help-box {
+            background: #2a2a2a;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            display: none;
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: 14px;
+        }
+        .help-box ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .help-box li {
+            padding: 4px 0;
+            border-bottom: 1px solid #444;
+        }
+        .help-box .cmd {
+            color: #8ab;
+            font-weight: bold;
+        }
+        .help-box .desc {
+            color: #ccc;
+        }
+        .commands-panel {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 10px;
+        }
+        .commands-panel button {
+            background: #4a5a6a;
+            border: none;
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .commands-panel button:hover { background: #5a7a9a; }
+        .feedback-toggle {
+            background: #4a5a6a;
+            border: none;
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .feedback-box {
+            margin-top: 10px;
+            padding: 15px;
+            background: #2a2a2a;
+            border-radius: 8px;
+            display: none;
+        }
+        .feedback-box textarea {
+            width: 100%;
+            padding: 8px;
+            border: none;
+            border-radius: 5px;
+            background: #444;
+            color: #fff;
+            resize: vertical;
+        }
+        .feedback-box button {
+            margin-top: 8px;
+            background: #5a7a9a;
+            border: none;
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .feedback-box a {
+            color: #8ab;
+        }
+        .separator {
+            border: 0;
+            height: 1px;
+            background: #555;
+            margin: 15px 0;
+        }
+        @media (max-width: 768px) {
+            .container { flex-direction: column; }
+            .side-column { order: 2; }
+            .main-column { order: 1; }
+            .side-column img { max-width: 300px; margin: 0 auto; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="main-column">
+            <h1>Первопроходец Сибири</h1>
+            <div class="status">{{ status }}</div>
+            <div class="messages">
+                {% for msg in messages %}
+                    <div class="msg">{{ msg }}</div>
+                {% endfor %}
+            </div>
+            <form method="POST" class="input-form">
+                <input type="text" name="command" id="commandInput" placeholder="Введите команду..." autofocus>
+                <button type="submit">Отправить</button>
+            </form>
+            <div class="commands-panel">
+                <button onclick="insertCommand('отправить ');">🚀 отправить</button>
+                <button onclick="insertCommand('продать пушнину ');">💰 продать пушнину</button>
+                <button onclick="insertCommand('послать пушнину в царскую казну ');">👑 послать пушнину в царскую казну</button>
+                <button onclick="insertCommand('купить экипировку ');">🛠️ купить экипировку</button>
+                <button onclick="insertCommand('купить собаку ');">🐕 купить собаку</button>
+                <button onclick="insertCommand('купить лошадь ');">🐎 купить лошадь</button>
+                <button onclick="insertCommand('купить капусту ');">🥬 купить капусту</button>
+                <button onclick="insertCommand('построить храм');" style="display:inline-flex; align-items:center; gap:6px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="20" height="20" style="flex-shrink:0;">
+                        <g opacity="0.05">
+                            <circle cx="50" cy="50" r="45" fill="#ffd700"/>
+                        </g>
+                        <g fill="#b2d8d8" stroke="#9bc2c2" stroke-width="0.5" stroke-linejoin="round">
+                            <path d="M 20 80 Q 20 68, 25 68 Q 30 68, 30 80 Q 30 68, 35 68 Q 40 68, 40 80 Q 40 68, 45 68 Q 50 68, 50 80 Q 50 68, 55 68 Q 60 68, 60 80 Q 60 68, 65 68 Q 70 68, 70 80 Q 70 68, 75 68 Q 80 68, 80 80 Z"/>
+                            <rect x="42" y="38" width="16" height="25"/>
+                            <rect x="23" y="48" width="14" height="15"/>
+                            <rect x="63" y="48" width="14" height="15"/>
+                        </g>
+                        <g fill="#9bc2c2">
+                            <path d="M 47 48 A 3 3 0 0 1 53 48 V 56 H 47 Z"/>
+                            <path d="M 27 55 A 2 2 0 0 1 31 55 V 60 H 27 Z"/>
+                            <path d="M 69 55 A 2 2 0 0 1 73 55 V 60 H 69 Z"/>
+                        </g>
+                        <g fill="#ffcc00" stroke="#e6b800" stroke-width="0.5">
+                            <path d="M 50 20 C 53 28, 61 30, 58 38 C 55 40, 45 40, 42 38 C 39 30, 47 28, 50 20 Z"/>
+                            <path d="M 30 34 C 32 40, 39 41, 37 48 C 35 49, 25 49, 23 48 C 21 41, 28 40, 30 34 Z"/>
+                            <path d="M 70 34 C 72 40, 79 41, 77 48 C 75 49, 65 49, 63 48 C 21 41, 68 40, 70 34 Z"/>
+                        </g>
+                        <g stroke="#ffcc00" stroke-width="1.5" stroke-linecap="round">
+                            <line x1="50" y1="11" x2="50" y2="20"/>
+                            <line x1="47" y1="14" x2="53" y2="14"/>
+                            <line x1="48" y1="17" x2="52" y2="17"/>
+                            <line x1="30" y1="27" x2="30" y2="34"/>
+                            <line x1="28" y1="29" x2="32" y2="29"/>
+                            <line x1="70" y1="27" x2="70" y2="34"/>
+                            <line x1="68" y1="29" x2="72" y2="29"/>
+                        </g>
+                    </svg>
+                    построить храм
+                </button>
+                <button onclick="insertCommand('построить частокол');">🪵 построить частокол</button>
+                <button onclick="insertCommand('подкупить разбойников ');">🤝 подкупить разбойников</button>
+                <button onclick="insertCommand('отправить семье ');">📨 отправить семье</button>
+                <button onclick="insertCommand('основать город ');">🏙️ основать город</button>
+                <button onclick="insertCommand('пожертвовать науке ');">🔬 пожертвовать науке</button>
+                <button onclick="insertCommand('пожертвовать сирым ');">❤️ пожертвовать сирым</button>
+                <button onclick="insertCommand('статус');">📊 статус</button>
+                <button onclick="insertCommand('следующий сезон');">➡️ следующий сезон</button>
+                <button onclick="insertCommand('пропустить год');">⏩ пропустить год</button>
+                <button onclick="insertCommand('помощь');">❓ помощь</button>
+            </div>
+            <button class="help-toggle" onclick="toggleHelp()">📖 Показать справку</button>
+            <div class="help-box" id="helpBox">
+                <h3>Список команд</h3>
+                <ul>
+                    <li><span class="cmd">отправить &lt;кол-во&gt; &lt;регион&gt;</span> <span class="desc">– экспедиция (только летом). Регион: 'новый' или номер.</span></li>
+                    <li><span class="cmd">продать пушнину &lt;кол-во&gt;</span> <span class="desc">– продать пушнину (только осенью).</span></li>
+                    <li><span class="cmd">послать пушнину в царскую казну &lt;кол-во&gt;</span> <span class="desc">– за это государь пожалует тебе грамоту (100 = 1).</span></li>
+                    <li><span class="cmd">купить экипировку &lt;кол-во&gt;</span> <span class="desc">– купить экипировку (5 руб/ед).</span></li>
+                    <li><span class="cmd">купить собаку [кол-во]</span> <span class="desc">– купить собак (50 руб/шт).</span></li>
+                    <li><span class="cmd">купить лошадь [кол-во]</span> <span class="desc">– купить лошадей (50 руб/шт).</span></li>
+                    <li><span class="cmd">купить квашеную капусту &lt;кол-во&gt;</span> <span class="desc">– только осенью (10 руб/ед). Излечивает от цинги и спасает от зимнего голода.</span></li>
+                    <li><span class="cmd">построить храм</span> <span class="desc">– полезно для прекращения пьянства и разгула (500 руб).</span></li>
+                    <li><span class="cmd">построить частокол</span> <span class="desc">– спасает от разбойников (100 руб).</span></li>
+                    <li><span class="cmd">подкупить разбойников &lt;сумма&gt;</span> <span class="desc">– откупиться от разбойников на сезон.</span></li>
+                    <li><span class="cmd">отправить семье &lt;сумма&gt;</span> <span class="desc">– отправить деньги семье.</span></li>
+                    <li><span class="cmd">основать город &lt;название&gt;</span> <span class="desc">– основать город (требуется 5+5*число городов грамот).</span></li>
+                    <li><span class="cmd">пожертвовать науке &lt;сумма&gt;</span> <span class="desc">– пожертвовать на науку (≥200 руб) – статус мецената.</span></li>
+                    <li><span class="cmd">пожертвовать сирым &lt;сумма&gt;</span> <span class="desc">– пожертвовать на помощь сирым (≥150 руб) – статус благотворителя.</span></li>
+                    <li><span class="cmd">статус</span> <span class="desc">– показать состояние.</span></li>
+                    <li><span class="cmd">следующий сезон</span> <span class="desc">– перейти к следующему сезону.</span></li>
+                    <li><span class="cmd">пропустить год</span> <span class="desc">– пропустить год (50 руб + 2 капусты).</span></li>
+                    <li><span class="cmd">помощь</span> <span class="desc">– показать эту справку.</span></li>
+                    <li><span class="cmd">выход</span> <span class="desc">– выйти.</span></li>
+                </ul>
+                <h3>Сезоны года</h3>
+                <ul>
+                    <li><span class="cmd">🌸 Весна</span> – время подготовки к новому сезону. Можно закупать экипировку и животных.</li>
+                    <li><span class="cmd">☀️ Лето</span> – основное время для экспедиций. Отправляй путешественников в новые земли или в уже открытые регионы. С приходом лета все больные цингой излечиваются!</li>
+                    <li><span class="cmd">🍂 Осень</span> – завершение охоты, подсчёт добычи. Только осенью можно продавать пушнину купцам и покупать квашеную капусту. Возможны набеги разбойников.</li>
+                    <li><span class="cmd">❄️ Зима</span> – дальние походы невозможны. Тратится экипировка и пушнина на отопление и пропитание. Если запасы на исходе – люди гибнут, но только если нет достаточно квашеной капусты (1 капуста на каждого путешественника). Капуста спасает от голода!</li>
+                </ul>
+                <p><span class="cmd">⚠️ Пьянство и разгул</span> наступают каждый раз, когда количество денег превышает 2000 рублей (или 3000, если построен храм).</p>
+            </div>
+            <hr class="separator">
+            <button class="feedback-toggle" onclick="toggleFeedback()">📬 Обратная связь</button>
+            <div class="feedback-box" id="feedbackBox">
+                <h4>Напишите автору игры:</h4>
+                <form action="mailto:author@example.com" method="post" enctype="text/plain">
+                    <textarea name="body" rows="3" placeholder="Ваше сообщение..."></textarea>
+                    <button type="submit">Отправить по почте</button>
+                </form>
+                <p style="font-size:12px; color:#888;">(откроется почтовый клиент)</p>
+            </div>
+        </div>
+        <div class="side-column">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Bilibin_Sadko_2.jpg/800px-Bilibin_Sadko_2.jpg" alt="Иллюстрация Ивана Билибина к сказке Садко" onerror="this.src='https://via.placeholder.com/400x600?text=Билибинский+стиль'">
+        </div>
+    </div>
+    <script>
+        function insertCommand(cmd) {
+            var input = document.getElementById('commandInput');
+            input.value = cmd;
+            input.focus();
+        }
+        function toggleHelp() {
+            var box = document.getElementById('helpBox');
+            var btn = document.querySelector('.help-toggle');
+            if (box.style.display === 'block') {
+                box.style.display = 'none';
+                btn.textContent = '📖 Показать справку';
+            } else {
+                box.style.display = 'block';
+                btn.textContent = '📕 Скрыть справку';
+            }
+        }
+        function toggleFeedback() {
+            var box = document.getElementById('feedbackBox');
+            var btn = document.querySelector('.feedback-toggle');
+            if (box.style.display === 'block') {
+                box.style.display = 'none';
+                btn.textContent = '📬 Обратная связь';
+            } else {
+                box.style.display = 'block';
+                btn.textContent = '📬 Закрыть форму';
+            }
+        }
+    </script>
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+        (function(m,e,t,r,i,k,a){
+            m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+            m[i].l=1*new Date();
+            for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+            k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=112059090', 'ym');
+
+        ym(112059090, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/112059090" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    <!-- /Yandex.Metrika counter -->
+</body>
+</html>

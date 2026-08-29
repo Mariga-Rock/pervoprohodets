@@ -1,5 +1,6 @@
 import random
 import pickle
+import os
 from flask import Flask, request, render_template, session, redirect, url_for
 
 # ============================ ИГРОВАЯ ЛОГИКА ============================
@@ -934,7 +935,15 @@ class EventManager:
 
 # ============================ FLASK ПРИЛОЖЕНИЕ ============================
 app = Flask(__name__)
-app.secret_key = 'your-secret-key-change-in-production'
+
+# Чтение секретного ключа из переменной окружения.
+# В продакшене ОБЯЗАТЕЛЬНО задайте переменную SECRET_KEY надёжной случайной строкой.
+# Если ключ не задан, используется значение по умолчанию (только для разработки).
+app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-please-change-in-production')
+
+# Для дополнительной безопасности можно вывести предупреждение, если ключ не переопределён.
+if app.secret_key == 'dev-secret-key-please-change-in-production':
+    print("⚠️ ВНИМАНИЕ: используется секретный ключ по умолчанию! Задайте переменную окружения SECRET_KEY для продакшена.")
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -961,4 +970,6 @@ def reset():
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Режим отладки включается только если переменная FLASK_DEBUG равна '1' или 'true'
+    debug_mode = os.environ.get('FLASK_DEBUG', '0').lower() in ('1', 'true')
+    app.run(debug=debug_mode)

@@ -84,7 +84,7 @@
             cursor: pointer;
         }
         .input-form button:hover { background: #6a8aaa; }
-        .help-toggle {
+        .help-toggle, .faq-toggle, .feedback-toggle {
             background: #4a5a6a;
             border: none;
             color: #fff;
@@ -93,7 +93,7 @@
             cursor: pointer;
             margin-top: 10px;
         }
-        .help-box {
+        .help-box, .faq-box, .feedback-box {
             background: #2a2a2a;
             padding: 15px;
             border-radius: 8px;
@@ -103,20 +103,31 @@
             overflow-y: auto;
             font-size: 14px;
         }
-        .help-box ul {
+        .help-box ul, .faq-box ul {
             list-style: none;
             padding-left: 0;
         }
-        .help-box li {
+        .help-box li, .faq-box li {
             padding: 4px 0;
             border-bottom: 1px solid #444;
         }
-        .help-box .cmd {
+        .help-box .cmd, .faq-box .q {
             color: #8ab;
             font-weight: bold;
         }
-        .help-box .desc {
+        .help-box .desc, .faq-box .a {
             color: #ccc;
+        }
+        .faq-item {
+            margin-bottom: 12px;
+        }
+        .faq-item .q {
+            font-weight: bold;
+            color: #8ab;
+        }
+        .faq-item .a {
+            color: #ccc;
+            margin-top: 4px;
         }
         .commands-panel {
             display: flex;
@@ -134,22 +145,6 @@
             font-size: 13px;
         }
         .commands-panel button:hover { background: #5a7a9a; }
-        .feedback-toggle {
-            background: #4a5a6a;
-            border: none;
-            color: #fff;
-            padding: 8px 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        .feedback-box {
-            margin-top: 10px;
-            padding: 15px;
-            background: #2a2a2a;
-            border-radius: 8px;
-            display: none;
-        }
         .feedback-box textarea {
             width: 100%;
             padding: 8px;
@@ -176,6 +171,21 @@
             height: 1px;
             background: #555;
             margin: 15px 0;
+        }
+        .footer {
+            margin-top: 20px;
+            padding: 15px 0 5px 0;
+            border-top: 1px solid #555;
+            font-size: 13px;
+            color: #999;
+            text-align: center;
+        }
+        .footer a {
+            color: #8ab;
+            text-decoration: none;
+        }
+        .footer a:hover {
+            text-decoration: underline;
         }
         @media (max-width: 768px) {
             .container { flex-direction: column; }
@@ -209,9 +219,7 @@
                 <button onclick="insertCommand('купить капусту ');">🥬 купить капусту</button>
                 <button onclick="insertCommand('построить храм');" style="display:inline-flex; align-items:center; gap:6px;">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="20" height="20" style="flex-shrink:0;">
-                        <g opacity="0.05">
-                            <circle cx="50" cy="50" r="45" fill="#ffd700"/>
-                        </g>
+                        <g opacity="0.05"><circle cx="50" cy="50" r="45" fill="#ffd700"/></g>
                         <g fill="#b2d8d8" stroke="#9bc2c2" stroke-width="0.5" stroke-linejoin="round">
                             <path d="M 20 80 Q 20 68, 25 68 Q 30 68, 30 80 Q 30 68, 35 68 Q 40 68, 40 80 Q 40 68, 45 68 Q 50 68, 50 80 Q 50 68, 55 68 Q 60 68, 60 80 Q 60 68, 65 68 Q 70 68, 70 80 Q 70 68, 75 68 Q 80 68, 80 80 Z"/>
                             <rect x="42" y="38" width="16" height="25"/>
@@ -251,6 +259,7 @@
                 <button onclick="insertCommand('пропустить год');">⏩ пропустить год</button>
                 <button onclick="insertCommand('помощь');">❓ помощь</button>
             </div>
+
             <button class="help-toggle" onclick="toggleHelp()">📖 Показать справку</button>
             <div class="help-box" id="helpBox">
                 <h3>Список команд</h3>
@@ -284,7 +293,38 @@
                 </ul>
                 <p><span class="cmd">⚠️ Пьянство и разгул</span> наступают каждый раз, когда количество денег превышает 2000 рублей (или 3000, если построен храм).</p>
             </div>
+
             <hr class="separator">
+
+            <button class="faq-toggle" onclick="toggleFAQ()">❓ ЧаВо</button>
+            <div class="faq-box" id="faqBox">
+                <h3>Часто задаваемые вопросы</h3>
+                <div class="faq-item">
+                    <div class="q">Как сохранить прогресс?</div>
+                    <div class="a">В веб-версии игра автоматически сохраняется в вашем браузере (сессия). При закрытии вкладки вы можете продолжить с того же места, просто открыв страницу заново. Если хотите начать заново, нажмите кнопку «Сбросить игру» внизу страницы.</div>
+                </div>
+                <div class="faq-item">
+                    <div class="q">Есть ли уровни или финальная цель?</div>
+                    <div class="a">Игра не имеет линейных уровней – это открытый симулятор с двумя основными целями: получить 5 грамот (чтобы основать город) или накопить 100 грамот (для великой победы). Вы сами выбираете темп и стратегию.</div>
+                </div>
+                <div class="faq-item">
+                    <div class="q">Можно ли играть на мобильном телефоне?</div>
+                    <div class="a">Да, интерфейс адаптирован под экраны любых размеров. Все кнопки и поля ввода удобны даже на смартфонах.</div>
+                </div>
+                <div class="faq-item">
+                    <div class="q">Что делать, если я не знаю команд?</div>
+                    <div class="a">Просто введите «помощь» – игра покажет полный список доступных команд с кратким описанием. Также есть кнопки с иконками для быстрого ввода основных действий.</div>
+                </div>
+                <div class="faq-item">
+                    <div class="q">Как узнать текущее состояние?</div>
+                    <div class="a">Команда «статус» выводит подробную сводку: ресурсы, количество путешественников, грамоты, построенные города и даже настроение в поселении.</div>
+                </div>
+                <div class="faq-item">
+                    <div class="q">Сложно ли научиться играть?</div>
+                    <div class="a">Нет! Несмотря на глубину стратегии, первые ходы просты и понятны. Постепенно вы раскроете все механики – игра мягко учит вас через собственные ошибки и случайные события.</div>
+                </div>
+            </div>
+
             <button class="feedback-toggle" onclick="toggleFeedback()">📬 Обратная связь</button>
             <div class="feedback-box" id="feedbackBox">
                 <h4>Напишите автору игры:</h4>
@@ -294,9 +334,16 @@
                 </form>
                 <p style="font-size:12px; color:#888;">(откроется почтовый клиент)</p>
             </div>
+
+            <div class="footer">
+                <p>© 2026 «Первопроходец Сибири». Все права защищены.</p>
+                <p>Игра создана по мотивам игры «Оператор биореактора». Все материалы являются вымышленными.</p>
+                <p>При использовании материалов сайта ссылка на источник обязательна.</p>
+                <p><a href="/privacy">Политика конфиденциальности</a> | <a href="#">Пользовательское соглашение</a></p>
+            </div>
         </div>
         <div class="side-column">
-            <img src="{{ url_for('static', filename='images/image' ~ image_index ~ '.jpg') }}" alt="Иллюстрация">
+            <img src="{{ url_for('static', filename='images/image' ~ image_index ~ '.jpg') }}" alt="Иллюстрация Сибири">
         </div>
     </div>
     <script>
@@ -327,7 +374,19 @@
                 btn.textContent = '📬 Закрыть форму';
             }
         }
+        function toggleFAQ() {
+            var box = document.getElementById('faqBox');
+            var btn = document.querySelector('.faq-toggle');
+            if (box.style.display === 'block') {
+                box.style.display = 'none';
+                btn.textContent = '❓ ЧаВо';
+            } else {
+                box.style.display = 'block';
+                btn.textContent = '❓ Скрыть ЧаВо';
+            }
+        }
     </script>
+
     <!-- Yandex.Metrika counter -->
     <script type="text/javascript">
         (function(m,e,t,r,i,k,a){

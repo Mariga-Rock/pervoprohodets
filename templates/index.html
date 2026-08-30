@@ -296,7 +296,7 @@
             </div>
         </div>
         <div class="side-column">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Bilibin_Sadko_2.jpg/800px-Bilibin_Sadko_2.jpg" alt="Иллюстрация Ивана Билибина к сказке Садко" onerror="this.src='https://via.placeholder.com/400x600?text=Билибинский+стиль'">
+            <img src="{{ url_for('static', filename='images/image' ~ image_index ~ '.jpg') }}" alt="Иллюстрация">
         </div>
     </div>
     <script>

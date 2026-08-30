@@ -1,6 +1,5 @@
 import random
 import pickle
-import os
 from flask import Flask, request, render_template, session, redirect, url_for
 
 # ============================ ИГРОВАЯ ЛОГИКА ============================
@@ -78,6 +77,8 @@ class Game:
         self._bandit_count = 0
         self._bandit_living = []
         self._bandit_fur_gained = 0
+        # Индекс текущей картинки (1, 2, 3)
+        self.current_image_index = random.randint(1, 3)
 
     def add_message(self, text):
         self.messages.append(text)
@@ -94,10 +95,12 @@ class Game:
             self.awaiting_input = False
             if self.input_callback:
                 self.input_callback(cmd)
+            self.advance_image()
             return self.messages
 
         if not cmd:
             self.add_message("Введите команду.")
+            self.advance_image()
             return self.messages
 
         parts = cmd.strip().split()
@@ -141,7 +144,12 @@ class Game:
             self.add_message("Неизвестная команда. Введите 'помощь'.")
 
         self.after_action()
+        self.advance_image()
         return self.messages
+
+    def advance_image(self):
+        """Переключение на следующую картинку (циклически 1->2->3->1)."""
+        self.current_image_index = (self.current_image_index % 3) + 1
 
     def after_action(self):
         self.check_debt()
@@ -935,15 +943,7 @@ class EventManager:
 
 # ============================ FLASK ПРИЛОЖЕНИЕ ============================
 app = Flask(__name__)
-
-# Чтение секретного ключа из переменной окружения.
-# В продакшене ОБЯЗАТЕЛЬНО задайте переменную SECRET_KEY надёжной случайной строкой.
-# Если ключ не задан, используется значение по умолчанию (только для разработки).
-app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-please-change-in-production')
-
-# Для дополнительной безопасности можно вывести предупреждение, если ключ не переопределён.
-if app.secret_key == 'dev-secret-key-please-change-in-production':
-    print("⚠️ ВНИМАНИЕ: используется секретный ключ по умолчанию! Задайте переменную окружения SECRET_KEY для продакшена.")
+app.secret_key = 'your-secret-key-change-in-production'
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -961,8 +961,9 @@ def index():
 
     status = game.get_status_text()
     messages = game.messages[-50:]
+    image_index = game.current_image_index  # 1, 2 или 3
 
-    return render_template('index.html', status=status, messages=messages)
+    return render_template('index.html', status=status, messages=messages, image_index=image_index)
 
 @app.route('/reset')
 def reset():
@@ -970,6 +971,4 @@ def reset():
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    # Режим отладки включается только если переменная FLASK_DEBUG равна '1' или 'true'
-    debug_mode = os.environ.get('FLASK_DEBUG', '0').lower() in ('1', 'true')
-    app.run(debug=debug_mode)
+    app.run(debug=True)

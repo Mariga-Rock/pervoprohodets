@@ -187,7 +187,6 @@
         .footer a:hover {
             text-decoration: underline;
         }
-        /* Новые блоки */
         .city-block, .achievements-block, .title-block, .leaderboard-block, .social-share {
             background: #2a2a2a;
             padding: 15px;
@@ -262,15 +261,15 @@
                 <button type="submit">Отправить</button>
             </form>
             <div class="commands-panel">
-                <button onclick="insertCommand('отправить');">🚀 отправить</button>
-                <button onclick="insertCommand('отправить новый');">🗺️ Исследовать новую территорию</button>
-                <button onclick="insertCommand('продать пушнину ');">💰 продать пушнину</button>
-                <button onclick="insertCommand('послать пушнину в царскую казну ');">👑 послать пушнину в царскую казну</button>
-                <button onclick="insertCommand('купить экипировку ');">🛠️ купить экипировку</button>
-                <button onclick="insertCommand('купить собаку ');">🐕 купить собаку</button>
-                <button onclick="insertCommand('купить лошадь ');">🐎 купить лошадь</button>
-                <button onclick="insertCommand('купить капусту ');">🥬 купить капусту</button>
-                <button onclick="insertCommand('построить храм');" style="display:inline-flex; align-items:center; gap:6px;">
+                <button onclick="insertCommand('Отправиться за пушниной');">🦊 Отправиться за пушниной</button>
+                <button onclick="insertCommand('Отправиться за пушниной новый');">🗺️ Исследовать новую территорию</button>
+                <button onclick="insertCommand('Продать пушнину ');">💰 Продать пушнину</button>
+                <button onclick="insertCommand('Послать пушнину в царскую казну ');">👑 Послать пушнину в царскую казну</button>
+                <button onclick="insertCommand('Купить экипировку ');">🛠️ Купить экипировку</button>
+                <button onclick="insertCommand('Купить собаку ');">🐕 Купить собаку</button>
+                <button onclick="insertCommand('Купить лошадь ');">🐎 Купить лошадь</button>
+                <button onclick="insertCommand('Купить капусту ');">🥬 Купить капусту</button>
+                <button onclick="insertCommand('Построить храм');" style="display:inline-flex; align-items:center; gap:6px;">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="20" height="20" style="flex-shrink:0;">
                         <g opacity="0.05"><circle cx="50" cy="50" r="45" fill="#ffd700"/></g>
                         <g fill="#b2d8d8" stroke="#9bc2c2" stroke-width="0.5" stroke-linejoin="round">
@@ -299,51 +298,51 @@
                             <line x1="68" y1="29" x2="72" y2="29"/>
                         </g>
                     </svg>
-                    построить храм
+                    Построить храм
                 </button>
-                <button onclick="insertCommand('построить частокол');">🪵 построить частокол</button>
-                <button onclick="insertCommand('построить кузницу');">⚒️ построить кузницу</button>
-                <button onclick="insertCommand('подкупить разбойников ');">🤝 подкупить разбойников</button>
-                <button onclick="insertCommand('отправить семье ');">📨 отправить семье</button>
-                <button onclick="insertCommand('основать город ');">🏙️ основать город</button>
-                <button onclick="insertCommand('пожертвовать науке ');">🔬 пожертвовать науке</button>
-                <button onclick="insertCommand('пожертвовать сирым ');">❤️ пожертвовать сирым</button>
-                <button onclick="insertCommand('статус');">📊 статус</button>
-                <button onclick="insertCommand('следующий сезон');">➡️ следующий сезон</button>
-                <button onclick="insertCommand('пропустить год');">⏩ пропустить год</button>
-                <button onclick="insertCommand('города');">🏙️ города</button>
-                <button onclick="insertCommand('лидеры');">🏆 лидеры</button>
-                <button onclick="insertCommand('помощь');">❓ помощь</button>
+                <button onclick="insertCommand('Построить частокол');">🪵 Построить частокол</button>
+                <button onclick="insertCommand('Построить кузницу');">⚒️ Построить кузницу</button>
+                <button onclick="insertCommand('Подкупить разбойников ');">🤝 Подкупить разбойников</button>
+                <button onclick="insertCommand('Послать деньги семье ');">📨 Послать деньги семье</button>
+                <button onclick="insertCommand('Основать город ');">🏙️ Основать город</button>
+                <button onclick="insertCommand('Спонсировать научные исследования ');">🔬 Спонсировать научные исследования</button>
+                <button onclick="insertCommand('Пожертвовать сирым ');">❤️ Пожертвовать сирым</button>
+                <button onclick="insertCommand('Показать статус');">📊 Показать статус</button>
+                <button onclick="insertCommand('Следующий сезон');">➡️ Следующий сезон</button>
+                <button onclick="insertCommand('Переждать до следующей весны');">⏩ Переждать до следующей весны</button>
+                <button onclick="insertCommand('Города');">🏙️ Города</button>
+                <button onclick="insertCommand('Лидеры');">🏆 Лидеры</button>
+                <button onclick="insertCommand('Помощь');">❓ Помощь</button>
             </div>
 
             <button class="help-toggle" onclick="toggleHelp()">📖 Показать справку</button>
             <div class="help-box" id="helpBox">
                 <h3>Список команд</h3>
                 <ul>
-                    <li><span class="cmd">отправить</span> <span class="desc">– отправить всех здоровых на первую территорию (летом).</span></li>
-                    <li><span class="cmd">отправить новый</span> <span class="desc">– исследовать новую территорию (все здоровые).</span></li>
-                    <li><span class="cmd">отправить &lt;кол-во&gt; &lt;регион&gt;</span> <span class="desc">– отправить указанное количество на существующую территорию.</span></li>
-                    <li><span class="cmd">продать пушнину &lt;кол-во&gt;</span> <span class="desc">– продать пушнину (только осенью). Цена зависит от запасов.</span></li>
-                    <li><span class="cmd">послать пушнину в царскую казну &lt;кол-во&gt;</span> <span class="desc">– 100 пушнины = 1 грамота.</span></li>
-                    <li><span class="cmd">купить экипировку &lt;кол-во&gt;</span> <span class="desc">– купить экипировку (цена зависит от кузницы).</span></li>
-                    <li><span class="cmd">купить собаку [кол-во]</span> <span class="desc">– купить собак (50 руб/шт).</span></li>
-                    <li><span class="cmd">купить лошадь [кол-во]</span> <span class="desc">– купить лошадей (50 руб/шт).</span></li>
-                    <li><span class="cmd">купить квашеную капусту &lt;кол-во&gt;</span> <span class="desc">– только осенью (10 руб/ед).</span></li>
-                    <li><span class="cmd">построить храм</span> <span class="desc">– построить храм в текущем городе (500 руб).</span></li>
-                    <li><span class="cmd">построить частокол</span> <span class="desc">– защита от разбойников (100 руб).</span></li>
-                    <li><span class="cmd">построить кузницу</span> <span class="desc">– если есть железная руда в городе (200 руб).</span></li>
-                    <li><span class="cmd">подкупить разбойников &lt;сумма&gt;</span> <span class="desc">– снизить активность.</span></li>
-                    <li><span class="cmd">отправить семье &lt;сумма&gt;</span> <span class="desc">– отправить деньги.</span></li>
-                    <li><span class="cmd">основать город &lt;название&gt;</span> <span class="desc">– требуется 5+5*число_городов грамот.</span></li>
-                    <li><span class="cmd">пожертвовать науке &lt;сумма&gt;</span> <span class="desc">– стать меценатом (≥200 руб).</span></li>
-                    <li><span class="cmd">пожертвовать сирым &lt;сумма&gt;</span> <span class="desc">– стать благотворителем (≥150 руб).</span></li>
-                    <li><span class="cmd">статус</span> <span class="desc">– показать состояние.</span></li>
-                    <li><span class="cmd">следующий сезон</span> <span class="desc">– перейти к следующему сезону.</span></li>
-                    <li><span class="cmd">пропустить год</span> <span class="desc">– пропустить год (50 руб + 2 капусты).</span></li>
-                    <li><span class="cmd">города</span> <span class="desc">– показать информацию о городах.</span></li>
-                    <li><span class="cmd">лидеры</span> <span class="desc">– таблица лидеров.</span></li>
-                    <li><span class="cmd">помощь</span> <span class="desc">– показать эту справку.</span></li>
-                    <li><span class="cmd">выход</span> <span class="desc">– выйти.</span></li>
+                    <li><span class="cmd">Отправиться за пушниной</span> <span class="desc">– отправить всех здоровых на первую территорию (летом).</span></li>
+                    <li><span class="cmd">Отправиться за пушниной новый</span> <span class="desc">– исследовать новую территорию (все здоровые).</span></li>
+                    <li><span class="cmd">Отправиться за пушниной &lt;кол-во&gt; &lt;регион&gt;</span> <span class="desc">– отправить указанное количество на существующую территорию.</span></li>
+                    <li><span class="cmd">Продать пушнину &lt;кол-во&gt;</span> <span class="desc">– продать пушнину (только осенью). Цена зависит от запасов.</span></li>
+                    <li><span class="cmd">Послать пушнину в царскую казну &lt;кол-во&gt;</span> <span class="desc">– 100 пушнины = 1 грамота.</span></li>
+                    <li><span class="cmd">Купить экипировку &lt;кол-во&gt;</span> <span class="desc">– купить экипировку (цена зависит от кузницы).</span></li>
+                    <li><span class="cmd">Купить собаку [кол-во]</span> <span class="desc">– купить собак (50 руб/шт).</span></li>
+                    <li><span class="cmd">Купить лошадь [кол-во]</span> <span class="desc">– купить лошадей (50 руб/шт).</span></li>
+                    <li><span class="cmd">Купить квашеную капусту &lt;кол-во&gt;</span> <span class="desc">– только осенью (10 руб/ед).</span></li>
+                    <li><span class="cmd">Построить храм</span> <span class="desc">– построить храм в текущем городе (500 руб).</span></li>
+                    <li><span class="cmd">Построить частокол</span> <span class="desc">– защита от разбойников (100 руб).</span></li>
+                    <li><span class="cmd">Построить кузницу</span> <span class="desc">– если есть железная руда в городе (200 руб).</span></li>
+                    <li><span class="cmd">Подкупить разбойников &lt;сумма&gt;</span> <span class="desc">– снизить активность.</span></li>
+                    <li><span class="cmd">Послать деньги семье &lt;сумма&gt;</span> <span class="desc">– отправить деньги семье.</span></li>
+                    <li><span class="cmd">Основать город &lt;название&gt;</span> <span class="desc">– требуется 5+5*число_городов грамот.</span></li>
+                    <li><span class="cmd">Спонсировать научные исследования &lt;сумма&gt;</span> <span class="desc">– стать меценатом (≥200 руб).</span></li>
+                    <li><span class="cmd">Пожертвовать сирым &lt;сумма&gt;</span> <span class="desc">– стать благотворителем (≥150 руб).</span></li>
+                    <li><span class="cmd">Показать статус</span> <span class="desc">– показать состояние.</span></li>
+                    <li><span class="cmd">Следующий сезон</span> <span class="desc">– перейти к следующему сезону.</span></li>
+                    <li><span class="cmd">Переждать до следующей весны</span> <span class="desc">– пропустить год (50 руб + 2 капусты).</span></li>
+                    <li><span class="cmd">Города</span> <span class="desc">– показать информацию о городах.</span></li>
+                    <li><span class="cmd">Лидеры</span> <span class="desc">– таблица лидеров.</span></li>
+                    <li><span class="cmd">Помощь</span> <span class="desc">– показать эту справку.</span></li>
+                    <li><span class="cmd">Выход</span> <span class="desc">– выйти.</span></li>
                 </ul>
                 <h3>Сезоны года</h3>
                 <ul>
@@ -384,61 +383,86 @@
 
             <hr class="separator">
 
-            <!-- НОВЫЕ БЛОКИ -->
+            <!-- Блок титула – показываем только если есть -->
+            {% if noble_title %}
             <div class="title-block">
                 <h3>👑 Титул</h3>
-                {% if noble_title %}
-                    <p style="font-size:1.2em; color:#f0d080;">{{ noble_title }}</p>
-                {% else %}
-                    <p>Пока нет</p>
-                {% endif %}
+                <p style="font-size:1.2em; color:#f0d080;">{{ noble_title }}</p>
             </div>
+            {% endif %}
 
+            <!-- Блок городов – показываем только если есть города -->
+            {% if cities %}
             <div class="city-block">
                 <h3>🏙️ Города</h3>
-                {% if cities %}
-                    {% for city in cities %}
-                        <div class="city-card">
-                            <div class="city-name">{{ city.name }}</div>
-                            <div class="city-details">
-                                <span>🏞️ {{ city.river }}</span>
-                                <span>👨‍👩‍👧‍👦 {{ city.population }}</span>
-                                {% if city.has_church %}<span>⛪ храм</span>{% endif %}
-                                {% if city.has_hospital %}<span>🏥 лечебница</span>{% endif %}
-                                {% if city.has_blacksmith %}<span>⚒️ кузница</span>{% endif %}
-                                {% if city.has_iron_mine %}<span>⛏️ руда</span>{% endif %}
-                                {% if city.has_silver_mine %}<span>🥈 серебро</span>{% endif %}
-                                {% if city.is_frontier %}<span>🇨🇳 застава (чай)</span>{% endif %}
-                            </div>
+                {% for city in cities %}
+                    <div class="city-card">
+                        <div class="city-name">{{ city.name }}</div>
+                        <div class="city-details">
+                            <span>🏞️ {{ city.river }}</span>
+                            <span>👨‍👩‍👧‍👦 {{ city.population }}</span>
+                            {% if city.has_church %}<span>⛪ храм</span>{% endif %}
+                            {% if city.has_hospital %}<span>🏥 лечебница</span>{% endif %}
+                            {% if city.has_blacksmith %}<span>⚒️ кузница</span>{% endif %}
+                            {% if city.has_iron_mine %}<span>⛏️ руда</span>{% endif %}
+                            {% if city.has_silver_mine %}<span>🥈 серебро</span>{% endif %}
+                            {% if city.is_frontier %}<span>🇨🇳 застава (чай)</span>{% endif %}
                         </div>
-                    {% endfor %}
-                {% else %}
-                    <p>Городов пока нет.</p>
-                {% endif %}
+                    </div>
+                {% endfor %}
             </div>
+            {% endif %}
 
+            <!-- Блок достижений – показываем всегда, но для невыполненных показываем описание вместо крестика -->
             <div class="achievements-block">
                 <h3>🏆 Достижения</h3>
                 <ul>
-                    <li>Основать первый город: {% if 'first_city' in achievements %}✅{% else %}❌{% endif %}</li>
-                    <li>Добыть 1000 пушнины: {% if 'fur_1000' in achievements %}✅{% else %}❌{% endif %}</li>
-                    <li>Найти 5 артефактов: {% if 'artifacts_5' in achievements %}✅{% else %}❌{% endif %}</li>
-                    <li>Вылечить всех больных: {% if 'cure_all' in achievements %}✅{% else %}❌{% endif %}</li>
+                    <li>
+                        Основать первый город:
+                        {% if 'first_city' in achievements %}
+                            ✅
+                        {% else %}
+                            <span style="color:#aaa;">(даёт бонус к обороне)</span>
+                        {% endif %}
+                    </li>
+                    <li>
+                        Добыть 1000 пушнины:
+                        {% if 'fur_1000' in achievements %}
+                            ✅
+                        {% else %}
+                            <span style="color:#aaa;">(открывает доступ к царскому двору)</span>
+                        {% endif %}
+                    </li>
+                    <li>
+                        Найти 5 артефактов:
+                        {% if 'artifacts_5' in achievements %}
+                            ✅
+                        {% else %}
+                            <span style="color:#aaa;">(+5% к добыче)</span>
+                        {% endif %}
+                    </li>
+                    <li>
+                        Вылечить всех больных:
+                        {% if 'cure_all' in achievements %}
+                            ✅
+                        {% else %}
+                            <span style="color:#aaa;">(повышение морали)</span>
+                        {% endif %}
+                    </li>
                 </ul>
             </div>
 
+            <!-- Блок лидеров – показываем только если есть записи -->
+            {% if leaderboard %}
             <div class="leaderboard-block">
                 <h3>🏆 Таблица лидеров</h3>
-                {% if leaderboard %}
-                    <ul>
-                        {% for entry in leaderboard[:10] %}
-                            <li>{{ loop.index }}. {{ entry.name }} — грамот: {{ entry.charters }}, городов: {{ entry.cities }}</li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <p>Пока никого нет. Стань первым!</p>
-                {% endif %}
+                <ul>
+                    {% for entry in leaderboard[:10] %}
+                        <li>{{ loop.index }}. {{ entry.name }} — грамот: {{ entry.charters }}, городов: {{ entry.cities }}</li>
+                    {% endfor %}
+                </ul>
             </div>
+            {% endif %}
 
             <hr class="separator">
             <button class="feedback-toggle" onclick="toggleFeedback()">📬 Обратная связь</button>

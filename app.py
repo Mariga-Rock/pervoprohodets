@@ -4,26 +4,33 @@ import json
 from flask import Flask, request, render_template, session, redirect, url_for
 
 # =================================================================
-# КЛАССЫ ДЛЯ НОВЫХ СУЩНОСТЕЙ
+# КЛАССЫ
 # =================================================================
 
 class Traveler:
-    """Расширенный класс путешественника с чертами"""
     def __init__(self, name):
         self.name = name
         self.hunting = random.randint(3, 7)
         self.endurance = random.randint(3, 7)
         self.alive = True
         self.scurvy = False
-        # Новые черты (вероятность 10% для каждой)
         self.is_doctor = random.random() < 0.1
         self.is_scientist = random.random() < 0.1
-        # Для учёта травм
-        self.injured_until_season = -1  # -1 = здоров
-        self.injured_with = None        # кто ухаживает
+        self.injured_until_season = -1
+        self.injured_with = None
+
+    def ensure_attributes(self):
+        if not hasattr(self, 'is_doctor'):
+            self.is_doctor = random.random() < 0.1
+        if not hasattr(self, 'is_scientist'):
+            self.is_scientist = random.random() < 0.1
+        if not hasattr(self, 'injured_until_season'):
+            self.injured_until_season = -1
+        if not hasattr(self, 'injured_with'):
+            self.injured_with = None
+
 
 class City:
-    """Класс для представления города / поселения"""
     def __init__(self, name, river=None):
         self.name = name
         self.river = river or random.choice(["Обь", "Енисей", "Лена", "Иртыш", "Амур"])
@@ -33,11 +40,11 @@ class City:
         self.has_blacksmith = False
         self.has_iron_mine = False
         self.has_silver_mine = False
-        self.is_frontier = False  # пограничная застава (Китай)
-        self.trade_bonus = 0      # чайная торговля
+        self.is_frontier = False
+        self.trade_bonus = 0
+
 
 class Achievement:
-    """Система долгосрочных целей"""
     GOALS = [
         {"id": "first_city", "name": "Основать первый город", "reward": "бонус к обороне"},
         {"id": "fur_1000", "name": "Добыть 1000 пушнины", "reward": "доступ к царскому двору"},
@@ -50,10 +57,9 @@ class Achievement:
 
     def check_and_reward(self, game):
         s = game.settlement
-        # Проверка условий
         if not self.is_completed("first_city") and len(s.cities) >= 1:
             self.complete("first_city", game, "🏙️ Ты основал первый город! Отныне разбойники будут реже нападать.")
-            s.bandit_modifier = 0.5  # снижаем шанс нападений
+            s.bandit_modifier = 0.5
         if not self.is_completed("fur_1000") and s.total_fur_sent_to_tsar >= 1000:
             self.complete("fur_1000", game, "👑 Ты отправил 1000 пушнины в казну! Царь приглашает тебя в свой двор.")
             game.court_access = True
@@ -72,10 +78,6 @@ class Achievement:
         game.add_message(message)
         game.add_message("🏆 Достижение разблокировано!")
 
-
-# =================================================================
-# ОСНОВНЫЕ КЛАССЫ
-# =================================================================
 
 class Settlement:
     def __init__(self):
@@ -96,14 +98,13 @@ class Settlement:
         self.total_fur_sent_to_tsar = 0
         self.penalty_next_season = 0
         self.turn = 0
-        self.city_names = []   # для обратной совместимости
+        self.city_names = []
         self.last_offer_level = 0
         self.patron_of_science = False
         self.benefactor = False
-
-        # НОВЫЕ ПОЛЯ
-        self.cities = []          # список объектов City
-        self.iron_deposits = []   # названия городов с рудой
+        # Новые поля
+        self.cities = []
+        self.iron_deposits = []
         self.silver_deposits = []
         self.has_ancient_maps = False
         self.map_bonus = 0
@@ -114,19 +115,15 @@ class Settlement:
         self.bandit_modifier = 1.0
         self.court_access = False
         self.noble_title = None
-        self.injured_travelers = []  # список кортежей (имя, сезонов_осталось, сопровождающий)
+        self.injured_travelers = []
         self.tutorial_step = 0
         self.difficulty_modifier = 1.0
-        self.leaderboard = []     # (имя, грамоты, города)
+        self.leaderboard = []
 
     def total_animals(self):
         return self.dogs + self.horses
 
-    def max_travelers(self):
-        return len(self.travelers)
-
     def living_travelers(self):
-        """Возвращает здоровых и не травмированных путешественников"""
         result = []
         for t in self.travelers:
             if t.alive and t.injured_until_season == -1:
@@ -134,7 +131,6 @@ class Settlement:
         return result
 
     def all_alive(self):
-        """Все живые (включая травмированных)"""
         return [t for t in self.travelers if t.alive]
 
     def count_scurvy(self):
@@ -153,6 +149,40 @@ class Settlement:
             self.travelers.append(new_t)
             return True
         return False
+
+    def ensure_attributes(self):
+        if not hasattr(self, 'cities'):
+            self.cities = []
+        if not hasattr(self, 'iron_deposits'):
+            self.iron_deposits = []
+        if not hasattr(self, 'silver_deposits'):
+            self.silver_deposits = []
+        if not hasattr(self, 'has_ancient_maps'):
+            self.has_ancient_maps = False
+        if not hasattr(self, 'map_bonus'):
+            self.map_bonus = 0
+        if not hasattr(self, 'maps_created'):
+            self.maps_created = 0
+        if not hasattr(self, 'artifacts_found'):
+            self.artifacts_found = 0
+        if not hasattr(self, 'hunting_bonus_permanent'):
+            self.hunting_bonus_permanent = 1.0
+        if not hasattr(self, 'morale_bonus'):
+            self.morale_bonus = 1.0
+        if not hasattr(self, 'bandit_modifier'):
+            self.bandit_modifier = 1.0
+        if not hasattr(self, 'court_access'):
+            self.court_access = False
+        if not hasattr(self, 'noble_title'):
+            self.noble_title = None
+        if not hasattr(self, 'injured_travelers'):
+            self.injured_travelers = []
+        if not hasattr(self, 'tutorial_step'):
+            self.tutorial_step = 0
+        if not hasattr(self, 'difficulty_modifier'):
+            self.difficulty_modifier = 1.0
+        for t in self.travelers:
+            t.ensure_attributes()
 
 
 class Game:
@@ -193,7 +223,25 @@ class Game:
     def advance_image(self):
         self.current_image_index = (self.current_image_index % 3) + 1
 
-    # ================ ДИНАМИЧЕСКАЯ СЛОЖНОСТЬ ================
+    def ensure_attributes(self):
+        if not hasattr(self, 'total_cases_scurvy'):
+            self.total_cases_scurvy = 0
+        if not hasattr(self, 'hunting_boost'):
+            self.hunting_boost = False
+        if not hasattr(self, 'hunting_boost_multiplier'):
+            self.hunting_boost_multiplier = 1.0
+        if not hasattr(self, 'tutorial_messages_shown'):
+            self.tutorial_messages_shown = set()
+        if not hasattr(self, 'china_discovered'):
+            self.china_discovered = False
+        if not hasattr(self, 'achievements'):
+            self.achievements = Achievement()
+        if not hasattr(self, 'current_image_index'):
+            self.current_image_index = random.randint(1, 3)
+        self.settlement.ensure_attributes()
+
+    # ================ ОСТАЛЬНЫЕ МЕТОДЫ ================
+
     def adjust_difficulty(self):
         s = self.settlement
         if len([t for t in s.travelers if not t.alive]) > 2:
@@ -204,18 +252,17 @@ class Game:
             s.difficulty_modifier = min(1.3, s.difficulty_modifier + 0.05)
         s.difficulty_modifier = max(0.6, min(1.4, s.difficulty_modifier))
 
-    # ================ ПОДСКАЗКИ ================
     def tutorial_advice(self):
         s = self.settlement
         step = s.tutorial_step
         if step == 0 and s.season == 1 and len(s.living_travelers()) == 2:
-            self.add_message("💡 Подсказка: Лето — лучшее время для экспедиций. Попробуй отправить отряд! (команда 'отправить')")
+            self.add_message("💡 Подсказка: Лето — лучшее время для экспедиций. Попробуй отправиться за пушниной! (команда 'Отправиться за пушниной' или 'отправить')")
             s.tutorial_step = 1
         elif step == 1 and s.fur > 0 and s.season == 2:
-            self.add_message("💡 Подсказка: Осенью можно продать пушнину. Введи 'продать пушнину <количество>'.")
+            self.add_message("💡 Подсказка: Осенью можно продать пушнину. Введи 'Продать пушнину <количество>'.")
             s.tutorial_step = 2
         elif step == 2 and s.equipment < 5 and s.money > 20:
-            self.add_message("💡 Подсказка: У тебя мало экипировки. Купи её командой 'купить экипировку <количество>' (5 руб/ед).")
+            self.add_message("💡 Подсказка: У тебя мало экипировки. Купи её командой 'Купить экипировку <количество>' (5 руб/ед).")
             s.tutorial_step = 3
         elif step == 3 and s.season == 3 and s.cabbage == 0:
             self.add_message("💡 Подсказка: Зима близко! Запасись квашеной капустой осенью, чтобы избежать голода.")
@@ -224,7 +271,7 @@ class Game:
             self.add_message("💡 Подсказка: Ты основал город! В нём можно построить храм и лечебницу, если есть врач.")
             self.mark_tutorial_shown("city")
         if s.charters >= 5 and not self.has_shown_tutorial("charter"):
-            self.add_message("💡 Подсказка: У тебя 5 грамот! Теперь можно основать город (команда 'основать город <название>').")
+            self.add_message("💡 Подсказка: У тебя 5 грамот! Теперь можно основать город (команда 'Основать город <название>').")
             self.mark_tutorial_shown("charter")
 
     def has_shown_tutorial(self, key):
@@ -233,7 +280,6 @@ class Game:
     def mark_tutorial_shown(self, key):
         self.tutorial_messages_shown.add(key)
 
-    # ================ ОБРАБОТКА КОМАНД ================
     def process_command(self, cmd):
         self.messages = []
         if self.awaiting_input:
@@ -247,6 +293,18 @@ class Game:
             self.add_message("Введите команду.")
             self.advance_image()
             return self.messages
+
+        # Замена новых команд на синонимы для удобства
+        if cmd.startswith('отправиться за пушниной'):
+            cmd = 'отправить' + cmd[len('отправиться за пушниной'):]
+        if cmd.startswith('спонсировать научные исследования'):
+            cmd = 'пожертвовать науке' + cmd[len('спонсировать научные исследования'):]
+        if cmd.startswith('послать деньги семье'):
+            cmd = 'отправить семье' + cmd[len('послать деньги семье'):]
+        if cmd.startswith('показать статус'):
+            cmd = 'статус' + cmd[len('показать статус'):]
+        if cmd.startswith('переждать до следующей весны'):
+            cmd = 'пропустить год' + cmd[len('переждать до следующей весны'):]
 
         cmd_map = {
             'отправить': self.cmd_expedition,
@@ -297,28 +355,20 @@ class Game:
         self.heal_scurvy_with_cabbage()
         s = self.settlement
 
-        # Доход от чая
         for city in s.cities:
             if city.is_frontier:
                 s.money += city.trade_bonus
 
-        # Проверка достижений
         self.achievements.check_and_reward(self)
-        # Подсказки
         self.tutorial_advice()
-        # Динамическая сложность
         self.adjust_difficulty()
-        # Обработка травм
         self.process_injuries()
-        # Рост населения городов
         for city in s.cities:
             city.population += random.randint(0, 3)
-        # Проверка на 5 грамот (основание города)
         if s.charters >= 5:
             current_level = s.charters // 5
             if current_level > s.last_offer_level:
                 self.offer_charter_choice()
-        # Дворянские звания
         if s.total_fur_sent_to_tsar >= 1000 and s.noble_title is None:
             s.noble_title = 'дворянин'
             self.add_message("👑 Царь жалует тебе дворянское звание за твои заслуги! Ты теперь дворянин.")
@@ -326,7 +376,38 @@ class Game:
             s.noble_title = 'вельможа'
             self.add_message("👑 Великая честь! Ты стал вельможей! Но помни: с большим богатством приходит и большая ответственность.")
 
-    # ================ ЛЕЧЕНИЕ И ДОЛГИ ================
+    def get_status_text(self):
+        s = self.settlement
+        season_names = ["🌸 Весна", "☀️ Лето", "🍂 Осень", "❄️ Зима"]
+        lines = []
+        lines.append(f"Год {s.year}, сезон: {season_names[s.season]}")
+        lines.append(f"Путешественников: {len(s.living_travelers())} (всего {len(s.all_alive())})")
+        if s.count_scurvy() > 0:
+            lines.append(f"   (Цинга: {s.count_scurvy()} больных)")
+        lines.append(f"Пушнина: {s.fur} | Экипировка: {s.equipment} | Деньги: {s.money} руб.")
+        lines.append(f"Собаки/лошади: {s.dogs}/{s.horses} (всего {s.total_animals()})")
+        lines.append(f"Открытые земли: {s.lands} | Царские грамоты: {s.charters}")
+        if s.cities:
+            lines.append(f"Городов: {len(s.cities)}")
+        if s.has_ancient_maps:
+            lines.append("🗺️ У тебя есть древние карты (+1 к открытию новых земель)")
+        if s.maps_created > 0:
+            lines.append(f"🗺️ Составлено карт: {s.maps_created} (каждые 3 дают грамоту)")
+        if s.noble_title:
+            lines.append(f"👑 Титул: {s.noble_title}")
+        if s.court_access:
+            lines.append("🏛️ Доступ к царскому двору")
+        if s.patron_of_science:
+            lines.append("🔬 Меценат")
+        if s.benefactor:
+            lines.append("❤️ Благотворитель")
+        if s.penalty_next_season > 0:
+            lines.append(f"⚠️ Штраф к добыче: -{s.penalty_next_season}%")
+        if s.season == 2:
+            price_mod = self.get_fur_price_modifier()
+            lines.append(f"💰 Цена пушнины у купцов: {self.merchant_price * price_mod:.1f} руб./ед. (можно продавать)")
+        return "\n".join(lines)
+
     def heal_scurvy_with_cabbage(self):
         s = self.settlement
         sick = [t for t in s.living_travelers() if t.scurvy]
@@ -388,7 +469,6 @@ class Game:
             self.add_message("❌ Неверный выбор. Попробуй ещё раз.")
             self.check_debt()
 
-    # ================ ТРАВМЫ ================
     def process_injuries(self):
         s = self.settlement
         new_injured = []
@@ -410,7 +490,6 @@ class Game:
                 new_injured.append((name, seasons_left, caretaker))
         s.injured_travelers = new_injured
 
-    # ================ ВЫБОР ПРИ 5 ГРАМОТАХ ================
     def offer_charter_choice(self):
         s = self.settlement
         self._charter_level = s.charters // 5
@@ -440,7 +519,6 @@ class Game:
             self.add_message("❌ Неверный ввод. Попробуй ещё раз.")
             self.offer_charter_choice()
 
-    # ================ СИНЕРГИЯ И СЕЗОНЫ ================
     def synergy_multiplier(self, count):
         if count <= 0: return 0
         if count == 1: return 1.0
@@ -522,37 +600,42 @@ class Game:
                 self.add_message("🍺 Пьянство и лень! Путешественники будут добывать меньше пушнины в следующем сезоне.")
                 s.money = threshold
 
-    # ================ ОСНОВНЫЕ КОМАНДЫ ================
+    def get_fur_price_modifier(self):
+        s = self.settlement
+        return max(0.5, 1 - (s.fur / 5000))
+
+    # ================ КОМАНДЫ ================
 
     def cmd_help(self, args):
         self.add_message(self.get_help_text())
 
     def get_help_text(self):
         return """
-Список команд:
-  отправить [кол-во] [регион]          – экспедиция (только летом). По умолчанию – все на первую территорию.
-  отправить новый                       – исследовать новую территорию (все здоровые).
-  продать пушнину <кол-во>             – продать пушнину (только осенью). Цена зависит от запасов.
-  послать пушнину в царскую казну <кол-во> – 100 пушнины = 1 грамота.
-  купить экипировку <кол-во>           – купить экипировку (цена зависит от кузницы).
-  купить собаку [кол-во]               – купить собак (50 руб/шт).
-  купить лошадь [кол-во]               – купить лошадей (50 руб/шт).
-  купить квашеную капусту <кол-во>     – только осенью (10 руб/ед).
-  построить храм                       – построить храм в текущем городе (500 руб).
-  построить частокол                   – защита от разбойников (100 руб).
-  построить кузницу                    – если есть железная руда в городе (200 руб).
-  подкупить разбойников <сумма>        – снизить активность.
-  отправить семье <сумма>              – отправить деньги.
-  основать город <название>            – требуется 5+5*число_городов грамот.
-  пожертвовать науке <сумма>           – стать меценатом (≥200 руб).
-  пожертвовать сирым <сумма>           – стать благотворителем (≥150 руб).
-  статус                               – показать состояние.
-  следующий сезон                      – перейти к следующему сезону.
-  пропустить год                       – пропустить год (50 руб + 2 капусты).
-  города                               – показать информацию о городах.
-  лидеры                               – таблица лидеров.
-  помощь                               – показать эту справку.
-  выход                                – выйти.
+Список команд (вводите с большой буквы или строчными — неважно):
+
+  Отправиться за пушниной [кол-во] [регион] – экспедиция (только летом). По умолчанию – все на первую территорию.
+  Отправиться за пушниной новый           – исследовать новую территорию (все здоровые).
+  Продать пушнину <кол-во>             – продать пушнину (только осенью). Цена зависит от запасов.
+  Послать пушнину в царскую казну <кол-во> – 100 пушнины = 1 грамота.
+  Купить экипировку <кол-во>           – купить экипировку (цена зависит от кузницы).
+  Купить собаку [кол-во]               – купить собак (50 руб/шт).
+  Купить лошадь [кол-во]               – купить лошадей (50 руб/шт).
+  Купить квашеную капусту <кол-во>     – только осенью (10 руб/ед).
+  Построить храм                       – построить храм в текущем городе (500 руб).
+  Построить частокол                   – защита от разбойников (100 руб).
+  Построить кузницу                    – если есть железная руда в городе (200 руб).
+  Подкупить разбойников <сумма>        – снизить активность.
+  Послать деньги семье <сумма>         – отправить деньги семье.
+  Основать город <название>            – требуется 5+5*число_городов грамот.
+  Спонсировать научные исследования <сумма> – стать меценатом (≥200 руб).
+  Пожертвовать сирым <сумма>           – стать благотворителем (≥150 руб).
+  Показать статус                      – показать состояние.
+  Следующий сезон                      – перейти к следующему сезону.
+  Переждать до следующей весны         – пропустить год (50 руб + 2 капусты).
+  Города                               – показать информацию о городах.
+  Лидеры                               – таблица лидеров.
+  Помощь                               – показать эту справку.
+  Выход                                – выйти.
 
 Новые возможности:
   - Учёные составляют карты (каждые 3 карты = 1 грамота).
@@ -568,42 +651,89 @@ class Game:
         self.display_status()
 
     def display_status(self):
-        s = self.settlement
-        season_names = ["🌸 Весна", "☀️ Лето", "🍂 Осень", "❄️ Зима"]
-        self.add_message("\n" + "-"*50)
-        self.add_message(f"Год {s.year}, сезон: {season_names[s.season]}")
-        self.add_message(f"Путешественников: {len(s.living_travelers())} (всего {len(s.all_alive())})")
-        if s.count_scurvy() > 0:
-            self.add_message(f"   (Цинга: {s.count_scurvy()} больных)")
-        self.add_message(f"Пушнина: {s.fur} | Экипировка: {s.equipment} | Деньги: {s.money} руб.")
-        self.add_message(f"Собаки/лошади: {s.dogs}/{s.horses} (всего {s.total_animals()})")
-        self.add_message(f"Открытые земли: {s.lands} | Царские грамоты: {s.charters}")
-        if s.cities:
-            self.add_message(f"Городов: {len(s.cities)}")
-        if s.has_ancient_maps:
-            self.add_message("🗺️ У тебя есть древние карты (+1 к открытию новых земель)")
-        if s.maps_created > 0:
-            self.add_message(f"🗺️ Составлено карт: {s.maps_created} (каждые 3 дают грамоту)")
-        if s.noble_title:
-            self.add_message(f"👑 Титул: {s.noble_title}")
-        if s.court_access:
-            self.add_message("🏛️ Доступ к царскому двору")
-        if s.patron_of_science:
-            self.add_message("🔬 Меценат")
-        if s.benefactor:
-            self.add_message("❤️ Благотворитель")
-        if s.penalty_next_season > 0:
-            self.add_message(f"⚠️ Штраф к добыче: -{s.penalty_next_season}%")
-        if s.season == 2:
-            price_mod = self.get_fur_price_modifier()
-            self.add_message(f"💰 Цена пушнины у купцов: {self.merchant_price * price_mod:.1f} руб./ед. (можно продавать)")
-        self.add_message("-"*50)
+        self.add_message(self.get_status_text())
 
-    def get_fur_price_modifier(self):
-        s = self.settlement
-        return max(0.5, 1 - (s.fur / 5000))
+    def cmd_skip(self, args):
+        self.advance_season()
+        if self.running:
+            self.check_game_over()
 
-    # ================ ЭКСПЕДИЦИЯ ================
+    def cmd_skip_year(self, args):
+        s = self.settlement
+        if s.money < 50:
+            self.add_message("❌ Недостаточно денег для пропуска года (нужно 50 руб.).")
+            return
+        s.money -= 50
+        if s.cabbage > 0:
+            spent_cabbage = min(2, s.cabbage)
+            s.cabbage -= spent_cabbage
+            self.add_message(f"🥬 Потрачено {spent_cabbage} квашеной капусты.")
+        else:
+            self.add_message("🥬 Капусты не было – пропускаем без неё.")
+        for t in s.living_travelers():
+            t.endurance = max(1, t.endurance - 1)
+        s.penalty_next_season = 0
+        s.year += 1
+        s.season = 0
+        self.merchant_price = random.randint(2, 10)
+        self.add_message(f"⏩ Ты переждал до следующей весны! Теперь год {s.year}, сезон Весна.")
+        self.add_message(f"🎉 Поздравляем! Ты занимаешься освоением Сибири в течение уже {s.year} лет. За это время тебе на самом высочайшем уровне пожаловали {s.total_charters_earned} грамот.")
+        if self.running:
+            self.check_game_over()
+
+    def cmd_sell(self, args):
+        if self.settlement.season != 2:
+            self.add_message("❌ Продавать пушнину можно только осенью!")
+            return
+        if not args:
+            self.add_message("Укажите количество пушнины для продажи.")
+            return
+        try:
+            amount = int(args[0])
+        except:
+            self.add_message("Неверное число.")
+            return
+        s = self.settlement
+        if amount <= 0:
+            self.add_message("Количество должно быть положительным.")
+            return
+        if amount > s.fur:
+            self.add_message(f"У вас только {s.fur} пушнины.")
+            return
+        s.fur -= amount
+        price_mod = self.get_fur_price_modifier()
+        revenue = int(amount * self.merchant_price * price_mod)
+        bonus = 1 + 0.1 * s.charters
+        revenue = int(revenue * bonus)
+        s.money += revenue
+        self.add_message(f"✅ Продано {amount} пушнины за {revenue} рублей.")
+
+    def cmd_give_to_tsar(self, args):
+        if not args:
+            self.add_message("Укажите количество пушнины для отправки в царскую казну.")
+            return
+        try:
+            amount = int(args[0])
+        except:
+            self.add_message("Неверное число.")
+            return
+        s = self.settlement
+        if amount <= 0:
+            self.add_message("Количество должно быть положительным.")
+            return
+        if amount > s.fur:
+            self.add_message(f"У вас только {s.fur} пушнины.")
+            return
+        earned = amount // 100
+        if earned == 0:
+            self.add_message("Нужно как минимум 100 пушнины для получения грамоты.")
+            return
+        s.fur -= amount
+        s.charters += earned
+        s.total_charters_earned += earned
+        s.total_fur_sent_to_tsar += amount
+        self.add_message(f"👑 Отправлено {amount} пушнины в царскую казну. Царь пожаловал тебе {earned} грамот! Всего грамот: {s.charters}.")
+
     def cmd_expedition(self, args):
         if self.settlement.season != 1:
             self.add_message("❌ Экспедиции возможны только летом!")
@@ -643,7 +773,7 @@ class Game:
                     else:
                         region = args[1]
             else:
-                self.add_message("Неверный формат. Используйте 'отправить' или 'отправить новый'.")
+                self.add_message("Неверный формат. Используйте 'Отправиться за пушниной' или 'Отправиться за пушниной новый'.")
                 return
 
         if not is_new:
@@ -665,7 +795,7 @@ class Game:
                 self.add_message(f"❌ Недостаточно экипировки даже для одного человека. Нужно {3 + extra_equip_cost}, есть {s.equipment}.")
                 return
             self.add_message(f"⚠️ Недостаточно экипировки для {count} человек. Нужно {need_equip}, есть {s.equipment}.")
-            self.add_message(f"Вы можете отправить максимум {max_count} человек. Введите команду заново с нужным количеством, например: отправить {max_count} {region}")
+            self.add_message(f"Вы можете отправить максимум {max_count} человек. Введите команду заново с нужным количеством, например: Отправиться за пушниной {max_count} {region}")
             return
 
         s.equipment -= need_equip
@@ -788,89 +918,6 @@ class Game:
         self.add_message(f"🦊 Добыто {fur_gained} пушнины.")
         s.penalty_next_season = 0
 
-    # ================ ОСТАЛЬНЫЕ КОМАНДЫ ================
-
-    def cmd_skip(self, args):
-        self.advance_season()
-        if self.running:
-            self.check_game_over()
-
-    def cmd_skip_year(self, args):
-        s = self.settlement
-        if s.money < 50:
-            self.add_message("❌ Недостаточно денег для пропуска года (нужно 50 руб.).")
-            return
-        s.money -= 50
-        if s.cabbage > 0:
-            spent_cabbage = min(2, s.cabbage)
-            s.cabbage -= spent_cabbage
-            self.add_message(f"🥬 Потрачено {spent_cabbage} квашеной капусты.")
-        else:
-            self.add_message("🥬 Капусты не было – пропускаем без неё.")
-        for t in s.living_travelers():
-            t.endurance = max(1, t.endurance - 1)
-        s.penalty_next_season = 0
-        s.year += 1
-        s.season = 0
-        self.merchant_price = random.randint(2, 10)
-        self.add_message(f"⏩ Ты пропустил целый год! Теперь год {s.year}, сезон Весна.")
-        self.add_message(f"🎉 Поздравляем! Ты занимаешься освоением Сибири в течение уже {s.year} лет. За это время тебе на самом высочайшем уровне пожаловали {s.total_charters_earned} грамот.")
-        if self.running:
-            self.check_game_over()
-
-    def cmd_sell(self, args):
-        if self.settlement.season != 2:
-            self.add_message("❌ Продавать пушнину можно только осенью!")
-            return
-        if not args:
-            self.add_message("Укажите количество пушнины для продажи.")
-            return
-        try:
-            amount = int(args[0])
-        except:
-            self.add_message("Неверное число.")
-            return
-        s = self.settlement
-        if amount <= 0:
-            self.add_message("Количество должно быть положительным.")
-            return
-        if amount > s.fur:
-            self.add_message(f"У вас только {s.fur} пушнины.")
-            return
-        s.fur -= amount
-        price_mod = self.get_fur_price_modifier()
-        revenue = int(amount * self.merchant_price * price_mod)
-        bonus = 1 + 0.1 * s.charters
-        revenue = int(revenue * bonus)
-        s.money += revenue
-        self.add_message(f"✅ Продано {amount} пушнины за {revenue} рублей.")
-
-    def cmd_give_to_tsar(self, args):
-        if not args:
-            self.add_message("Укажите количество пушнины для отправки в царскую казну.")
-            return
-        try:
-            amount = int(args[0])
-        except:
-            self.add_message("Неверное число.")
-            return
-        s = self.settlement
-        if amount <= 0:
-            self.add_message("Количество должно быть положительным.")
-            return
-        if amount > s.fur:
-            self.add_message(f"У вас только {s.fur} пушнины.")
-            return
-        earned = amount // 100
-        if earned == 0:
-            self.add_message("Нужно как минимум 100 пушнины для получения грамоты.")
-            return
-        s.fur -= amount
-        s.charters += earned
-        s.total_charters_earned += earned
-        s.total_fur_sent_to_tsar += amount
-        self.add_message(f"👑 Отправлено {amount} пушнины в царскую казну. Царь пожаловал тебе {earned} грамот! Всего грамот: {s.charters}.")
-
     def cmd_buy_equipment(self, args):
         if not args:
             self.add_message("Укажите количество экипировки для покупки.")
@@ -883,7 +930,7 @@ class Game:
         s = self.settlement
         price_per_unit = 5
         if any(c.has_blacksmith for c in s.cities):
-            price_per_unit = 2  # с кузницей дешевле
+            price_per_unit = 2
         cost = amount * price_per_unit
         if cost > s.money:
             self.add_message(f"Недостаточно денег. Нужно {cost}, есть {s.money}.")
@@ -964,7 +1011,6 @@ class Game:
 
     def cmd_build_church(self, args):
         s = self.settlement
-        # Ищем первый город без храма
         target = None
         for city in s.cities:
             if not city.has_church:
@@ -1035,7 +1081,7 @@ class Game:
             self.add_message(f"❌ Для основания следующего города нужно {required} грамот, а у тебя только {s.charters}.")
             return
         if not args:
-            self.add_message("Укажите название города: основать город <название>")
+            self.add_message("Укажите название города: Основать город <название>")
             return
         city_name = " ".join(args).strip()
         if not city_name:
@@ -1058,7 +1104,7 @@ class Game:
 
     def cmd_donate_science(self, args):
         if not args:
-            self.add_message("Укажите сумму для пожертвования на науку.")
+            self.add_message("Укажите сумму для спонсирования научных исследований.")
             return
         try:
             amount = int(args[0])
@@ -1073,7 +1119,7 @@ class Game:
             self.add_message(f"У вас только {s.money} рублей. Не хватает.")
             return
         if amount < 200:
-            self.add_message("Минимальное пожертвование на науку – 200 рублей.")
+            self.add_message("Минимальное пожертвование – 200 рублей.")
             return
         s.money -= amount
         if not s.patron_of_science:
@@ -1100,7 +1146,7 @@ class Game:
             self.add_message(f"У вас только {s.money} рублей. Не хватает.")
             return
         if amount < 150:
-            self.add_message("Минимальное пожертвование на помощь сирым – 150 рублей.")
+            self.add_message("Минимальное пожертвование – 150 рублей.")
             return
         s.money -= amount
         if not s.benefactor:
@@ -1110,7 +1156,6 @@ class Game:
             self.add_message("❤️ Ты уже благотворитель. Дополнительное пожертвование принято с благодарностью.")
         self.add_message(f"Пожертвовано {amount} рублей на помощь нуждающимся.")
 
-    # ================ НОВЫЕ КОМАНДЫ ================
     def cmd_build_blacksmith(self, args):
         s = self.settlement
         if not s.cities:
@@ -1187,7 +1232,6 @@ class Game:
         for i, entry in enumerate(leaderboard[:10], 1):
             self.add_message(f"{i}. {entry['name']} — грамот: {entry['charters']}, городов: {entry['cities']}")
 
-    # ================ ПРОВЕРКА КОНЦА ИГРЫ ================
     def check_game_over(self):
         s = self.settlement
         if len(s.living_travelers()) == 0 and len(s.all_alive()) == 0:
@@ -1210,7 +1254,7 @@ class Game:
 
 
 # =================================================================
-# МЕНЕДЖЕР СОБЫТИЙ (расширенный)
+# МЕНЕДЖЕР СОБЫТИЙ
 # =================================================================
 
 class EventManager:
@@ -1241,7 +1285,6 @@ class EventManager:
         if random.random() < 0.08:
             self.event_injury(participants)
 
-    # --- Стандартные события ---
     def event_find_fur(self):
         bonus = random.randint(10, 40)
         self.game.settlement.fur += bonus
@@ -1277,7 +1320,6 @@ class EventManager:
                     s.horses -= 1
             self.game.add_message(f"🐾 Животные взбесились! Потеряно {loss} голов скота.")
 
-    # --- Новые события ---
     def event_ancient_maps(self):
         if not self.game.settlement.has_ancient_maps:
             self.game.settlement.has_ancient_maps = True
@@ -1401,6 +1443,8 @@ def index():
 
     if 'game_state' in session:
         game = pickle.loads(session['game_state'])
+        game.ensure_attributes()
+
         if request.method == 'POST' and 'command' in request.form:
             command = request.form.get('command', '').strip().lower()
             if command:

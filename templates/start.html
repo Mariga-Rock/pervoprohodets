@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Первопроходец Сибири – старт</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Courier New', monospace;
+            background: #2e2e2e;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            background: #3c3c3c;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            color: #f0d080;
+            text-shadow: 2px 2px 4px #000;
+        }
+        .subtitle {
+            text-align: center;
+            font-size: 1.2em;
+            color: #b0b0b0;
+            margin-top: -10px;
+            margin-bottom: 30px;
+        }
+        .rules {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .rules h2 {
+            margin-top: 0;
+            color: #8ab;
+        }
+        .rules ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .rules li {
+            padding: 6px 0;
+            border-bottom: 1px solid #444;
+        }
+        .start-form {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: flex-end;
+            margin-bottom: 30px;
+        }
+        .start-form .field {
+            flex: 1;
+            min-width: 150px;
+        }
+        .start-form label {
+            display: block;
+            margin-bottom: 5px;
+            color: #b0b0b0;
+        }
+        .start-form input {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background: #555;
+            color: #fff;
+            font-size: 16px;
+        }
+        .start-form button {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            background: #5a7a9a;
+            color: #fff;
+            font-size: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            min-width: 150px;
+        }
+        .start-form button:hover { background: #6a8aaa; }
+        .gallery {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        .gallery img {
+            width: 200px;
+            height: auto;
+            border-radius: 8px;
+            border: 2px solid #5a7a9a;
+            background: #222;
+            flex: 1 1 150px;
+            max-width: 250px;
+        }
+        .footer {
+            margin-top: 20px;
+            padding: 15px 0 5px 0;
+            border-top: 1px solid #555;
+            font-size: 13px;
+            color: #999;
+            text-align: center;
+        }
+        .footer a {
+            color: #8ab;
+            text-decoration: none;
+        }
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        @media (max-width: 600px) {
+            .start-form { flex-direction: column; align-items: stretch; }
+            .start-form button { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Первопроходец Сибири</h1>
+        <div class="subtitle">Покори суровые земли, добудь пушнину и получи царские грамоты!</div>
+
+        <div class="rules">
+            <h2>📜 Суть игры</h2>
+            <p>Вы — атаман казачьего отряда, отправленного в Сибирь для освоения новых земель. Ваша цель — накопить как можно больше пушнины, заслужить царские грамоты и основать города.</p>
+            <ul>
+                <li><strong>🌞 Лето</strong> – отправляйте путешественников в экспедиции за пушниной.</li>
+                <li><strong>🍂 Осень</strong> – продавайте пушнину купцам и запасайтесь квашеной капустой (лечит цингу и спасает зимой).</li>
+                <li><strong>❄️ Зима</strong> – расходуйте экипировку и пушнину на обогрев; если капусты достаточно – голода не будет.</li>
+                <li><strong>🌸 Весна</strong> – готовьтесь к новым походам.</li>
+                <li><strong>👑 Грамоты</strong> – каждые 100 пушнины, отправленные в царскую казну, приносят 1 грамоту. 5 грамот позволяют основать город, 100 грамот — великая победа!</li>
+            </ul>
+            <p><strong>💡 Совет:</strong> Управляйте ресурсами, не допускайте долгов, стройте храм (уменьшает пьянство) и частокол (защита от разбойников).</p>
+        </div>
+
+        <form method="POST" class="start-form">
+            <div class="field">
+                <label for="player_name">👤 Ваше имя</label>
+                <input type="text" name="player_name" id="player_name" placeholder="Введите имя..." required>
+            </div>
+            <div class="field">
+                <label for="player_email">📧 Email (для связи)</label>
+                <input type="email" name="player_email" id="player_email" placeholder="email@example.com">
+            </div>
+            <button type="submit" name="start_game" value="1">🚀 Начать игру</button>
+        </form>
+
+        <div class="gallery">
+            <img src="{{ url_for('static', filename='images/image1.jpg') }}" alt="Сибирь 1">
+            <img src="{{ url_for('static', filename='images/image2.jpg') }}" alt="Сибирь 2">
+            <img src="{{ url_for('static', filename='images/image3.jpg') }}" alt="Сибирь 3">
+        </div>
+
+        <div class="footer">
+            <p>© 2026 «Первопроходец Сибири». Все права защищены.</p>
+            <p>При использовании материалов сайта ссылка на источник обязательна.</p>
+            <p><a href="/privacy">Политика конфиденциальности</a> | <a href="#">Пользовательское соглашение</a></p>
+        </div>
+    </div>
+</body>
+</html>

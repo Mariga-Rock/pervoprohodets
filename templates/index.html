@@ -187,6 +187,58 @@
         .footer a:hover {
             text-decoration: underline;
         }
+        /* Новые блоки */
+        .city-block, .achievements-block, .title-block, .leaderboard-block, .social-share {
+            background: #2a2a2a;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        .city-block h3, .achievements-block h3, .title-block h3, .leaderboard-block h3 {
+            margin-top: 0;
+            color: #8ab;
+        }
+        .city-card {
+            background: #3a3a3a;
+            padding: 8px 12px;
+            border-radius: 5px;
+            margin-bottom: 8px;
+        }
+        .city-name {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        .city-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 4px;
+            font-size: 0.9em;
+            color: #ccc;
+        }
+        .city-details span {
+            background: #4a4a4a;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+        .achievements-block ul, .leaderboard-block ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .achievements-block li, .leaderboard-block li {
+            padding: 4px 0;
+            border-bottom: 1px solid #444;
+        }
+        .social-share button {
+            background: #5a7a9a;
+            border: none;
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .social-share button:hover { background: #6a8aaa; }
         @media (max-width: 768px) {
             .container { flex-direction: column; }
             .side-column { order: 2; }
@@ -210,7 +262,8 @@
                 <button type="submit">Отправить</button>
             </form>
             <div class="commands-panel">
-                <button onclick="insertCommand('отправить ');">🚀 отправить</button>
+                <button onclick="insertCommand('отправить');">🚀 отправить</button>
+                <button onclick="insertCommand('отправить новый');">🗺️ Исследовать новую территорию</button>
                 <button onclick="insertCommand('продать пушнину ');">💰 продать пушнину</button>
                 <button onclick="insertCommand('послать пушнину в царскую казну ');">👑 послать пушнину в царскую казну</button>
                 <button onclick="insertCommand('купить экипировку ');">🛠️ купить экипировку</button>
@@ -249,6 +302,7 @@
                     построить храм
                 </button>
                 <button onclick="insertCommand('построить частокол');">🪵 построить частокол</button>
+                <button onclick="insertCommand('построить кузницу');">⚒️ построить кузницу</button>
                 <button onclick="insertCommand('подкупить разбойников ');">🤝 подкупить разбойников</button>
                 <button onclick="insertCommand('отправить семье ');">📨 отправить семье</button>
                 <button onclick="insertCommand('основать город ');">🏙️ основать город</button>
@@ -257,6 +311,8 @@
                 <button onclick="insertCommand('статус');">📊 статус</button>
                 <button onclick="insertCommand('следующий сезон');">➡️ следующий сезон</button>
                 <button onclick="insertCommand('пропустить год');">⏩ пропустить год</button>
+                <button onclick="insertCommand('города');">🏙️ города</button>
+                <button onclick="insertCommand('лидеры');">🏆 лидеры</button>
                 <button onclick="insertCommand('помощь');">❓ помощь</button>
             </div>
 
@@ -264,34 +320,39 @@
             <div class="help-box" id="helpBox">
                 <h3>Список команд</h3>
                 <ul>
-                    <li><span class="cmd">отправить &lt;кол-во&gt; &lt;регион&gt;</span> <span class="desc">– экспедиция (только летом). Регион: 'новый' или номер.</span></li>
-                    <li><span class="cmd">продать пушнину &lt;кол-во&gt;</span> <span class="desc">– продать пушнину (только осенью).</span></li>
-                    <li><span class="cmd">послать пушнину в царскую казну &lt;кол-во&gt;</span> <span class="desc">– за это государь пожалует тебе грамоту (100 = 1).</span></li>
-                    <li><span class="cmd">купить экипировку &lt;кол-во&gt;</span> <span class="desc">– купить экипировку (5 руб/ед).</span></li>
+                    <li><span class="cmd">отправить</span> <span class="desc">– отправить всех здоровых на первую территорию (летом).</span></li>
+                    <li><span class="cmd">отправить новый</span> <span class="desc">– исследовать новую территорию (все здоровые).</span></li>
+                    <li><span class="cmd">отправить &lt;кол-во&gt; &lt;регион&gt;</span> <span class="desc">– отправить указанное количество на существующую территорию.</span></li>
+                    <li><span class="cmd">продать пушнину &lt;кол-во&gt;</span> <span class="desc">– продать пушнину (только осенью). Цена зависит от запасов.</span></li>
+                    <li><span class="cmd">послать пушнину в царскую казну &lt;кол-во&gt;</span> <span class="desc">– 100 пушнины = 1 грамота.</span></li>
+                    <li><span class="cmd">купить экипировку &lt;кол-во&gt;</span> <span class="desc">– купить экипировку (цена зависит от кузницы).</span></li>
                     <li><span class="cmd">купить собаку [кол-во]</span> <span class="desc">– купить собак (50 руб/шт).</span></li>
                     <li><span class="cmd">купить лошадь [кол-во]</span> <span class="desc">– купить лошадей (50 руб/шт).</span></li>
-                    <li><span class="cmd">купить квашеную капусту &lt;кол-во&gt;</span> <span class="desc">– только осенью (10 руб/ед). Излечивает от цинги и спасает от зимнего голода.</span></li>
-                    <li><span class="cmd">построить храм</span> <span class="desc">– полезно для прекращения пьянства и разгула (500 руб).</span></li>
-                    <li><span class="cmd">построить частокол</span> <span class="desc">– спасает от разбойников (100 руб).</span></li>
-                    <li><span class="cmd">подкупить разбойников &lt;сумма&gt;</span> <span class="desc">– откупиться от разбойников на сезон.</span></li>
-                    <li><span class="cmd">отправить семье &lt;сумма&gt;</span> <span class="desc">– отправить деньги семье.</span></li>
-                    <li><span class="cmd">основать город &lt;название&gt;</span> <span class="desc">– основать город (требуется 5+5*число городов грамот).</span></li>
-                    <li><span class="cmd">пожертвовать науке &lt;сумма&gt;</span> <span class="desc">– пожертвовать на науку (≥200 руб) – статус мецената.</span></li>
-                    <li><span class="cmd">пожертвовать сирым &lt;сумма&gt;</span> <span class="desc">– пожертвовать на помощь сирым (≥150 руб) – статус благотворителя.</span></li>
+                    <li><span class="cmd">купить квашеную капусту &lt;кол-во&gt;</span> <span class="desc">– только осенью (10 руб/ед).</span></li>
+                    <li><span class="cmd">построить храм</span> <span class="desc">– построить храм в текущем городе (500 руб).</span></li>
+                    <li><span class="cmd">построить частокол</span> <span class="desc">– защита от разбойников (100 руб).</span></li>
+                    <li><span class="cmd">построить кузницу</span> <span class="desc">– если есть железная руда в городе (200 руб).</span></li>
+                    <li><span class="cmd">подкупить разбойников &lt;сумма&gt;</span> <span class="desc">– снизить активность.</span></li>
+                    <li><span class="cmd">отправить семье &lt;сумма&gt;</span> <span class="desc">– отправить деньги.</span></li>
+                    <li><span class="cmd">основать город &lt;название&gt;</span> <span class="desc">– требуется 5+5*число_городов грамот.</span></li>
+                    <li><span class="cmd">пожертвовать науке &lt;сумма&gt;</span> <span class="desc">– стать меценатом (≥200 руб).</span></li>
+                    <li><span class="cmd">пожертвовать сирым &lt;сумма&gt;</span> <span class="desc">– стать благотворителем (≥150 руб).</span></li>
                     <li><span class="cmd">статус</span> <span class="desc">– показать состояние.</span></li>
                     <li><span class="cmd">следующий сезон</span> <span class="desc">– перейти к следующему сезону.</span></li>
                     <li><span class="cmd">пропустить год</span> <span class="desc">– пропустить год (50 руб + 2 капусты).</span></li>
+                    <li><span class="cmd">города</span> <span class="desc">– показать информацию о городах.</span></li>
+                    <li><span class="cmd">лидеры</span> <span class="desc">– таблица лидеров.</span></li>
                     <li><span class="cmd">помощь</span> <span class="desc">– показать эту справку.</span></li>
                     <li><span class="cmd">выход</span> <span class="desc">– выйти.</span></li>
                 </ul>
                 <h3>Сезоны года</h3>
                 <ul>
-                    <li><span class="cmd">🌸 Весна</span> – время подготовки к новому сезону. Можно закупать экипировку и животных.</li>
-                    <li><span class="cmd">☀️ Лето</span> – основное время для экспедиций. Отправляй путешественников в новые земли или в уже открытые регионы. С приходом лета все больные цингой излечиваются!</li>
-                    <li><span class="cmd">🍂 Осень</span> – завершение охоты, подсчёт добычи. Только осенью можно продавать пушнину купцам и покупать квашеную капусту. Возможны набеги разбойников.</li>
-                    <li><span class="cmd">❄️ Зима</span> – дальние походы невозможны. Тратится экипировка и пушнина на отопление и пропитание. Если запасы на исходе – люди гибнут, но только если нет достаточно квашеной капусты (1 капуста на каждого путешественника). Капуста спасает от голода!</li>
+                    <li><span class="cmd">🌸 Весна</span> – подготовка, закупка.</li>
+                    <li><span class="cmd">☀️ Лето</span> – экспедиции.</li>
+                    <li><span class="cmd">🍂 Осень</span> – продажа пушнины, закупка капусты.</li>
+                    <li><span class="cmd">❄️ Зима</span> – расход ресурсов, травмы.</li>
                 </ul>
-                <p><span class="cmd">⚠️ Пьянство и разгул</span> наступают каждый раз, когда количество денег превышает 2000 рублей (или 3000, если построен храм).</p>
+                <p><span class="cmd">⚠️ Пьянство и разгул</span> – при деньгах >2000 (или >3000 с храмом).</p>
             </div>
 
             <hr class="separator">
@@ -301,30 +362,85 @@
                 <h3>Часто задаваемые вопросы</h3>
                 <div class="faq-item">
                     <div class="q">Как сохранить прогресс?</div>
-                    <div class="a">В веб-версии игра автоматически сохраняется в вашем браузере (сессия). При закрытии вкладки вы можете продолжить с того же места, просто открыв страницу заново. Если хотите начать заново, нажмите кнопку «Сбросить игру» внизу страницы.</div>
+                    <div class="a">Игра автоматически сохраняется в сессии браузера. Закройте вкладку – и продолжите с того же места.</div>
                 </div>
                 <div class="faq-item">
-                    <div class="q">Есть ли уровни или финальная цель?</div>
-                    <div class="a">Игра не имеет линейных уровней – это открытый симулятор с двумя основными целями: получить 5 грамот (чтобы основать город) или накопить 100 грамот (для великой победы). Вы сами выбираете темп и стратегию.</div>
+                    <div class="q">Как получить грамоты?</div>
+                    <div class="a">Отправляйте пушнину в царскую казну (100 шт = 1 грамота), открывайте новые земли, находите серебро или составляйте карты.</div>
                 </div>
                 <div class="faq-item">
-                    <div class="q">Можно ли играть на мобильном телефоне?</div>
-                    <div class="a">Да, интерфейс адаптирован под экраны любых размеров. Все кнопки и поля ввода удобны даже на смартфонах.</div>
+                    <div class="q">Что даёт кузница?</div>
+                    <div class="a">Снижает стоимость экипировки на 50% и позволяет её продавать.</div>
                 </div>
                 <div class="faq-item">
-                    <div class="q">Что делать, если я не знаю команд?</div>
-                    <div class="a">Просто введите «помощь» – игра покажет полный список доступных команд с кратким описанием. Также есть кнопки с иконками для быстрого ввода основных действий.</div>
+                    <div class="q">Как вылечить цингу?</div>
+                    <div class="a">Купите квашеную капусту осенью – она лечит больных и спасает от зимнего голода.</div>
                 </div>
                 <div class="faq-item">
-                    <div class="q">Как узнать текущее состояние?</div>
-                    <div class="a">Команда «статус» выводит подробную сводку: ресурсы, количество путешественников, грамоты, построенные города и даже настроение в поселении.</div>
-                </div>
-                <div class="faq-item">
-                    <div class="q">Сложно ли научиться играть?</div>
-                    <div class="a">Нет! Несмотря на глубину стратегии, первые ходы просты и понятны. Постепенно вы раскроете все механики – игра мягко учит вас через собственные ошибки и случайные события.</div>
+                    <div class="q">Что делать при травме?</div>
+                    <div class="a">Если есть врач, он останется с пострадавшим на два сезона. Иначе – любой другой путешественник.</div>
                 </div>
             </div>
 
+            <hr class="separator">
+
+            <!-- НОВЫЕ БЛОКИ -->
+            <div class="title-block">
+                <h3>👑 Титул</h3>
+                {% if noble_title %}
+                    <p style="font-size:1.2em; color:#f0d080;">{{ noble_title }}</p>
+                {% else %}
+                    <p>Пока нет</p>
+                {% endif %}
+            </div>
+
+            <div class="city-block">
+                <h3>🏙️ Города</h3>
+                {% if cities %}
+                    {% for city in cities %}
+                        <div class="city-card">
+                            <div class="city-name">{{ city.name }}</div>
+                            <div class="city-details">
+                                <span>🏞️ {{ city.river }}</span>
+                                <span>👨‍👩‍👧‍👦 {{ city.population }}</span>
+                                {% if city.has_church %}<span>⛪ храм</span>{% endif %}
+                                {% if city.has_hospital %}<span>🏥 лечебница</span>{% endif %}
+                                {% if city.has_blacksmith %}<span>⚒️ кузница</span>{% endif %}
+                                {% if city.has_iron_mine %}<span>⛏️ руда</span>{% endif %}
+                                {% if city.has_silver_mine %}<span>🥈 серебро</span>{% endif %}
+                                {% if city.is_frontier %}<span>🇨🇳 застава (чай)</span>{% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>Городов пока нет.</p>
+                {% endif %}
+            </div>
+
+            <div class="achievements-block">
+                <h3>🏆 Достижения</h3>
+                <ul>
+                    <li>Основать первый город: {% if 'first_city' in achievements %}✅{% else %}❌{% endif %}</li>
+                    <li>Добыть 1000 пушнины: {% if 'fur_1000' in achievements %}✅{% else %}❌{% endif %}</li>
+                    <li>Найти 5 артефактов: {% if 'artifacts_5' in achievements %}✅{% else %}❌{% endif %}</li>
+                    <li>Вылечить всех больных: {% if 'cure_all' in achievements %}✅{% else %}❌{% endif %}</li>
+                </ul>
+            </div>
+
+            <div class="leaderboard-block">
+                <h3>🏆 Таблица лидеров</h3>
+                {% if leaderboard %}
+                    <ul>
+                        {% for entry in leaderboard[:10] %}
+                            <li>{{ loop.index }}. {{ entry.name }} — грамот: {{ entry.charters }}, городов: {{ entry.cities }}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>Пока никого нет. Стань первым!</p>
+                {% endif %}
+            </div>
+
+            <hr class="separator">
             <button class="feedback-toggle" onclick="toggleFeedback()">📬 Обратная связь</button>
             <div class="feedback-box" id="feedbackBox">
                 <h4>Напишите автору игры:</h4>
@@ -335,16 +451,23 @@
                 <p style="font-size:12px; color:#888;">(откроется почтовый клиент)</p>
             </div>
 
+            <div class="social-share">
+                <button onclick="shareTelegram()">📲 Поделиться в Telegram</button>
+                <button onclick="shareTikTok()">🎵 Поделиться в TikTok</button>
+            </div>
+
             <div class="footer">
                 <p>© 2026 «Первопроходец Сибири». Все права защищены.</p>
                 <p>При использовании материалов сайта ссылка на источник обязательна.</p>
                 <p><a href="/privacy">Политика конфиденциальности</a> | <a href="#">Пользовательское соглашение</a></p>
             </div>
         </div>
+
         <div class="side-column">
             <img src="{{ url_for('static', filename='images/image' ~ image_index ~ '.jpg') }}" alt="Иллюстрация Сибири">
         </div>
     </div>
+
     <script>
         function insertCommand(cmd) {
             var input = document.getElementById('commandInput');
@@ -383,6 +506,15 @@
                 box.style.display = 'block';
                 btn.textContent = '❓ Скрыть ЧаВо';
             }
+        }
+        function shareTelegram() {
+            const url = window.location.href;
+            const text = "Я играю в 'Первопроходец Сибири'! Присоединяйся!";
+            window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
+        }
+        function shareTikTok() {
+            const text = "Я играю в 'Первопроходец Сибири'! Попробуй и ты!";
+            navigator.clipboard.writeText(text).then(() => alert('Текст скопирован! Вставьте его в TikTok.'));
         }
     </script>
 

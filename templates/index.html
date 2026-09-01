@@ -206,6 +206,12 @@
         .city-name {
             font-weight: bold;
             font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .city-name .icon {
+            font-size: 1.5em;
         }
         .city-details {
             display: flex;
@@ -268,7 +274,9 @@
                 <button onclick="insertCommand('Купить экипировку ');">🛠️ Купить экипировку</button>
                 <button onclick="insertCommand('Купить собаку ');">🐕 Купить собаку</button>
                 <button onclick="insertCommand('Купить лошадь ');">🐎 Купить лошадь</button>
-                <button onclick="insertCommand('Купить капусту ');">🥬 Купить капусту</button>
+                <button onclick="insertCommand('Собрать клюкву');">🍒 Собрать клюкву (осень)</button>
+                <button onclick="insertCommand('Наловить рыбы');">🐟 Наловить рыбы (лето)</button>
+                <button onclick="insertCommand('Охота');">🍖 Охота</button>
                 <button onclick="insertCommand('Построить храм');" style="display:inline-flex; align-items:center; gap:6px;">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="20" height="20" style="flex-shrink:0;">
                         <g opacity="0.05"><circle cx="50" cy="50" r="45" fill="#ffd700"/></g>
@@ -320,14 +328,16 @@
                 <h3>Список команд</h3>
                 <ul>
                     <li><span class="cmd">Отправиться за пушниной</span> <span class="desc">– отправить всех здоровых на первую территорию (летом).</span></li>
-                    <li><span class="cmd">Отправиться за пушниной новый</span> <span class="desc">– исследовать новую территорию (все здоровые).</span></li>
+                    <li><span class="cmd">Отправиться за пушниной новый</span> <span class="desc">– исследовать новую землю (все здоровые).</span></li>
                     <li><span class="cmd">Отправиться за пушниной &lt;кол-во&gt; &lt;регион&gt;</span> <span class="desc">– отправить указанное количество на существующую территорию.</span></li>
                     <li><span class="cmd">Продать пушнину &lt;кол-во&gt;</span> <span class="desc">– продать пушнину (только осенью). Цена зависит от запасов.</span></li>
                     <li><span class="cmd">Послать пушнину в царскую казну &lt;кол-во&gt;</span> <span class="desc">– 100 пушнины = 1 грамота.</span></li>
                     <li><span class="cmd">Купить экипировку &lt;кол-во&gt;</span> <span class="desc">– купить экипировку (цена зависит от кузницы).</span></li>
                     <li><span class="cmd">Купить собаку [кол-во]</span> <span class="desc">– купить собак (50 руб/шт).</span></li>
                     <li><span class="cmd">Купить лошадь [кол-во]</span> <span class="desc">– купить лошадей (50 руб/шт).</span></li>
-                    <li><span class="cmd">Купить квашеную капусту &lt;кол-во&gt;</span> <span class="desc">– только осенью (10 руб/ед).</span></li>
+                    <li><span class="cmd">Собрать клюкву</span> <span class="desc">– осенью, риск разбойников, запас витамина С.</span></li>
+                    <li><span class="cmd">Наловить рыбы</span> <span class="desc">– летом, пополняет запас рыбы.</span></li>
+                    <li><span class="cmd">Охота</span> <span class="desc">– добыча мяса (пеммикана) для зимних запасов.</span></li>
                     <li><span class="cmd">Построить храм</span> <span class="desc">– построить храм в текущем городе (500 руб).</span></li>
                     <li><span class="cmd">Построить частокол</span> <span class="desc">– защита от разбойников (100 руб).</span></li>
                     <li><span class="cmd">Построить кузницу</span> <span class="desc">– если есть железная руда в городе (200 руб).</span></li>
@@ -335,10 +345,10 @@
                     <li><span class="cmd">Послать деньги семье &lt;сумма&gt;</span> <span class="desc">– отправить деньги семье.</span></li>
                     <li><span class="cmd">Основать город &lt;название&gt;</span> <span class="desc">– требуется 5+5*число_городов грамот.</span></li>
                     <li><span class="cmd">Спонсировать научные исследования &lt;сумма&gt;</span> <span class="desc">– стать меценатом (≥200 руб).</span></li>
-                    <li><span class="cmd">Пожертвовать сирым &lt;сумма&gt;</span> <span class="desc">– стать благотворителем (≥150 руб).</span></li>
+                    <li><span class="cmd">Пожертвовать сирым &lt;сумма&gt;</span> <span class="desc">– стать благотворителем (любая сумма >0).</span></li>
                     <li><span class="cmd">Показать статус</span> <span class="desc">– показать состояние.</span></li>
                     <li><span class="cmd">Следующий сезон</span> <span class="desc">– перейти к следующему сезону.</span></li>
-                    <li><span class="cmd">Переждать до следующей весны</span> <span class="desc">– пропустить год (50 руб + 2 капусты).</span></li>
+                    <li><span class="cmd">Переждать до следующей весны</span> <span class="desc">– пропустить год (50 руб + 2 кг провизии).</span></li>
                     <li><span class="cmd">Города</span> <span class="desc">– показать информацию о городах.</span></li>
                     <li><span class="cmd">Лидеры</span> <span class="desc">– таблица лидеров.</span></li>
                     <li><span class="cmd">Помощь</span> <span class="desc">– показать эту справку.</span></li>
@@ -346,12 +356,20 @@
                 </ul>
                 <h3>Сезоны года</h3>
                 <ul>
-                    <li><span class="cmd">🌸 Весна</span> – подготовка, закупка.</li>
-                    <li><span class="cmd">☀️ Лето</span> – экспедиции.</li>
-                    <li><span class="cmd">🍂 Осень</span> – продажа пушнины, закупка капусты.</li>
-                    <li><span class="cmd">❄️ Зима</span> – расход ресурсов, травмы.</li>
+                    <li><span class="cmd">🌸 Весна</span> – подготовка, закупка, охота.</li>
+                    <li><span class="cmd">☀️ Лето</span> – экспедиции, рыбалка, сбор клюквы (в конце лета).</li>
+                    <li><span class="cmd">🍂 Осень</span> – продажа пушнины, сбор клюквы, охота.</li>
+                    <li><span class="cmd">❄️ Зима</span> – расход провизии, риск цинги.</li>
                 </ul>
                 <p><span class="cmd">⚠️ Пьянство и разгул</span> – при деньгах >2000 (или >3000 с храмом).</p>
+                <h3>Провизия и здоровье</h3>
+                <ul>
+                    <li><span class="cmd">🍞 Мука</span> – только на первую зиму.</li>
+                    <li><span class="cmd">🐟 Рыба, 🥩 Пеммикан</span> – основные зимние запасы (10 кг на человека за зиму).</li>
+                    <li><span class="cmd">🍒 Клюква</span> – лечит цингу, собирается осенью.</li>
+                    <li><span class="cmd">🧄 Черемша</span> – лечит цингу, но только летом/осенью.</li>
+                    <li><span class="cmd">🧙 Знахарка</span> – второй шанс при цинге.</li>
+                </ul>
             </div>
 
             <hr class="separator">
@@ -368,16 +386,16 @@
                     <div class="a">Отправляйте пушнину в царскую казну (100 шт = 1 грамота), открывайте новые земли, находите серебро или составляйте карты.</div>
                 </div>
                 <div class="faq-item">
+                    <div class="q">Что делать с цингой?</div>
+                    <div class="a">При появлении болезни выберите лечение: клюква (если есть), черемша (летом/осенью) или согласитесь на отвар знахарки. Отказ может привести к смерти.</div>
+                </div>
+                <div class="faq-item">
+                    <div class="q">Как подготовиться к зиме?</div>
+                    <div class="a">Летом ловите рыбу, охотитесь на мясо (пеммикан). Осенью соберите клюкву. В первую зиму поможет мука, но потом нужны будут запасы.</div>
+                </div>
+                <div class="faq-item">
                     <div class="q">Что даёт кузница?</div>
                     <div class="a">Снижает стоимость экипировки на 50% и позволяет её продавать.</div>
-                </div>
-                <div class="faq-item">
-                    <div class="q">Как вылечить цингу?</div>
-                    <div class="a">Купите квашеную капусту осенью – она лечит больных и спасает от зимнего голода.</div>
-                </div>
-                <div class="faq-item">
-                    <div class="q">Что делать при травме?</div>
-                    <div class="a">Если есть врач, он останется с пострадавшим на два сезона. Иначе – любой другой путешественник.</div>
                 </div>
             </div>
 
@@ -397,7 +415,10 @@
                 <h3>🏙️ Города</h3>
                 {% for city in cities %}
                     <div class="city-card">
-                        <div class="city-name">{{ city.name }}</div>
+                        <div class="city-name">
+                            <span class="icon">{{ city.icon if city.icon else '🏙️' }}</span>
+                            {{ city.name }}
+                        </div>
                         <div class="city-details">
                             <span>🏞️ {{ city.river }}</span>
                             <span>👨‍👩‍👧‍👦 {{ city.population }}</span>
@@ -413,7 +434,7 @@
             </div>
             {% endif %}
 
-            <!-- Блок достижений – показываем всегда, но для невыполненных показываем описание вместо крестика -->
+            <!-- Блок достижений -->
             <div class="achievements-block">
                 <h3>🏆 Достижения</h3>
                 <ul>

@@ -1,580 +1,2447 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Первопроходец Сибири</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        * { box-sizing: border-box; }
-        body {
-            font-family: 'Courier New', monospace;
-            background: #2e2e2e;
-            color: #e0e0e0;
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            max-width: 1200px;
-            margin: auto;
-            background: #3c3c3c;
-            padding: 20px;
-            border-radius: 10px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-        .main-column {
-            flex: 2;
-            min-width: 300px;
-        }
-        .side-column {
-            flex: 1;
-            min-width: 200px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        .side-column img {
-            width: 100%;
-            border-radius: 8px;
-            border: 2px solid #5a7a9a;
-            background: #222;
-        }
-        .status {
-            background: #222;
-            padding: 15px;
-            border-radius: 8px;
-            white-space: pre-wrap;
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
-        .messages {
-            background: #1a1a1a;
-            padding: 15px;
-            border-radius: 8px;
-            max-height: 400px;
-            overflow-y: auto;
-        }
-        .msg {
-            border-bottom: 1px solid #444;
-            padding: 3px 0;
-        }
-        .input-form {
-            display: flex;
-            margin-top: 15px;
-            flex-wrap: wrap;
-        }
-        .input-form input {
-            flex: 1;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            background: #555;
-            color: #fff;
-            min-width: 150px;
-        }
-        .input-form button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            background: #5a7a9a;
-            color: #fff;
-            font-size: 16px;
-            margin-left: 10px;
-            cursor: pointer;
-        }
-        .input-form button:hover { background: #6a8aaa; }
-        .help-toggle, .faq-toggle, .feedback-toggle {
-            background: #4a5a6a;
-            border: none;
-            color: #fff;
-            padding: 8px 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        .help-box, .faq-box, .feedback-box {
-            background: #2a2a2a;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 10px;
-            display: none;
-            max-height: 300px;
-            overflow-y: auto;
-            font-size: 14px;
-        }
-        .help-box ul, .faq-box ul {
-            list-style: none;
-            padding-left: 0;
-        }
-        .help-box li, .faq-box li {
-            padding: 4px 0;
-            border-bottom: 1px solid #444;
-        }
-        .help-box .cmd, .faq-box .q {
-            color: #8ab;
-            font-weight: bold;
-        }
-        .help-box .desc, .faq-box .a {
-            color: #ccc;
-        }
-        .faq-item {
-            margin-bottom: 12px;
-        }
-        .faq-item .q {
-            font-weight: bold;
-            color: #8ab;
-        }
-        .faq-item .a {
-            color: #ccc;
-            margin-top: 4px;
-        }
-        .commands-panel {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            margin-top: 10px;
-        }
-        .commands-panel button {
-            background: #4a5a6a;
-            border: none;
-            color: #fff;
-            padding: 6px 12px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 13px;
-        }
-        .commands-panel button:hover { background: #5a7a9a; }
-        .feedback-box textarea {
-            width: 100%;
-            padding: 8px;
-            border: none;
-            border-radius: 5px;
-            background: #444;
-            color: #fff;
-            resize: vertical;
-        }
-        .feedback-box button {
-            margin-top: 8px;
-            background: #5a7a9a;
-            border: none;
-            color: #fff;
-            padding: 8px 16px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .feedback-box a {
-            color: #8ab;
-        }
-        .separator {
-            border: 0;
-            height: 1px;
-            background: #555;
-            margin: 15px 0;
-        }
-        .footer {
-            margin-top: 20px;
-            padding: 15px 0 5px 0;
-            border-top: 1px solid #555;
-            font-size: 13px;
-            color: #999;
-            text-align: center;
-        }
-        .footer a {
-            color: #8ab;
-            text-decoration: none;
-        }
-        .footer a:hover {
-            text-decoration: underline;
-        }
-        .city-block, .achievements-block, .title-block, .leaderboard-block, .social-share {
-            background: #2a2a2a;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 15px;
-        }
-        .city-block h3, .achievements-block h3, .title-block h3, .leaderboard-block h3 {
-            margin-top: 0;
-            color: #8ab;
-        }
-        .city-card {
-            background: #3a3a3a;
-            padding: 8px 12px;
-            border-radius: 5px;
-            margin-bottom: 8px;
-        }
-        .city-name {
-            font-weight: bold;
-            font-size: 1.1em;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .city-name .icon {
-            font-size: 1.5em;
-        }
-        .city-details {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 4px;
-            font-size: 0.9em;
-            color: #ccc;
-        }
-        .city-details span {
-            background: #4a4a4a;
-            padding: 2px 8px;
-            border-radius: 4px;
-        }
-        .achievements-block ul, .leaderboard-block ul {
-            list-style: none;
-            padding-left: 0;
-        }
-        .achievements-block li, .leaderboard-block li {
-            padding: 4px 0;
-            border-bottom: 1px solid #444;
-        }
-        .social-share button {
-            background: #5a7a9a;
-            border: none;
-            color: #fff;
-            padding: 8px 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-right: 10px;
-        }
-        .social-share button:hover { background: #6a8aaa; }
-        @media (max-width: 768px) {
-            .container { flex-direction: column; }
-            .side-column { order: 2; }
-            .main-column { order: 1; }
-            .side-column img { max-width: 300px; margin: 0 auto; }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="main-column">
-            <h1>Первопроходец Сибири</h1>
-            <div class="status">{{ status }}</div>
-            <div class="messages">
-                {% for msg in messages %}
-                    <div class="msg">{{ msg }}</div>
-                {% endfor %}
-            </div>
-            <form method="POST" class="input-form">
-                <input type="text" name="command" id="commandInput" placeholder="Введите команду..." autofocus>
-                <button type="submit">Отправить</button>
-            </form>
-            <div class="commands-panel">
-                <button onclick="insertCommand('Отправиться за пушниной');">🦊 Отправиться за пушниной</button>
-                <button onclick="insertCommand('Отправиться за пушниной новый');">🗺️ Исследовать новую территорию</button>
-                <button onclick="insertCommand('Продать пушнину ');">💰 Продать пушнину</button>
-                <button onclick="insertCommand('Послать пушнину в царскую казну ');">👑 Послать пушнину в царскую казну</button>
-                <button onclick="insertCommand('Купить экипировку ');">🛠️ Купить экипировку</button>
-                <button onclick="insertCommand('Купить собаку ');">🐕 Купить собаку</button>
-                <button onclick="insertCommand('Купить лошадь ');">🐎 Купить лошадь</button>
-                <button onclick="insertCommand('Собрать клюкву');">🍒 Собрать клюкву (осень)</button>
-                <button onclick="insertCommand('Наловить рыбы');">🐟 Наловить рыбы (лето)</button>
-                <button onclick="insertCommand('Охота');">🍖 Охота</button>
-                <button onclick="insertCommand('Построить храм');" style="display:inline-flex; align-items:center; gap:6px;">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="20" height="20" style="flex-shrink:0;">
-                        <g opacity="0.05"><circle cx="50" cy="50" r="45" fill="#ffd700"/></g>
-                        <g fill="#b2d8d8" stroke="#9bc2c2" stroke-width="0.5" stroke-linejoin="round">
-                            <path d="M 20 80 Q 20 68, 25 68 Q 30 68, 30 80 Q 30 68, 35 68 Q 40 68, 40 80 Q 40 68, 45 68 Q 50 68, 50 80 Q 50 68, 55 68 Q 60 68, 60 80 Q 60 68, 65 68 Q 70 68, 70 80 Q 70 68, 75 68 Q 80 68, 80 80 Z"/>
-                            <rect x="42" y="38" width="16" height="25"/>
-                            <rect x="23" y="48" width="14" height="15"/>
-                            <rect x="63" y="48" width="14" height="15"/>
-                        </g>
-                        <g fill="#9bc2c2">
-                            <path d="M 47 48 A 3 3 0 0 1 53 48 V 56 H 47 Z"/>
-                            <path d="M 27 55 A 2 2 0 0 1 31 55 V 60 H 27 Z"/>
-                            <path d="M 69 55 A 2 2 0 0 1 73 55 V 60 H 69 Z"/>
-                        </g>
-                        <g fill="#ffcc00" stroke="#e6b800" stroke-width="0.5">
-                            <path d="M 50 20 C 53 28, 61 30, 58 38 C 55 40, 45 40, 42 38 C 39 30, 47 28, 50 20 Z"/>
-                            <path d="M 30 34 C 32 40, 39 41, 37 48 C 35 49, 25 49, 23 48 C 21 41, 28 40, 30 34 Z"/>
-                            <path d="M 70 34 C 72 40, 79 41, 77 48 C 75 49, 65 49, 63 48 C 21 41, 68 40, 70 34 Z"/>
-                        </g>
-                        <g stroke="#ffcc00" stroke-width="1.5" stroke-linecap="round">
-                            <line x1="50" y1="11" x2="50" y2="20"/>
-                            <line x1="47" y1="14" x2="53" y2="14"/>
-                            <line x1="48" y1="17" x2="52" y2="17"/>
-                            <line x1="30" y1="27" x2="30" y2="34"/>
-                            <line x1="28" y1="29" x2="32" y2="29"/>
-                            <line x1="70" y1="27" x2="70" y2="34"/>
-                            <line x1="68" y1="29" x2="72" y2="29"/>
-                        </g>
-                    </svg>
-                    Построить храм
-                </button>
-                <button onclick="insertCommand('Построить частокол');">🪵 Построить частокол</button>
-                <button onclick="insertCommand('Построить кузницу');">⚒️ Построить кузницу</button>
-                <button onclick="insertCommand('Подкупить разбойников ');">🤝 Подкупить разбойников</button>
-                <button onclick="insertCommand('Послать деньги семье ');">📨 Послать деньги семье</button>
-                <button onclick="insertCommand('Основать город ');">🏙️ Основать город</button>
-                <button onclick="insertCommand('Спонсировать научные исследования ');">🔬 Спонсировать научные исследования</button>
-                <button onclick="insertCommand('Пожертвовать сирым ');">❤️ Пожертвовать сирым</button>
-                <button onclick="insertCommand('Показать статус');">📊 Показать статус</button>
-                <button onclick="insertCommand('Следующий сезон');">➡️ Следующий сезон</button>
-                <button onclick="insertCommand('Переждать до следующей весны');">⏩ Переждать до следующей весны</button>
-                <button onclick="insertCommand('Города');">🏙️ Города</button>
-                <button onclick="insertCommand('Лидеры');">🏆 Лидеры</button>
-                <button onclick="insertCommand('Помощь');">❓ Помощь</button>
-            </div>
+import random
+import pickle
+import json
+from flask import Flask, request, render_template, session, redirect, url_for
 
-            <button class="help-toggle" onclick="toggleHelp()">📖 Показать справку</button>
-            <div class="help-box" id="helpBox">
-                <h3>Список команд</h3>
-                <ul>
-                    <li><span class="cmd">Отправиться за пушниной</span> <span class="desc">– отправить всех здоровых на первую территорию (летом).</span></li>
-                    <li><span class="cmd">Отправиться за пушниной новый</span> <span class="desc">– исследовать новую землю (все здоровые).</span></li>
-                    <li><span class="cmd">Отправиться за пушниной &lt;кол-во&gt; &lt;регион&gt;</span> <span class="desc">– отправить указанное количество на существующую территорию.</span></li>
-                    <li><span class="cmd">Продать пушнину &lt;кол-во&gt;</span> <span class="desc">– продать пушнину (только осенью). Цена зависит от запасов.</span></li>
-                    <li><span class="cmd">Послать пушнину в царскую казну &lt;кол-во&gt;</span> <span class="desc">– 100 пушнины = 1 грамота.</span></li>
-                    <li><span class="cmd">Купить экипировку &lt;кол-во&gt;</span> <span class="desc">– купить экипировку (цена зависит от кузницы).</span></li>
-                    <li><span class="cmd">Купить собаку [кол-во]</span> <span class="desc">– купить собак (50 руб/шт).</span></li>
-                    <li><span class="cmd">Купить лошадь [кол-во]</span> <span class="desc">– купить лошадей (50 руб/шт).</span></li>
-                    <li><span class="cmd">Собрать клюкву</span> <span class="desc">– осенью, риск разбойников, запас витамина С.</span></li>
-                    <li><span class="cmd">Наловить рыбы</span> <span class="desc">– летом, пополняет запас рыбы.</span></li>
-                    <li><span class="cmd">Охота</span> <span class="desc">– добыча мяса (пеммикана) для зимних запасов.</span></li>
-                    <li><span class="cmd">Построить храм</span> <span class="desc">– построить храм в текущем городе (500 руб).</span></li>
-                    <li><span class="cmd">Построить частокол</span> <span class="desc">– защита от разбойников (100 руб).</span></li>
-                    <li><span class="cmd">Построить кузницу</span> <span class="desc">– если есть железная руда в городе (200 руб).</span></li>
-                    <li><span class="cmd">Подкупить разбойников &lt;сумма&gt;</span> <span class="desc">– снизить активность.</span></li>
-                    <li><span class="cmd">Послать деньги семье &lt;сумма&gt;</span> <span class="desc">– отправить деньги семье.</span></li>
-                    <li><span class="cmd">Основать город &lt;название&gt;</span> <span class="desc">– требуется 5+5*число_городов грамот.</span></li>
-                    <li><span class="cmd">Спонсировать научные исследования &lt;сумма&gt;</span> <span class="desc">– стать меценатом (≥200 руб).</span></li>
-                    <li><span class="cmd">Пожертвовать сирым &lt;сумма&gt;</span> <span class="desc">– стать благотворителем (любая сумма >0).</span></li>
-                    <li><span class="cmd">Показать статус</span> <span class="desc">– показать состояние.</span></li>
-                    <li><span class="cmd">Следующий сезон</span> <span class="desc">– перейти к следующему сезону.</span></li>
-                    <li><span class="cmd">Переждать до следующей весны</span> <span class="desc">– пропустить год (50 руб + 2 кг провизии).</span></li>
-                    <li><span class="cmd">Города</span> <span class="desc">– показать информацию о городах.</span></li>
-                    <li><span class="cmd">Лидеры</span> <span class="desc">– таблица лидеров.</span></li>
-                    <li><span class="cmd">Помощь</span> <span class="desc">– показать эту справку.</span></li>
-                    <li><span class="cmd">Выход</span> <span class="desc">– выйти.</span></li>
-                </ul>
-                <h3>Сезоны года</h3>
-                <ul>
-                    <li><span class="cmd">🌸 Весна</span> – подготовка, закупка, охота.</li>
-                    <li><span class="cmd">☀️ Лето</span> – экспедиции, рыбалка, сбор клюквы (в конце лета).</li>
-                    <li><span class="cmd">🍂 Осень</span> – продажа пушнины, сбор клюквы, охота.</li>
-                    <li><span class="cmd">❄️ Зима</span> – расход провизии, риск цинги.</li>
-                </ul>
-                <p><span class="cmd">⚠️ Пьянство и разгул</span> – при деньгах >2000 (или >3000 с храмом).</p>
-                <h3>Провизия и здоровье</h3>
-                <ul>
-                    <li><span class="cmd">🍞 Мука</span> – только на первую зиму.</li>
-                    <li><span class="cmd">🐟 Рыба, 🥩 Пеммикан</span> – основные зимние запасы (10 кг на человека за зиму).</li>
-                    <li><span class="cmd">🍒 Клюква</span> – лечит цингу, собирается осенью.</li>
-                    <li><span class="cmd">🧄 Черемша</span> – лечит цингу, но только летом/осенью.</li>
-                    <li><span class="cmd">🧙 Знахарка</span> – второй шанс при цинге.</li>
-                </ul>
-            </div>
+# =================================================================
+# КЛАССЫ
+# =================================================================
 
-            <hr class="separator">
+class Traveler:
+    def __init__(self, name):
+        self.name = name
+        self.hunting = random.randint(3, 7)
+        self.endurance = random.randint(3, 7)
+        self.alive = True
+        self.scurvy = False
+        self.is_doctor = random.random() < 0.1
+        self.is_scientist = random.random() < 0.1
+        self.injured_until_season = -1
+        self.injured_with = None
+        self.poisoned_until_season = -1
+        self.scurvy_treatment_offered = False
+        self.scurvy_healer_offered = False
 
-            <button class="faq-toggle" onclick="toggleFAQ()">❓ ЧаВо</button>
-            <div class="faq-box" id="faqBox">
-                <h3>Часто задаваемые вопросы</h3>
-                <div class="faq-item">
-                    <div class="q">Как сохранить прогресс?</div>
-                    <div class="a">Игра автоматически сохраняется в сессии браузера. Закройте вкладку – и продолжите с того же места.</div>
-                </div>
-                <div class="faq-item">
-                    <div class="q">Как получить грамоты?</div>
-                    <div class="a">Отправляйте пушнину в царскую казну (100 шт = 1 грамота), открывайте новые земли, находите серебро или составляйте карты.</div>
-                </div>
-                <div class="faq-item">
-                    <div class="q">Что делать с цингой?</div>
-                    <div class="a">При появлении болезни выберите лечение: клюква (если есть), черемша (летом/осенью) или согласитесь на отвар знахарки. Отказ может привести к смерти.</div>
-                </div>
-                <div class="faq-item">
-                    <div class="q">Как подготовиться к зиме?</div>
-                    <div class="a">Летом ловите рыбу, охотитесь на мясо (пеммикан). Осенью соберите клюкву. В первую зиму поможет мука, но потом нужны будут запасы.</div>
-                </div>
-                <div class="faq-item">
-                    <div class="q">Что даёт кузница?</div>
-                    <div class="a">Снижает стоимость экипировки на 50% и позволяет её продавать.</div>
-                </div>
-            </div>
+    def ensure_attributes(self):
+        if not hasattr(self, 'is_doctor'):
+            self.is_doctor = random.random() < 0.1
+        if not hasattr(self, 'is_scientist'):
+            self.is_scientist = random.random() < 0.1
+        if not hasattr(self, 'injured_until_season'):
+            self.injured_until_season = -1
+        if not hasattr(self, 'injured_with'):
+            self.injured_with = None
+        if not hasattr(self, 'poisoned_until_season'):
+            self.poisoned_until_season = -1
+        if not hasattr(self, 'scurvy_treatment_offered'):
+            self.scurvy_treatment_offered = False
+        if not hasattr(self, 'scurvy_healer_offered'):
+            self.scurvy_healer_offered = False
 
-            <hr class="separator">
 
-            <!-- Блок титула – показываем только если есть -->
-            {% if noble_title %}
-            <div class="title-block">
-                <h3>👑 Титул</h3>
-                <p style="font-size:1.2em; color:#f0d080;">{{ noble_title }}</p>
-            </div>
-            {% endif %}
+class City:
+    ICONS = [
+        '🏰', '🏯', '🏛️', '🏗️', '🏘️', '🏡', '🏠', '🏢', '🏣', '🏤',
+        '🏥', '🏦', '🏨', '🏩', '🏪', '🏫', '🏬', '🏭', '🏯', '🏰'
+    ]
 
-            <!-- Блок городов – показываем только если есть города -->
-            {% if cities %}
-            <div class="city-block">
-                <h3>🏙️ Города</h3>
-                {% for city in cities %}
-                    <div class="city-card">
-                        <div class="city-name">
-                            <span class="icon">{{ city.icon if city.icon else '🏙️' }}</span>
-                            {{ city.name }}
-                        </div>
-                        <div class="city-details">
-                            <span>🏞️ {{ city.river }}</span>
-                            <span>👨‍👩‍👧‍👦 {{ city.population }}</span>
-                            {% if city.has_church %}<span>⛪ храм</span>{% endif %}
-                            {% if city.has_hospital %}<span>🏥 лечебница</span>{% endif %}
-                            {% if city.has_blacksmith %}<span>⚒️ кузница</span>{% endif %}
-                            {% if city.has_iron_mine %}<span>⛏️ руда</span>{% endif %}
-                            {% if city.has_silver_mine %}<span>🥈 серебро</span>{% endif %}
-                            {% if city.is_frontier %}<span>🇨🇳 застава (чай)</span>{% endif %}
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-            {% endif %}
+    def __init__(self, name, river=None, icon=None):
+        self.name = name
+        self.river = river or random.choice(["Обь", "Енисей", "Лена", "Иртыш", "Амур"])
+        self.population = random.randint(50, 200)
+        self.has_church = False
+        self.has_hospital = False
+        self.has_blacksmith = False
+        self.has_iron_mine = False
+        self.has_silver_mine = False
+        self.is_frontier = False
+        self.trade_bonus = 0
+        self.icon = icon
 
-            <!-- Блок достижений -->
-            <div class="achievements-block">
-                <h3>🏆 Достижения</h3>
-                <ul>
-                    <li>
-                        Основать первый город:
-                        {% if 'first_city' in achievements %}
-                            ✅
-                        {% else %}
-                            <span style="color:#aaa;">(даёт бонус к обороне)</span>
-                        {% endif %}
-                    </li>
-                    <li>
-                        Добыть 1000 пушнины:
-                        {% if 'fur_1000' in achievements %}
-                            ✅
-                        {% else %}
-                            <span style="color:#aaa;">(открывает доступ к царскому двору)</span>
-                        {% endif %}
-                    </li>
-                    <li>
-                        Найти 5 артефактов:
-                        {% if 'artifacts_5' in achievements %}
-                            ✅
-                        {% else %}
-                            <span style="color:#aaa;">(+5% к добыче)</span>
-                        {% endif %}
-                    </li>
-                    <li>
-                        Вылечить всех больных:
-                        {% if 'cure_all' in achievements %}
-                            ✅
-                        {% else %}
-                            <span style="color:#aaa;">(повышение морали)</span>
-                        {% endif %}
-                    </li>
-                </ul>
-            </div>
+    def ensure_attributes(self):
+        if not hasattr(self, 'icon') or self.icon is None:
+            self.icon = random.choice(self.ICONS)
 
-            <!-- Блок лидеров – показываем только если есть записи -->
-            {% if leaderboard %}
-            <div class="leaderboard-block">
-                <h3>🏆 Таблица лидеров</h3>
-                <ul>
-                    {% for entry in leaderboard[:10] %}
-                        <li>{{ loop.index }}. {{ entry.name }} — грамот: {{ entry.charters }}, городов: {{ entry.cities }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-            {% endif %}
 
-            <hr class="separator">
-            <button class="feedback-toggle" onclick="toggleFeedback()">📬 Обратная связь</button>
-            <div class="feedback-box" id="feedbackBox">
-                <h4>Напишите автору игры:</h4>
-                <form action="mailto:author@example.com" method="post" enctype="text/plain">
-                    <textarea name="body" rows="3" placeholder="Ваше сообщение..."></textarea>
-                    <button type="submit">Отправить по почте</button>
-                </form>
-                <p style="font-size:12px; color:#888;">(откроется почтовый клиент)</p>
-            </div>
+class Achievement:
+    GOALS = [
+        {"id": "first_city", "name": "Основать первый город", "reward": "бонус к обороне"},
+        {"id": "fur_1000", "name": "Добыть 1000 пушнины", "reward": "доступ к царскому двору"},
+        {"id": "artifacts_5", "name": "Найти 5 артефактов", "reward": "+5% к добыче"},
+        {"id": "cure_all", "name": "Вылечить всех больных цингой", "reward": "повышение морали"},
+    ]
 
-            <div class="social-share">
-                <button onclick="shareTelegram()">📲 Поделиться в Telegram</button>
-                <button onclick="shareTikTok()">🎵 Поделиться в TikTok</button>
-            </div>
+    def __init__(self):
+        self.completed = set()
+        self.discoveries = []  # список объектов открытий
 
-            <div class="footer">
-                <p>© 2026 «Первопроходец Сибири». Все права защищены.</p>
-                <p>При использовании материалов сайта ссылка на источник обязательна.</p>
-                <p><a href="/privacy">Политика конфиденциальности</a> | <a href="#">Пользовательское соглашение</a></p>
-            </div>
-        </div>
+    def check_and_reward(self, game):
+        s = game.settlement
+        if not self.is_completed("first_city") and len(s.cities) >= 1:
+            self.complete("first_city", game, "🏙️ Ты основал первый город! Отныне разбойники будут реже нападать.")
+            s.bandit_modifier = 0.5
+        if not self.is_completed("fur_1000") and s.total_fur_sent_to_tsar >= 1000:
+            self.complete("fur_1000", game, "👑 Ты отправил 1000 пушнины в казну! Царь приглашает тебя в свой двор.")
+            game.court_access = True
+        if not self.is_completed("artifacts_5") and s.artifacts_found >= 5:
+            self.complete("artifacts_5", game, "🔮 Ты собрал 5 древних артефактов! Добыча пушнины увеличена на 5%.")
+            s.hunting_bonus_permanent = 1.05
+        if not self.is_completed("cure_all") and s.count_scurvy() == 0 and game.total_cases_scurvy > 0:
+            self.complete("cure_all", game, "💚 Ты вылечил всех от цинги! Мораль отряда повышена.")
+            s.morale_bonus = 1.1
 
-        <div class="side-column">
-            <img src="{{ url_for('static', filename='images/image' ~ image_index ~ '.jpg') }}" alt="Иллюстрация Сибири">
-        </div>
-    </div>
+    def is_completed(self, goal_id):
+        return goal_id in self.completed
 
-    <script>
-        function insertCommand(cmd) {
-            var input = document.getElementById('commandInput');
-            input.value = cmd;
-            input.focus();
+    def complete(self, goal_id, game, message):
+        if goal_id not in self.completed:
+            self.completed.add(goal_id)
+            game.add_message(message)
+            game.add_message("🏆 Достижение разблокировано!")
+
+    def add_discovery(self, obj_type, name, comment=""):
+        self.discoveries.append({"type": obj_type, "name": name, "comment": comment})
+
+
+class Settlement:
+    def __init__(self):
+        self.travelers = [Traveler("Ермак"), Traveler("Иван")]
+        self.fur = 0
+        self.equipment = 0
+        self.money = 350
+        self.dogs = 0
+        self.horses = 0
+        self.lands = 1
+        self.charters = 0
+        self.total_charters_earned = 0
+        self.cabbage = 0
+        self.flour = 200
+        self.fish = 0
+        self.pemmican = 0
+        self.cranberries = 0
+        self.is_first_winter = True
+        self.church = False
+        self.palisade = False
+        self.year = 1
+        self.season = 0
+        self.total_fur_sent_to_tsar = 0
+        self.penalty_next_season = 0
+        self.turn = 0
+        self.city_names = []
+        self.last_offer_level = 0
+        self.patron_of_science = False
+        self.benefactor = False
+        self.cities = []
+        self.iron_deposits = []
+        self.silver_deposits = []
+        self.has_ancient_maps = False
+        self.map_bonus = 0
+        self.maps_created = 0
+        self.artifacts_found = 0
+        self.hunting_bonus_permanent = 1.0
+        self.morale_bonus = 1.0
+        self.bandit_modifier = 1.0
+        self.court_access = False
+        self.noble_title = None
+        self.injured_travelers = []
+        self.tutorial_step = 0
+        self.difficulty_modifier = 1.0
+        self.leaderboard = []
+        self.drunkard_handled = False
+
+        # Новые поля
+        self.yasak_income = 0
+        self.settlements = []  # список названий поселений
+        self.settlement_lands = []  # земли, на которых основаны поселения
+        self.land_icons = []  # иконки для карты
+        self.morale = 100  # шкала морали от 0 до 100
+
+    def total_animals(self):
+        return self.dogs + self.horses
+
+    def living_travelers(self):
+        result = []
+        for t in self.travelers:
+            if (t.alive and 
+                t.injured_until_season == -1 and 
+                t.poisoned_until_season == -1):
+                result.append(t)
+        return result
+
+    def all_alive(self):
+        return [t for t in self.travelers if t.alive]
+
+    def count_scurvy(self):
+        return sum(1 for t in self.travelers if t.alive and t.scurvy)
+
+    def has_scurvy(self):
+        return self.count_scurvy() > 0
+
+    def remove_dead(self):
+        self.travelers = [t for t in self.travelers if t.alive]
+
+    def add_traveler(self, name="Новобранец"):
+        if self.money >= 50:
+            self.money -= 50
+            new_t = Traveler(name)
+            self.travelers.append(new_t)
+            return True
+        return False
+
+    def ensure_attributes(self):
+        if not hasattr(self, 'cities'):
+            self.cities = []
+        if not hasattr(self, 'iron_deposits'):
+            self.iron_deposits = []
+        if not hasattr(self, 'silver_deposits'):
+            self.silver_deposits = []
+        if not hasattr(self, 'has_ancient_maps'):
+            self.has_ancient_maps = False
+        if not hasattr(self, 'map_bonus'):
+            self.map_bonus = 0
+        if not hasattr(self, 'maps_created'):
+            self.maps_created = 0
+        if not hasattr(self, 'artifacts_found'):
+            self.artifacts_found = 0
+        if not hasattr(self, 'hunting_bonus_permanent'):
+            self.hunting_bonus_permanent = 1.0
+        if not hasattr(self, 'morale_bonus'):
+            self.morale_bonus = 1.0
+        if not hasattr(self, 'bandit_modifier'):
+            self.bandit_modifier = 1.0
+        if not hasattr(self, 'court_access'):
+            self.court_access = False
+        if not hasattr(self, 'noble_title'):
+            self.noble_title = None
+        if not hasattr(self, 'injured_travelers'):
+            self.injured_travelers = []
+        if not hasattr(self, 'tutorial_step'):
+            self.tutorial_step = 0
+        if not hasattr(self, 'difficulty_modifier'):
+            self.difficulty_modifier = 1.0
+        if not hasattr(self, 'flour'):
+            self.flour = 200
+        if not hasattr(self, 'fish'):
+            self.fish = 0
+        if not hasattr(self, 'pemmican'):
+            self.pemmican = 0
+        if not hasattr(self, 'cranberries'):
+            self.cranberries = 0
+        if not hasattr(self, 'is_first_winter'):
+            self.is_first_winter = True
+        if not hasattr(self, 'drunkard_handled'):
+            self.drunkard_handled = False
+        if not hasattr(self, 'yasak_income'):
+            self.yasak_income = 0
+        if not hasattr(self, 'settlements'):
+            self.settlements = []
+        if not hasattr(self, 'settlement_lands'):
+            self.settlement_lands = []
+        if not hasattr(self, 'land_icons'):
+            self.land_icons = []
+        if not hasattr(self, 'morale'):
+            self.morale = 100
+        for t in self.travelers:
+            t.ensure_attributes()
+        icons = City.ICONS
+        for idx, city in enumerate(self.cities):
+            if not hasattr(city, 'icon') or city.icon is None or city.icon not in icons:
+                city.icon = icons[idx % len(icons)]
+            if city.icon not in icons:
+                city.icon = icons[idx % len(icons)]
+            city.ensure_attributes()
+
+
+class Game:
+    def __init__(self):
+        self.settlement = Settlement()
+        self.running = True
+        self.merchant_price = 5
+        self.bandit_activity = 0.2
+        self.event_manager = EventManager(self)
+        self.messages = []
+        self.awaiting_input = False
+        self.input_prompt = ""
+        self.input_callback = None
+        self.pending_command = None
+        self._charter_level = 0
+        self._bandit_count = 0
+        self._bandit_living = []
+        self._bandit_fur_gained = 0
+        self.current_image_index = random.randint(1, 3)
+        self.achievements = Achievement()
+        self.court_access = False
+        self.total_cases_scurvy = 0
+        self.hunting_boost = False
+        self.hunting_boost_multiplier = 1.0
+        self.tutorial_messages_shown = set()
+        self.difficulty_adaptation_counter = 0
+        self.china_discovered = False
+        self.royal_favor_seasons = 0
+        self._settlement_people_count = 0
+
+    def add_message(self, text):
+        self.messages.append(text)
+
+    def set_input_callback(self, callback, prompt):
+        self.awaiting_input = True
+        self.input_prompt = prompt
+        self.input_callback = callback
+        self.add_message(prompt)
+
+    def advance_image(self):
+        self.current_image_index = (self.current_image_index % 3) + 1
+
+    def ensure_attributes(self):
+        if not hasattr(self, 'total_cases_scurvy'):
+            self.total_cases_scurvy = 0
+        if not hasattr(self, 'hunting_boost'):
+            self.hunting_boost = False
+        if not hasattr(self, 'hunting_boost_multiplier'):
+            self.hunting_boost_multiplier = 1.0
+        if not hasattr(self, 'tutorial_messages_shown'):
+            self.tutorial_messages_shown = set()
+        if not hasattr(self, 'china_discovered'):
+            self.china_discovered = False
+        if not hasattr(self, 'achievements'):
+            self.achievements = Achievement()
+        if not hasattr(self, 'current_image_index'):
+            self.current_image_index = random.randint(1, 3)
+        if not hasattr(self, 'royal_favor_seasons'):
+            self.royal_favor_seasons = 0
+        if not hasattr(self, '_settlement_people_count'):
+            self._settlement_people_count = 0
+        self.settlement.ensure_attributes()
+
+    # ================ ДИНАМИЧЕСКАЯ СЛОЖНОСТЬ ================
+
+    def adjust_difficulty(self):
+        s = self.settlement
+        if len([t for t in s.travelers if not t.alive]) > 2:
+            s.difficulty_modifier = max(0.8, s.difficulty_modifier - 0.05)
+        if s.money < -50:
+            s.difficulty_modifier = max(0.7, s.difficulty_modifier - 0.1)
+        if s.charters > 10 and s.lands > 5:
+            s.difficulty_modifier = min(1.3, s.difficulty_modifier + 0.05)
+        s.difficulty_modifier = max(0.6, min(1.4, s.difficulty_modifier))
+
+    # ================ ПОДСКАЗКИ ================
+
+    def tutorial_advice(self):
+        s = self.settlement
+        step = s.tutorial_step
+        if step == 0 and s.season == 1 and len(s.living_travelers()) == 2:
+            self.add_message("💡 Подсказка: Лето — лучшее время для экспедиций. Попробуй отправиться за пушниной!")
+            s.tutorial_step = 1
+        elif step == 1 and s.fur > 0 and s.season == 2:
+            self.add_message("💡 Подсказка: Осенью можно продать пушнину. Введи 'Продать пушнину <количество>'.")
+            s.tutorial_step = 2
+        elif step == 2 and s.equipment < 5 and s.money > 20:
+            self.add_message("💡 Подсказка: У тебя мало экипировки. Купи её командой 'Купить экипировку <количество>' (5 руб/ед).")
+            s.tutorial_step = 3
+        elif step == 3 and s.season == 2 and s.cranberries == 0:
+            self.add_message("💡 Подсказка: Осенью можно собрать клюкву (команда 'Собрать клюкву'). Она поможет лечить цингу зимой.")
+            s.tutorial_step = 4
+        elif step == 4 and s.season == 0 and s.fish == 0 and s.pemmican == 0:
+            self.add_message("💡 Подсказка: Весной и летом можно заготовить рыбу (команда 'Наловить рыбы') или заняться охотой ('Охота') для зимних запасов.")
+            s.tutorial_step = 5
+        if len(s.cities) == 1 and not self.has_shown_tutorial("city"):
+            self.add_message("💡 Подсказка: Ты основал город! В нём можно построить храм и лечебницу, если есть врач.")
+            self.mark_tutorial_shown("city")
+        if s.charters >= 5 and not self.has_shown_tutorial("charter"):
+            self.add_message("💡 Подсказка: У тебя 5 грамот! Теперь можно основать город (команда 'Основать город <название>').")
+            self.mark_tutorial_shown("charter")
+        if len(s.settlements) == 0 and s.lands >= 2 and len(s.living_travelers()) >= 4:
+            self.add_message("💡 Подсказка: Ты можешь основать казацкое поселение (команда 'Основать поселение'). Это даст доход и поощрение от царя.")
+            self.mark_tutorial_shown("settlement")
+
+    def has_shown_tutorial(self, key):
+        return key in self.tutorial_messages_shown
+
+    def mark_tutorial_shown(self, key):
+        self.tutorial_messages_shown.add(key)
+
+    # ================ ОБРАБОТКА КОМАНД ================
+
+    def process_command(self, cmd):
+        self.messages = []
+        if self.awaiting_input:
+            self.awaiting_input = False
+            if self.input_callback:
+                self.input_callback(cmd)
+            self.advance_image()
+            return self.messages
+
+        if not cmd:
+            self.add_message("Введите команду.")
+            self.advance_image()
+            return self.messages
+
+        if cmd.startswith('отправиться за пушниной'):
+            cmd = 'отправить' + cmd[len('отправиться за пушниной'):]
+        if cmd.startswith('спонсировать научные исследования'):
+            cmd = 'пожертвовать науке' + cmd[len('спонсировать научные исследования'):]
+        if cmd.startswith('послать деньги семье'):
+            cmd = 'отправить семье' + cmd[len('послать деньги семье'):]
+        if cmd.startswith('показать статус'):
+            cmd = 'статус' + cmd[len('показать статус'):]
+        if cmd.startswith('переждать до следующей весны'):
+            cmd = 'пропустить год' + cmd[len('переждать до следующей весны'):]
+
+        cmd_map = {
+            'отправить': self.cmd_expedition,
+            'продать пушнину': self.cmd_sell,
+            'послать пушнину в царскую казну': self.cmd_give_to_tsar,
+            'купить экипировку': self.cmd_buy_equipment,
+            'купить собаку': self.cmd_buy_dog,
+            'купить лошадь': self.cmd_buy_horse,
+            'построить храм': self.cmd_build_church,
+            'построить частокол': self.cmd_build_palisade,
+            'подкупить разбойников': self.cmd_bribe_bandits,
+            'отправить семье': self.cmd_send_money_to_family,
+            'основать город': self.cmd_found_city,
+            'пожертвовать науке': self.cmd_donate_science,
+            'пожертвовать сирым': self.cmd_donate_charity,
+            'статус': self.cmd_status,
+            'следующий сезон': self.cmd_skip,
+            'пропустить год': self.cmd_skip_year,
+            'помощь': self.cmd_help,
+            'выход': self.cmd_quit,
+            'построить кузницу': self.cmd_build_blacksmith,
+            'продать экипировку': self.cmd_sell_equipment,
+            'города': self.cmd_show_cities,
+            'лидеры': self.cmd_show_leaderboard,
+            'собрать клюкву': self.cmd_gather_cranberries,
+            'наловить рыбы': self.cmd_fish,
+            'охота': self.cmd_hunt,
+            'изготовить пеммикан': self.cmd_make_pemmican,
+            'основать поселение': self.cmd_found_settlement,
+            'карта': self.cmd_show_map,
+            'открытия': self.cmd_show_discoveries,
         }
-        function toggleHelp() {
-            var box = document.getElementById('helpBox');
-            var btn = document.querySelector('.help-toggle');
-            if (box.style.display === 'block') {
-                box.style.display = 'none';
-                btn.textContent = '📖 Показать справку';
-            } else {
-                box.style.display = 'block';
-                btn.textContent = '📕 Скрыть справку';
-            }
-        }
-        function toggleFeedback() {
-            var box = document.getElementById('feedbackBox');
-            var btn = document.querySelector('.feedback-toggle');
-            if (box.style.display === 'block') {
-                box.style.display = 'none';
-                btn.textContent = '📬 Обратная связь';
-            } else {
-                box.style.display = 'block';
-                btn.textContent = '📬 Закрыть форму';
-            }
-        }
-        function toggleFAQ() {
-            var box = document.getElementById('faqBox');
-            var btn = document.querySelector('.faq-toggle');
-            if (box.style.display === 'block') {
-                box.style.display = 'none';
-                btn.textContent = '❓ ЧаВо';
-            } else {
-                box.style.display = 'block';
-                btn.textContent = '❓ Скрыть ЧаВо';
-            }
-        }
-        function shareTelegram() {
-            const url = window.location.href;
-            const text = "Я играю в 'Первопроходец Сибири'! Присоединяйся!";
-            window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
-        }
-        function shareTikTok() {
-            const text = "Я играю в 'Первопроходец Сибири'! Попробуй и ты!";
-            navigator.clipboard.writeText(text).then(() => alert('Текст скопирован! Вставьте его в TikTok.'));
-        }
-    </script>
 
-    <!-- Yandex.Metrika counter -->
-    <script type="text/javascript">
-        (function(m,e,t,r,i,k,a){
-            m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-            m[i].l=1*new Date();
-            for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-            k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=112059090', 'ym');
+        matched = None
+        for key in sorted(cmd_map.keys(), key=len, reverse=True):
+            if cmd == key or cmd.startswith(key + ' '):
+                matched = key
+                break
+        if matched:
+            args = cmd[len(matched):].strip().split()
+            try:
+                cmd_map[matched](args)
+            except Exception as e:
+                self.add_message(f"Ошибка: {e}")
+        else:
+            self.add_message("Неизвестная команда. Введите 'помощь'.")
 
-        ym(112059090, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
-    </script>
-    <noscript><div><img src="https://mc.yandex.ru/watch/112059090" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
-    <!-- /Yandex.Metrika counter -->
-</body>
-</html>
+        self.after_action()
+        self.advance_image()
+        return self.messages
+
+    def after_action(self):
+        self.check_debt()
+        s = self.settlement
+
+        # Проверка пьянства
+        if not s.drunkard_handled:
+            threshold = 3000 if s.church else 2000
+            if s.money > threshold:
+                self.event_drunkard()
+                s.drunkard_handled = True
+
+        # Лечение цинги
+        for t in s.all_alive():
+            if t.scurvy and not t.scurvy_treatment_offered:
+                self.offer_initial_scurvy_treatment(t)
+                break
+
+        # Доход от чая
+        for city in s.cities:
+            if city.is_frontier:
+                s.money += city.trade_bonus
+
+        # Ясак (доход от земель)
+        if s.lands > 1:
+            s.yasak_income = (s.lands - 1) * 5
+            s.money += s.yasak_income
+
+        # Доход от поселений
+        s.money += len(s.settlements) * 10
+
+        # Проверка морали (если упала ниже 0, то бунт)
+        if s.morale <= 0:
+            self.event_mutiny()
+
+        self.achievements.check_and_reward(self)
+        self.tutorial_advice()
+        self.adjust_difficulty()
+        self.process_injuries()
+        for city in s.cities:
+            city.population += random.randint(0, 3)
+        if s.charters >= 5:
+            current_level = s.charters // 5
+            if current_level > s.last_offer_level:
+                self.offer_charter_choice()
+        if s.total_fur_sent_to_tsar >= 1000 and s.noble_title is None:
+            s.noble_title = 'дворянин'
+            self.add_message("👑 Царь жалует тебе дворянское звание за твои заслуги! Ты теперь дворянин.")
+        if s.total_fur_sent_to_tsar >= 10000 and s.noble_title != 'вельможа':
+            s.noble_title = 'вельможа'
+            self.add_message("👑 Великая честь! Ты стал вельможей! Но помни: с большим богатством приходит и большая ответственность.")
+        # Титул графа за 15 городов
+        if len(s.cities) >= 15 and s.noble_title != 'граф':
+            s.noble_title = 'граф'
+            self.add_message("👑 Великая честь! Царь жалует тебе титул графа за множество построенных городов!")
+
+    # ================ СОБЫТИЕ ПЬЯНСТВА (расширенное) ================
+
+    def event_drunkard(self):
+        s = self.settlement
+        threshold = 3000 if s.church else 2000
+        self.add_message(f"🍺 Царь потребовал навести порядок в отряде! У тебя {s.money} руб., а порог – {threshold} руб.")
+        self.add_message("Что будешь делать?")
+        self.add_message("  1 - Заняться благотворительностью (пожертвовать 150 руб.) – повышает мораль и снижает риск пьянства.")
+        self.add_message("  2 - Построить / укрепить храм (500 руб. или 100 руб., если храм есть) – повышает порог пьянства.")
+        self.add_message("  3 - Помочь семьям отряда (отправить 100 руб. семьям) – поднимает дух и снижает пьянство.")
+        self.add_message("  4 - Дисциплинарные меры – отправить пьяниц в монастырь (если есть храм) или в лечебницу, или оштрафовать.")
+        self.add_message("  5 - Игнорировать – потеря 500 руб., грамоты и выносливости.")
+        self.set_input_callback(self.process_drunkard_choice, "Твой выбор (1, 2, 3, 4 или 5): ")
+
+    def process_drunkard_choice(self, choice):
+        s = self.settlement
+        if choice == "1":
+            if s.money >= 150:
+                s.money -= 150
+                if not s.benefactor:
+                    s.benefactor = True
+                    self.add_message("❤️ Ты стал благотворителем! Отряд доволен, риск пьянства снижен.")
+                else:
+                    self.add_message("❤️ Ты снова пожертвовал. Мораль отряда повышена.")
+                s.morale = min(100, s.morale + 5)
+                s.drunkard_handled = True
+            else:
+                self.add_message("❌ Недостаточно денег (нужно 150). Попробуй другой вариант.")
+                self.event_drunkard()
+        elif choice == "2":
+            target = None
+            for city in s.cities:
+                if not city.has_church:
+                    target = city
+                    break
+            if target and s.money >= 500:
+                s.money -= 500
+                target.has_church = True
+                self.add_message(f"🏛️ Построен храм в городе {target.name}! Порог пьянства повышен до 3000.")
+                s.drunkard_handled = True
+            elif s.church and s.money >= 100:
+                s.money -= 100
+                self.add_message("🙏 Проведены молебны. Вера укрепилась, пьянство отступает.")
+                s.drunkard_handled = True
+            else:
+                self.add_message("❌ Недостаточно денег или нет подходящего города. Попробуй другой вариант.")
+                self.event_drunkard()
+        elif choice == "3":
+            if s.money >= 100:
+                s.money -= 100
+                s.morale = min(100, s.morale + 3)
+                self.add_message("📨 Деньги отправлены семьям. Отряд воспрял духом, пьянство пошло на спад.")
+                s.drunkard_handled = True
+            else:
+                self.add_message("❌ Недостаточно денег (нужно 100). Попробуй другой вариант.")
+                self.event_drunkard()
+        elif choice == "4":
+            self.add_message("Выбери дисциплинарную меру:")
+            self.add_message("  1 - Отправить в монастырь (нужен храм, 2 человека выбывают на 2 сезона, но возвращаются)")
+            self.add_message("  2 - Поместить в лечебницу (нужна лечебница в городе, 1 человек выбывает на 1 сезон)")
+            self.add_message("  3 - Штраф с жалованья (списать 200 руб. с казны, но мораль упадёт)")
+            self.set_input_callback(lambda subchoice: self.process_discipline_choice(subchoice), "Твой выбор (1, 2 или 3): ")
+        elif choice == "5":
+            s.money -= 500
+            if s.charters > 0:
+                s.charters -= 1
+                self.add_message(f"😤 В отряде пьянство и разгул! Царь отнял 1 грамоту и 500 рублей. Осталось грамот: {s.charters}")
+            else:
+                for t in s.all_alive():
+                    t.endurance = max(1, t.endurance - 1)
+                self.add_message(f"😤 В отряде пьянство и разгул! У тебя нет грамот, поэтому отряд потерял 500 рублей и все потеряли по 1 выносливости.")
+            s.drunkard_handled = True
+        else:
+            self.add_message("❌ Неверный выбор. Попробуй ещё раз.")
+            self.event_drunkard()
+
+    def process_discipline_choice(self, subchoice):
+        s = self.settlement
+        if subchoice == "1":
+            has_church = any(c.has_church for c in s.cities)
+            if has_church:
+                living = s.living_travelers()
+                if len(living) >= 3:
+                    victims = random.sample(living, 2)
+                    for v in victims:
+                        v.injured_until_season = 2
+                    self.add_message("🙏 Двое пьяниц отправлены в монастырь. Они вернутся через 2 сезона.")
+                    s.drunkard_handled = True
+                else:
+                    self.add_message("❌ Недостаточно людей для отправки в монастырь. Попробуй другую меру.")
+                    self.event_drunkard()
+            else:
+                self.add_message("❌ Нет храма для монастыря. Попробуй другую меру.")
+                self.event_drunkard()
+        elif subchoice == "2":
+            has_hospital = any(c.has_hospital for c in s.cities)
+            if has_hospital:
+                living = s.living_travelers()
+                if len(living) >= 2:
+                    victim = random.choice(living)
+                    victim.injured_until_season = 1
+                    self.add_message("🏥 Пьяница отправлен в лечебницу на 1 сезон.")
+                    s.drunkard_handled = True
+                else:
+                    self.add_message("❌ Недостаточно людей. Попробуй другую меру.")
+                    self.event_drunkard()
+            else:
+                self.add_message("❌ Нет лечебницы. Попробуй другую меру.")
+                self.event_drunkard()
+        elif subchoice == "3":
+            if s.money >= 200:
+                s.money -= 200
+                s.morale = max(0, s.morale - 10)
+                self.add_message("💰 Наложен штраф. Деньги изъяты из казны, мораль упала, но пьянство прекращено.")
+                s.drunkard_handled = True
+            else:
+                self.add_message("❌ Недостаточно денег для штрафа (нужно 200). Попробуй другую меру.")
+                self.event_drunkard()
+        else:
+            self.add_message("❌ Неверный выбор. Попробуй ещё раз.")
+            self.event_drunkard()
+
+    # ================ ЛЕЧЕНИЕ ЦИНГИ ================
+
+    def offer_initial_scurvy_treatment(self, traveler):
+        s = self.settlement
+        options = []
+        if s.cranberries > 0:
+            options.append("1 - Съесть клюкву (лечит цингу)")
+        if s.season == 1 or s.season == 2:
+            options.append("2 - Съесть черемшу (дикий чеснок)")
+        options.append("3 - Отказаться, надеясь, что само пройдёт")
+
+        msg = f"🫐 У {traveler.name} появились признаки цинги! Что будешь делать?\n"
+        msg += "\n".join(options)
+        self.add_message(msg)
+        self.set_input_callback(lambda choice: self.process_initial_scurvy_choice(traveler, choice),
+                                "Твой выбор (1, 2 или 3): ")
+
+    def process_initial_scurvy_choice(self, traveler, choice):
+        s = self.settlement
+        if choice == "1" and s.cranberries > 0:
+            s.cranberries -= 1
+            traveler.scurvy = False
+            traveler.scurvy_treatment_offered = True
+            self.add_message(f"🍒 {traveler.name} съел клюкву, богатую витамином С, и полностью выздоровел!")
+            self.total_cases_scurvy += 1
+        elif choice == "2" and (s.season == 1 or s.season == 2):
+            traveler.scurvy = False
+            traveler.scurvy_treatment_offered = True
+            self.add_message(f"🧄 {traveler.name} съел черемшу, содержащую витамин С, и цинга отступила!")
+            self.total_cases_scurvy += 1
+        elif choice == "3":
+            traveler.scurvy_treatment_offered = True
+            self.add_message(f"😔 {traveler.name} отказался от лечения. Болезнь может усугубиться.")
+        else:
+            self.add_message("❌ Неверный выбор. Попробуй ещё раз.")
+            self.offer_initial_scurvy_treatment(traveler)
+
+    def offer_healer_scurvy_treatment(self, traveler):
+        self.add_message(f"🧙 Местная знахарка предлагает {traveler.name} выпить отвар из хвои. Это может помочь от цинги.")
+        self.add_message("Что будешь делать?")
+        self.add_message("  1 - Согласиться")
+        self.add_message("  2 - Отказаться")
+        self.set_input_callback(lambda choice: self.process_healer_scurvy_choice(traveler, choice),
+                                "Твой выбор (1 или 2): ")
+
+    def process_healer_scurvy_choice(self, traveler, choice):
+        if choice == "1":
+            traveler.scurvy = False
+            traveler.scurvy_healer_offered = True
+            self.add_message(f"🌿 {traveler.name} выпил отвар хвои, богатый витамином С, и полностью выздоровел!")
+            self.total_cases_scurvy += 1
+        elif choice == "2":
+            traveler.scurvy_healer_offered = True
+            traveler.alive = False
+            self.add_message(f"💀 {traveler.name} отказался от помощи знахарки и умер от цинги.")
+            self.settlement.remove_dead()
+        else:
+            self.add_message("❌ Неверный выбор. Попробуй ещё раз.")
+            self.offer_healer_scurvy_treatment(traveler)
+
+    # ================ НОВЫЕ КОМАНДЫ ================
+
+    def cmd_gather_cranberries(self, args):
+        s = self.settlement
+        if s.season != 2:
+            self.add_message("❌ Клюкву можно собирать только осенью!")
+            return
+        living = s.living_travelers()
+        if not living:
+            self.add_message("Нет здоровых людей для сбора клюквы.")
+            return
+        gathered = sum(random.randint(2, 5) for _ in living)
+        s.cranberries += gathered
+        self.add_message(f"🍒 Собрано {gathered} кг клюквы. Теперь в запасе {s.cranberries} кг.")
+        if random.random() < 0.25:
+            self.add_message("🏴 На сборщиков напали разбойники!")
+            loss = gathered // 2
+            if loss > 0:
+                s.cranberries -= loss
+                self.add_message(f"Разбойники отняли {loss} кг клюквы. Осталось {s.cranberries} кг.")
+            if random.random() < 0.3:
+                victim = random.choice(living)
+                victim.alive = False
+                self.add_message(f"⚔️ Разбойники убили {victim.name}.")
+                s.remove_dead()
+
+    def cmd_fish(self, args):
+        s = self.settlement
+        if s.season != 1:
+            self.add_message("❌ Рыбачить можно только летом!")
+            return
+        living = s.living_travelers()
+        if not living:
+            self.add_message("Нет здоровых людей для рыбалки.")
+            return
+        caught = sum(random.randint(5, 15) for _ in living)
+        s.fish += caught
+        self.add_message(f"🐟 Поймано {caught} кг рыбы. Всего рыбы: {s.fish} кг.")
+
+    def cmd_hunt(self, args):
+        s = self.settlement
+        living = s.living_travelers()
+        if not living:
+            self.add_message("Нет здоровых людей для охоты.")
+            return
+        if s.season == 3:
+            modifier = 0.5
+        elif s.season == 0:
+            modifier = 0.7
+        else:
+            modifier = 1.0
+        hunted = sum(random.randint(5, 15) for _ in living)
+        hunted = int(hunted * modifier)
+        s.pemmican += hunted
+        self.add_message(f"🍖 Добыто {hunted} кг мяса (переработано в пеммикан). Всего пеммикана: {s.pemmican} кг.")
+
+    def cmd_make_pemmican(self, args):
+        self.add_message("ℹ️ Охота уже даёт пеммикан напрямую. Используй команду 'Охота'.")
+
+    # ================ ОСНОВАНИЕ ПОСЕЛЕНИЯ ================
+
+    def cmd_found_settlement(self, args):
+        s = self.settlement
+        if len(s.cities) < 2 and not (len(s.cities) >= 1 and s.lands >= 5):
+            self.add_message("❌ Нужно как минимум 2 города (или 1 город и 5 земель) для основания поселения.")
+            return
+        if len(s.living_travelers()) < 6:
+            self.add_message("❌ В отряде должно быть не менее 6 здоровых людей.")
+            return
+        if len(s.settlements) >= 3:
+            self.add_message("❌ Уже основано 3 поселения (максимум).")
+            return
+        self.add_message("Сколько человек отправить в поселение? (минимум 2, максимум половина отряда)")
+        max_people = len(s.living_travelers()) // 2
+        self.set_input_callback(lambda count: self.process_settlement_people(count, max_people),
+                                f"Введите число (2-{max_people}): ")
+
+    def process_settlement_people(self, count_str, max_people):
+        try:
+            count = int(count_str)
+        except:
+            self.add_message("❌ Неверное число. Попробуй ещё раз.")
+            return
+        s = self.settlement
+        if count < 2 or count > max_people:
+            self.add_message(f"❌ Число должно быть от 2 до {max_people}.")
+            return
+        if count > len(s.living_travelers()):
+            self.add_message("❌ Недостаточно здоровых людей.")
+            return
+        self._settlement_people_count = count
+        self.add_message(f"На какой земле основать поселение? (доступны земли 1-{s.lands})")
+        self.set_input_callback(self.process_settlement_land, "Введите номер земли: ")
+
+    def process_settlement_land(self, land_str):
+        try:
+            land = int(land_str)
+        except:
+            self.add_message("❌ Неверное число. Попробуй ещё раз.")
+            return
+        s = self.settlement
+        if land < 1 or land > s.lands:
+            self.add_message(f"❌ Доступны земли 1-{s.lands}.")
+            return
+        if land in s.settlement_lands:
+            self.add_message("❌ На этой земле уже есть поселение.")
+            return
+        living = s.living_travelers()
+        if len(living) < self._settlement_people_count:
+            self.add_message("❌ Недостаточно здоровых людей.")
+            return
+        settlers = random.sample(living, self._settlement_people_count)
+        for t in settlers:
+            t.alive = False
+        s.remove_dead()
+        s.settlements.append(f"Поселение на земле {land}")
+        s.settlement_lands.append(land)
+        self.add_message(f"🏕️ Казацкое поселение основано на земле {land}! Отряд покинуло {self._settlement_people_count} человек.")
+        self.give_settlement_reward()
+
+    def give_settlement_reward(self):
+        s = self.settlement
+        rewards = [
+            ("Золотая казна", lambda: self._reward_gold()),
+            ("Царская грамота", lambda: self._reward_charter()),
+            ("Земельный надел", lambda: self._reward_land()),
+            ("Военное снаряжение", lambda: self._reward_equipment()),
+            ("Дворянский чин", lambda: self._reward_noble()),
+            ("Царское благоволение", lambda: self._reward_favor()),
+        ]
+        reward_name, reward_func = random.choice(rewards)
+        result = reward_func()
+        self.add_message(f"👑 Царь жалует тебе: {reward_name}! {result}")
+
+    def _reward_gold(self):
+        s = self.settlement
+        gold = 300 + 50 * self._settlement_people_count
+        s.money += gold
+        return f"Получено {gold} рублей."
+
+    def _reward_charter(self):
+        s = self.settlement
+        s.charters += 1
+        return "Получена 1 грамота."
+
+    def _reward_land(self):
+        s = self.settlement
+        s.yasak_income += 5
+        return "Доход от ясака увеличен на 5 руб./сезон."
+
+    def _reward_equipment(self):
+        s = self.settlement
+        amount = random.randint(20, 30)
+        s.equipment += amount
+        return f"Получено {amount} единиц экипировки."
+
+    def _reward_noble(self):
+        s = self.settlement
+        if s.noble_title is None:
+            s.noble_title = 'дворянин'
+            return "Ты получил дворянский чин!"
+        elif s.noble_title == 'дворянин':
+            s.noble_title = 'барон'
+            return "Ты стал бароном! (снижение порога пьянства на 200 руб.)"
+        elif s.noble_title == 'барон':
+            s.noble_title = 'граф'
+            return "Ты стал графом! (ещё больше бонусов)"
+        else:
+            s.money += 500
+            return "Ты уже достиг высшего титула, поэтому царь дарует 500 рублей."
+
+    def _reward_favor(self):
+        self.royal_favor_seasons += 5
+        return "Царское благоволение! На 5 сезонов штрафы от пьянства снижены вдвое."
+
+    # ================ КАРТА ================
+
+    def cmd_show_map(self, args):
+        s = self.settlement
+        if not s.land_icons:
+            self.add_message("Карта пока пуста. Освой новые земли!")
+            return
+        map_str = "🗺️ Карта Сибири:\n"
+        for i, icon in enumerate(s.land_icons):
+            map_str += f"{icon} "
+            if (i+1) % 10 == 0:
+                map_str += "\n"
+        self.add_message(map_str)
+
+    # ================ ГЕОГРАФИЧЕСКИЕ ОТКРЫТИЯ ================
+
+    def cmd_show_discoveries(self, args):
+        if not self.achievements.discoveries:
+            self.add_message("Пока нет географических открытий.")
+            return
+        self.add_message("🏆 Географические открытия:")
+        for d in self.achievements.discoveries:
+            comment = f" (пояснение: {d['comment']})" if d['comment'] else ""
+            self.add_message(f"- {d['type']} «{d['name']}»{comment}")
+
+    # ================ СЕЗОН И ЗИМА ================
+
+    def advance_season(self):
+        s = self.settlement
+        s.drunkard_handled = False
+        old_season = s.season
+        s.season = (s.season + 1) % 4
+
+        # Летом – излечение от цинги
+        if s.season == 1:
+            healed_count = 0
+            for t in s.living_travelers():
+                if t.scurvy:
+                    t.scurvy = False
+                    healed_count += 1
+            if healed_count > 0:
+                self.add_message(f"☀️ С приходом лета все {healed_count} путешественников излечились от цинги!")
+            else:
+                self.add_message("☀️ Наступило лето. Все здоровы.")
+
+        # Зимой – расход провизии
+        if s.season == 3:
+            self.winter_consumption()
+
+        # Весной и осенью – шанс цинги
+        if s.season != 3 and s.season != 1:
+            healthy = [t for t in s.all_alive() if not t.scurvy]
+            if healthy and random.random() < 0.05:
+                victim = random.choice(healthy)
+                victim.scurvy = True
+                self.add_message(f"🫐 Весной/осенью {victim.name} заболел цингой из-за нехватки витаминов!")
+
+        # Новый год
+        if s.season == 0:
+            s.year += 1
+            self.merchant_price = random.randint(2, 10)
+            self.add_message(f"🎉 Поздравляем! Ты занимаешься освоением Сибири в течение уже {s.year} лет. За это время тебе на самом высочайшем уровне пожаловали {s.total_charters_earned} грамот.")
+
+        # Снижаем счётчик царского благоволения
+        if self.royal_favor_seasons > 0:
+            self.royal_favor_seasons -= 1
+            if self.royal_favor_seasons == 0:
+                self.add_message("⌛ Царское благоволение истекло.")
+
+        # Случайные трудности (вызываются через EventManager)
+        self.event_manager.random_event()
+
+    def winter_consumption(self):
+        s = self.settlement
+        living = s.living_travelers()
+        if not living:
+            return
+
+        # Мука (первая зима)
+        if s.is_first_winter and s.flour > 0:
+            need = len(living) * 30
+            if s.flour >= need:
+                s.flour -= need
+                self.add_message(f"❄️ Благодаря запасам ржаной муки отряд пережил зиму без голода. Осталось муки: {s.flour} кг.")
+                s.is_first_winter = False
+            else:
+                self.add_message(f"❄️ Муки осталось {s.flour} кг, этого недостаточно. Отряд вынужден использовать другие запасы.")
+                s.flour = 0
+                s.is_first_winter = False
+
+        # Рыба и пеммикан
+        need = len(living) * 10
+        total_food = s.fish + s.pemmican
+        if total_food >= need:
+            if s.fish >= need:
+                s.fish -= need
+            else:
+                remain = need - s.fish
+                s.fish = 0
+                s.pemmican -= remain
+            self.add_message(f"❄️ Зимой израсходовано {need} кг провизии (рыба + пеммикан). Осталось: рыбы {s.fish} кг, пеммикана {s.pemmican} кг.")
+        else:
+            deficit = need - total_food
+            self.add_message(f"❄️ Зимой не хватило {deficit} кг провизии! Отряд голодает.")
+            deaths = (deficit + 9) // 10
+            deaths = min(deaths, len(living))
+            if deaths > 0:
+                victims = random.sample(living, deaths)
+                for v in victims:
+                    v.alive = False
+                self.add_message(f"💀 От голода умерло {deaths} человек.")
+                s.remove_dead()
+            s.fish = 0
+            s.pemmican = 0
+
+        # Клюква и цинга
+        if s.cranberries > 0:
+            cran_need = len(living)
+            if s.cranberries >= cran_need:
+                s.cranberries -= cran_need
+                self.add_message(f"🍒 Зимой съедено {cran_need} кг клюквы. Осталось {s.cranberries} кг.")
+                healthy = [t for t in s.all_alive() if not t.scurvy]
+                if healthy and random.random() < 0.10:
+                    victim = random.choice(healthy)
+                    victim.scurvy = True
+                    self.add_message(f"🫐 Несмотря на клюкву, {victim.name} заболел цингой (ослабленный иммунитет).")
+            else:
+                self.add_message(f"🍒 Клюквы было {s.cranberries} кг, но нужно {cran_need} кг. Вся клюква съедена, но её не хватило.")
+                s.cranberries = 0
+                healthy = [t for t in s.all_alive() if not t.scurvy]
+                if healthy:
+                    count = min(random.randint(1, 2), len(healthy))
+                    victims = random.sample(healthy, count)
+                    for v in victims:
+                        v.scurvy = True
+                    self.add_message(f"🫐 Из-за нехватки клюквы заболели цингой {count} человек.")
+        else:
+            healthy = [t for t in s.all_alive() if not t.scurvy]
+            if healthy:
+                count = min(random.randint(1, 2), len(healthy))
+                victims = random.sample(healthy, count)
+                for v in victims:
+                    v.scurvy = True
+                self.add_message(f"🫐 Из-за отсутствия клюквы заболели цингой {count} человек.")
+
+    # ================ ЭКСПЕДИЦИЯ ================
+
+    def cmd_expedition(self, args):
+        if self.settlement.season != 1:
+            self.add_message("❌ Экспедиции возможны только летом!")
+            return
+        s = self.settlement
+        living = s.living_travelers()
+        if not living:
+            self.add_message("Нет здоровых путешественников.")
+            return
+
+        count = len(living)
+        region = '1'
+        is_new = False
+
+        if args:
+            first = args[0]
+            if first == 'новый':
+                is_new = True
+                region = 'новый'
+                if len(args) > 1:
+                    try:
+                        count = int(args[1])
+                    except:
+                        pass
+            elif first.isdigit():
+                count = int(first)
+                if count <= 0:
+                    self.add_message("Количество должно быть положительным.")
+                    return
+                if count > len(living):
+                    self.add_message(f"У вас только {len(living)} здоровых. Отправляем всех.")
+                    count = len(living)
+                if len(args) > 1:
+                    if args[1] == 'новый':
+                        is_new = True
+                        region = 'новый'
+                    else:
+                        region = args[1]
+            else:
+                self.add_message("Неверный формат. Используйте 'Отправиться за пушниной' или 'Отправиться за пушниной новый'.")
+                return
+
+        if not is_new:
+            try:
+                region_idx = int(region)
+            except:
+                self.add_message("Регион должен быть числом или 'новый'.")
+                return
+            if region_idx < 1 or region_idx > s.lands:
+                self.add_message(f"Доступны регионы от 1 до {s.lands} или 'новый'.")
+                return
+
+        extra_equip_cost = 5 if is_new else 0
+        need_equip = count * 3 + extra_equip_cost
+
+        if s.equipment < need_equip:
+            max_count = min(len(living), (s.equipment - extra_equip_cost) // 3)
+            if max_count <= 0:
+                self.add_message(f"❌ Недостаточно экипировки даже для одного человека. Нужно {3 + extra_equip_cost}, есть {s.equipment}.")
+                return
+            self.add_message(f"⚠️ Недостаточно экипировки для {count} человек. Нужно {need_equip}, есть {s.equipment}.")
+            self.add_message(f"Вы можете отправить максимум {max_count} человек. Введите команду заново с нужным количеством, например: Отправиться за пушниной {max_count} {region}")
+            return
+
+        s.equipment -= need_equip
+        chosen = living[:count]
+
+        if is_new:
+            open_bonus = 1 + s.map_bonus
+            for _ in range(open_bonus):
+                if s.lands < 20:
+                    s.lands += 1
+            self.add_message(f"🗺️ Открыта новая земля! (бонус от карт: +{open_bonus})")
+            if s.has_ancient_maps:
+                s.map_bonus = 0
+            # Иконка на карту
+            icons = ['🌲', '🌳', '🏔️', '🌾', '🏝️', '🌋', '🗻', '🧊']
+            s.land_icons.append(random.choice(icons))
+            # Золото от царя
+            gold = 50 + (s.lands - 1) * 10
+            s.money += gold
+            self.add_message(f"👑 Царь жалует {gold} золотых монет за присоединение новой земли!")
+            # Географическое открытие (шанс 18%)
+            if random.random() < 0.18:
+                self.trigger_geographical_discovery()
+
+        total_hunting = sum(t.hunting for t in chosen)
+        synergy = self.synergy_multiplier(count)
+        base_fur = total_hunting * 2 * synergy
+        land_bonus = 1 + 0.1 * s.lands
+        penalty = 1 - s.penalty_next_season / 100.0
+        if penalty < 0: penalty = 0
+        animal_bonus = 1 + 0.05 * s.total_animals()
+        random_factor = random.uniform(0.8, 1.2)
+        perm_bonus = s.hunting_bonus_permanent
+        shaman_bonus = 1.0
+        if self.hunting_boost:
+            shaman_bonus = self.hunting_boost_multiplier
+            self.hunting_boost = False
+            self.hunting_boost_multiplier = 1.0
+        fur_gained = int(base_fur * land_bonus * animal_bonus * penalty * random_factor * perm_bonus * shaman_bonus)
+        if fur_gained < 0: fur_gained = 0
+
+        scientist_present = any(t.is_scientist for t in chosen)
+        if is_new and scientist_present:
+            s.maps_created += 1
+            self.add_message("🧭 Учёный составил карту новой земли!")
+            if s.maps_created % 3 == 0:
+                s.charters += 1
+                s.total_charters_earned += 1
+                self.add_message("📜 Академия в Москве получила 3 карты! Царь жалует грамоту!")
+
+        # Разбойники
+        bandit_chance = 0.2 * s.bandit_modifier
+        if s.palisade:
+            bandit_chance *= 0.5
+        if random.random() < bandit_chance:
+            self.add_message("\n🏴 ВНИМАНИЕ! На ваш отряд напали разбойники!")
+            self.add_message("Что будешь делать?")
+            self.add_message("  1 - Вступить в бой")
+            self.add_message("  2 - Откупиться")
+            self._bandit_count = count
+            self._bandit_living = chosen
+            self._bandit_fur_gained = fur_gained
+            self.set_input_callback(self.process_bandit_choice, "Твой выбор (1 или 2): ")
+            return
+        else:
+            self.add_message("✅ Поход прошёл без нападений.")
+
+        s.fur += fur_gained
+        self.add_message(f"🦊 Добыто {fur_gained} пушнины.")
+        s.penalty_next_season = 0
+        self.event_manager.random_event_after_expedition(chosen)
+
+    def trigger_geographical_discovery(self):
+        obj_types = [
+            ('🏞️', 'Река'),
+            ('⛰️', 'Горный хребет'),
+            ('🏔️', 'Плато'),
+            ('🏝️', 'Озеро'),
+            ('🌋', 'Вулкан'),
+            ('🗻', 'Каньон'),
+            ('🧊', 'Ледник'),
+        ]
+        obj_icon, obj_type = random.choice(obj_types)
+        self.add_message(f"🌍 Ваш отряд обнаружил {obj_type}! Дайте ему название.")
+        self.set_input_callback(lambda name: self.process_discovery_name(obj_type, obj_icon, name),
+                                "Введите название: ")
+
+    def process_discovery_name(self, obj_type, obj_icon, name):
+        if not name or name.strip() == "":
+            name = "Безымянный"
+        self.add_message("Добавьте пояснение к открытию (необязательно, просто Enter, чтобы пропустить):")
+        self.set_input_callback(lambda comment: self.finalize_discovery(obj_type, obj_icon, name, comment),
+                                "Пояснение: ")
+
+    def finalize_discovery(self, obj_type, obj_icon, name, comment):
+        s = self.settlement
+        self.achievements.add_discovery(obj_type, name, comment)
+        s.charters += 1
+        s.money += 50
+        self.add_message(f"🏆 Открытие занесено в список! Получено: 1 грамота и 50 рублей.")
+        self.add_message(f"📌 {obj_icon} {obj_type} «{name}»" + (f" (пояснение: {comment})" if comment else ""))
+
+    # ================ ТРУДНОСТИ (НОВЫЕ СОБЫТИЯ) ================
+
+    def event_blindness(self):
+        self.add_message("❄️ Яркое весеннее солнце отражается от снега. Несколько членов отряда ослепли (снежная слепота).")
+        self.add_message("Что будешь делать?")
+        self.add_message("  1 - Идти вслепую (риск травм, потеря припасов)")
+        self.add_message("  2 - Разбить лагерь на неделю (потеря времени и еды)")
+        self.set_input_callback(self.process_blindness_choice, "Твой выбор (1 или 2): ")
+
+    def process_blindness_choice(self, choice):
+        s = self.settlement
+        if choice == "1":
+            # Штраф: потеря части припасов и риск травм
+            loss = random.randint(5, 15)
+            s.food = getattr(s, 'food', 0)  # если есть общий запас еды, но его нет, используем рыбу/пеммикан как еду
+            # Упростим: теряем часть рыбы и пеммикана
+            if s.fish >= loss:
+                s.fish -= loss
+            elif s.pemmican >= loss:
+                s.pemmican -= loss
+            else:
+                s.fish = max(0, s.fish - loss // 2)
+                s.pemmican = max(0, s.pemmican - loss // 2)
+            # Риск травмы
+            if random.random() < 0.3:
+                living = s.living_travelers()
+                if living:
+                    victim = random.choice(living)
+                    victim.injured_until_season = 1
+                    self.add_message(f"🦴 {victim.name} получил травму при движении вслепую и выбыл на сезон.")
+            self.add_message("Отряд продолжил путь вслепую, потеряв часть припасов.")
+        elif choice == "2":
+            # Теряем неделю – пропускаем ход? Но мы не можем пропустить ход, поэтому просто расходуем еду
+            s.fish = max(0, s.fish - 10)
+            s.pemmican = max(0, s.pemmican - 10)
+            self.add_message("Отряд разбил лагерь на неделю. Глаза отдохнули, но еда потрачена.")
+        else:
+            self.add_message("❌ Неверный выбор.")
+            self.event_blindness()
+
+    def event_gangrene(self):
+        s = self.settlement
+        living = s.living_travelers()
+        if not living:
+            return
+        victim = random.choice(living)
+        self.add_message(f"🦶 У {victim.name} почернели пальцы на ногах – началась гангрена!")
+        self.add_message("Что будешь делать?")
+        self.add_message("  1 - Ампутировать в полевых условиях (нужен спирт и инструменты, риск сепсиса)")
+        self.add_message("  2 - Тащить его на санях (замедляет отряд, но сохраняет мораль)")
+        self.set_input_callback(lambda choice: self.process_gangrene_choice(victim, choice), "Твой выбор (1 или 2): ")
+
+    def process_gangrene_choice(self, victim, choice):
+        s = self.settlement
+        if choice == "1":
+            # Проверяем наличие спирта (у нас нет отдельного ресурса, используем деньги как индикатор)
+            if s.money >= 50:
+                s.money -= 50
+                if random.random() < 0.5:
+                    victim.alive = False
+                    self.add_message(f"⚰️ Ампутация прошла неудачно – {victim.name} умер от сепсиса.")
+                else:
+                    victim.injured_until_season = 2
+                    self.add_message(f"🩺 Ампутация прошла успешно. {victim.name} выжил, но выбыл на 2 сезона.")
+                s.remove_dead()
+            else:
+                self.add_message("❌ Нет средств для ампутации (нужно 50 руб. на спирт и инструменты). Пришлось тащить на санях.")
+                victim.injured_until_season = 1
+                self.add_message(f"{victim.name} выбыл на сезон, но сохранён.")
+        elif choice == "2":
+            victim.injured_until_season = 1
+            self.add_message(f"🛷 {victim.name} помещён на сани. Отряд замедлен, но мораль сохранена.")
+        else:
+            self.add_message("❌ Неверный выбор.")
+            self.event_gangrene()
+
+    def event_siberian_plague(self):
+        self.add_message("☠️ Отряд наткнулся на павшее стадо оленей или древнее захоронение. Есть риск заражения сибирской язвой.")
+        self.add_message("Что будешь делать?")
+        self.add_message("  1 - Собрать шкуры и мясо (получить ресурсы, но риск заражения)")
+        self.add_message("  2 - Пройти мимо (безопасно)")
+        self.set_input_callback(self.process_plague_choice, "Твой выбор (1 или 2): ")
+
+    def process_plague_choice(self, choice):
+        s = self.settlement
+        if choice == "1":
+            fur_gain = random.randint(20, 30)
+            s.fur += fur_gain
+            self.add_message(f"Собрано {fur_gain} пушнины.")
+            if random.random() < 0.4:
+                living = s.living_travelers()
+                if living:
+                    victims = random.sample(living, min(2, len(living)))
+                    for v in victims:
+                        v.alive = False
+                    self.add_message(f"💀 {len(victims)} человек заразились и умерли от сибирской язвы.")
+                    s.remove_dead()
+            else:
+                self.add_message("К счастью, заражения удалось избежать.")
+        elif choice == "2":
+            self.add_message("Отряд прошёл мимо, не рискуя.")
+        else:
+            self.add_message("❌ Неверный выбор.")
+            self.event_siberian_plague()
+
+    def event_parasites(self):
+        self.add_message("🍽️ Закончилась нормальная еда. Приходится есть сомнительные коренья или сырую рыбу.")
+        self.add_message("Что будешь делать?")
+        self.add_message("  1 - Есть сырую рыбу (восполняет голод, риск описторхоза)")
+        self.add_message("  2 - Искать съедобные коренья (требует времени, но безопаснее)")
+        self.add_message("  3 - Голодать (сохраняет здоровье, но снижает выносливость)")
+        self.set_input_callback(self.process_parasites_choice, "Твой выбор (1, 2 или 3): ")
+
+    def process_parasites_choice(self, choice):
+        s = self.settlement
+        if choice == "1":
+            s.fish += 20
+            for t in s.all_alive():
+                if random.random() < 0.3:
+                    t.endurance = max(1, t.endurance - 2)
+            self.add_message("Рыба съедена, но часть отряда заболела (выносливость снижена).")
+        elif choice == "2":
+            # Теряем время – пропускаем сезон? Но мы не можем, просто тратим ресурсы
+            s.money -= 10  # символически
+            if random.random() < 0.1:
+                self.add_message("Кое-какие коренья найдены, но кто-то отравился.")
+                victim = random.choice(s.all_alive())
+                victim.poisoned_until_season = 1
+            else:
+                self.add_message("Коренья оказались съедобными. Голод утолён.")
+        elif choice == "3":
+            for t in s.all_alive():
+                t.endurance = max(1, t.endurance - 1)
+            self.add_message("Отряд голодает, но выносливость упала.")
+        else:
+            self.add_message("❌ Неверный выбор.")
+            self.event_parasites()
+
+    def event_wet_goods(self):
+        self.add_message("🌊 При переправе через реку плот перевернулся! Часть груза утонула.")
+        self.add_message("Что спасать?")
+        self.add_message("  1 - Спасать еду (сохранить провизию)")
+        self.add_message("  2 - Спасать товар (сохранить пушнину и чай)")
+        self.set_input_callback(self.process_wet_goods_choice, "Твой выбор (1 или 2): ")
+
+    def process_wet_goods_choice(self, choice):
+        s = self.settlement
+        if choice == "1":
+            # Теряем часть пушнины
+            loss = random.randint(10, 20)
+            s.fur = max(0, s.fur - loss)
+            self.add_message(f"Еда спасена, но потеряно {loss} пушнины.")
+        elif choice == "2":
+            # Теряем часть еды
+            loss_fish = random.randint(10, 20)
+            s.fish = max(0, s.fish - loss_fish)
+            loss_pem = random.randint(10, 20)
+            s.pemmican = max(0, s.pemmican - loss_pem)
+            self.add_message(f"Товар спасён, но потеряно {loss_fish} кг рыбы и {loss_pem} кг пеммикана.")
+        else:
+            self.add_message("❌ Неверный выбор.")
+            self.event_wet_goods()
+
+    def event_yasak_tribute(self):
+        self.add_message("🤝 Местные племена готовы дать еду и травы от цинги, но требуют взамен лучшее оружие или меха.")
+        self.add_message("Что будешь делать?")
+        self.add_message("  1 - Отдать меха (получить еду и травы)")
+        self.add_message("  2 - Отказаться (сохранить меха)")
+        self.set_input_callback(self.process_yasak_choice, "Твой выбор (1 или 2): ")
+
+    def process_yasak_choice(self, choice):
+        s = self.settlement
+        if choice == "1":
+            loss = random.randint(10, 20)
+            s.fur = max(0, s.fur - loss)
+            s.fish += 20
+            # Лечим цингу у 1-2 человек
+            sick = [t for t in s.all_alive() if t.scurvy]
+            for i in range(min(2, len(sick))):
+                sick[i].scurvy = False
+            self.add_message(f"Отдано {loss} пушнины. Получена еда и вылечены больные цингой.")
+        elif choice == "2":
+            self.add_message("Ты отказался. Племя недовольно, но меха сохранены.")
+        else:
+            self.add_message("❌ Неверный выбор.")
+            self.event_yasak_tribute()
+
+    def event_animal_death(self):
+        s = self.settlement
+        if s.dogs + s.horses == 0:
+            return
+        self.add_message("🐕 Ездовые животные массово гибнут от неизвестной хвори!")
+        self.add_message("Что будешь делать?")
+        self.add_message("  1 - Бросить часть груза (облегчить сани)")
+        self.add_message("  2 - Тащить сани на себе (замедлиться, но сохранить груз)")
+        self.set_input_callback(self.process_animal_death_choice, "Твой выбор (1 или 2): ")
+
+    def process_animal_death_choice(self, choice):
+        s = self.settlement
+        if choice == "1":
+            loss = random.randint(5, 10)
+            s.fur = max(0, s.fur - loss)
+            self.add_message(f"Сброшено {loss} пушнины. Сани облегчены.")
+        elif choice == "2":
+            for t in s.all_alive():
+                t.endurance = max(1, t.endurance - 1)
+            self.add_message("Отряд тащит сани на себе, выносливость упала.")
+        else:
+            self.add_message("❌ Неверный выбор.")
+            self.event_animal_death()
+
+    def event_meriachenie(self):
+        s = self.settlement
+        living = s.living_travelers()
+        if not living:
+            return
+        victim = random.choice(living)
+        self.add_message(f"🌀 {victim.name} впал в транс или стал агрессивным (мерячение) из-за полярной ночи.")
+        self.add_message("Что будешь делать?")
+        self.add_message("  1 - Связать его (потеря рабочих рук на сезон)")
+        self.add_message("  2 - Лечить молитвой (шанс 50%)")
+        self.add_message("  3 - Обратиться к шаману (риск конфликта с православными)")
+        self.set_input_callback(lambda choice: self.process_meriachenie_choice(victim, choice), "Твой выбор (1, 2 или 3): ")
+
+    def process_meriachenie_choice(self, victim, choice):
+        s = self.settlement
+        if choice == "1":
+            victim.injured_until_season = 1
+            self.add_message(f"{victim.name} связан и выбыл на сезон.")
+        elif choice == "2":
+            if random.random() < 0.5:
+                self.add_message("🙏 Молитва помогла! {victim.name} пришёл в себя.")
+            else:
+                victim.injured_until_season = 1
+                self.add_message("Молитва не помогла. {victim.name} выбыл на сезон.")
+        elif choice == "3":
+            if random.random() < 0.7:
+                self.add_message("🧙 Шаман исцелил {victim.name}. Но православные недовольны (мораль -5).")
+                s.morale = max(0, s.morale - 5)
+            else:
+                victim.injured_until_season = 1
+                self.add_message("Шаман не смог помочь. {victim.name} выбыл на сезон.")
+        else:
+            self.add_message("❌ Неверный выбор.")
+            self.event_meriachenie()
+
+    def event_desecration(self):
+        self.add_message("🏛️ Отряд голодает и находит священное место язычников с подношениями.")
+        self.add_message("Что будешь делать?")
+        self.add_message("  1 - Украсть еду (выжить, но навлечь гнев племени)")
+        self.add_message("  2 - Пройти мимо (сохранить уважение, но риск голода)")
+        self.set_input_callback(self.process_desecration_choice, "Твой выбор (1 или 2): ")
+
+    def process_desecration_choice(self, choice):
+        s = self.settlement
+        if choice == "1":
+            s.fish += 30
+            s.morale = max(0, s.morale - 15)
+            self.add_message("Еда украдена, но мораль упала. Племя будет враждебно.")
+        elif choice == "2":
+            self.add_message("Отряд прошёл мимо. Мораль сохранена.")
+        else:
+            self.add_message("❌ Неверный выбор.")
+            self.event_desecration()
+
+    def event_mutiny(self):
+        self.add_message("⚡ Бунт! Люди требуют вскрыть царские запасы спирта, иначе грозятся убить командира.")
+        self.add_message("Что будешь делать?")
+        self.add_message("  1 - Отдать спирт (потеря ресурса, но бунт подавлен)")
+        self.add_message("  2 - Подавить силой (риск убитых, мораль упадёт)")
+        self.add_message("  3 - Пообещать награду после зимовки (если есть золото или грамоты)")
+        self.set_input_callback(self.process_mutiny_choice, "Твой выбор (1, 2 или 3): ")
+
+    def process_mutiny_choice(self, choice):
+        s = self.settlement
+        if choice == "1":
+            # спирт – у нас нет отдельного ресурса, используем деньги
+            s.money = max(0, s.money - 100)
+            s.morale = min(100, s.morale + 10)
+            self.add_message("Спирт отдан. Бунт подавлен, мораль восстановлена.")
+        elif choice == "2":
+            casualties = random.randint(1, 2)
+            living = s.living_travelers()
+            if len(living) >= casualties:
+                victims = random.sample(living, casualties)
+                for v in victims:
+                    v.alive = False
+                s.remove_dead()
+                s.morale = max(0, s.morale - 20)
+                self.add_message(f"Бунт подавлен силой. Погибло {casualties} человек. Мораль упала.")
+            else:
+                self.add_message("Недостаточно людей для подавления. Бунт продолжается.")
+        elif choice == "3":
+            if s.charters > 0 or s.money > 100:
+                s.charters = max(0, s.charters - 1)
+                s.money = max(0, s.money - 50)
+                s.morale = min(100, s.morale + 5)
+                self.add_message("Обещана награда. Бунт отложен, но ресурсы потрачены.")
+            else:
+                self.add_message("Нет ресурсов для обещаний. Бунт неизбежен.")
+                self.event_mutiny()  # повтор
+        else:
+            self.add_message("❌ Неверный выбор.")
+            self.event_mutiny()
+
+    # ================ ОСТАЛЬНЫЕ КОМАНДЫ (без изменений) ================
+
+    def cmd_buy_equipment(self, args):
+        if not args:
+            self.add_message("Укажите количество экипировки для покупки.")
+            return
+        try:
+            amount = int(args[0])
+        except:
+            self.add_message("Неверное число.")
+            return
+        s = self.settlement
+        price_per_unit = 5
+        if any(c.has_blacksmith for c in s.cities):
+            price_per_unit = 2
+        cost = amount * price_per_unit
+        if cost > s.money:
+            self.add_message(f"Недостаточно денег. Нужно {cost}, есть {s.money}.")
+            return
+        s.money -= cost
+        s.equipment += amount
+        self.add_message(f"✅ Куплено {amount} экипировки. Осталось денег: {s.money}.")
+
+    def cmd_buy_dog(self, args):
+        s = self.settlement
+        if args and args[0].isdigit():
+            count = int(args[0])
+        else:
+            count = 1
+        if count <= 0:
+            self.add_message("Количество должно быть положительным.")
+            return
+        total_cost = count * 50
+        if s.money < total_cost:
+            self.add_message(f"Недостаточно денег. Нужно {total_cost} руб., есть {s.money}.")
+            return
+        s.money -= total_cost
+        s.dogs += count
+        self.add_message(f"🐕 Куплено {count} собак. Всего собак: {s.dogs}")
+
+    def cmd_buy_horse(self, args):
+        s = self.settlement
+        if args and args[0].isdigit():
+            count = int(args[0])
+        else:
+            count = 1
+        if count <= 0:
+            self.add_message("Количество должно быть положительным.")
+            return
+        total_cost = count * 50
+        if s.money < total_cost:
+            self.add_message(f"Недостаточно денег. Нужно {total_cost} руб., есть {s.money}.")
+            return
+        s.money -= total_cost
+        s.horses += count
+        self.add_message(f"🐎 Куплено {count} лошадей. Всего лошадей: {s.horses}")
+
+    def cmd_build_church(self, args):
+        s = self.settlement
+        target = None
+        for city in s.cities:
+            if not city.has_church:
+                target = city
+                break
+        if not target:
+            self.add_message("Нет подходящего города для постройки храма.")
+            return
+        if s.money < 500:
+            self.add_message("Недостаточно денег. Нужно 500 руб.")
+            return
+        s.money -= 500
+        target.has_church = True
+        self.add_message(f"🏛️ В городе {target.name} построен храм! Теперь порог пьянства повышен до 3000 рублей.")
+
+    def cmd_build_palisade(self, args):
+        s = self.settlement
+        if s.palisade:
+            self.add_message("Частокол уже построен.")
+            return
+        if s.money < 100:
+            self.add_message("Недостаточно денег. Нужно 100 руб.")
+            return
+        s.money -= 100
+        s.palisade = True
+        self.add_message("🛡️ Частокол построен! Риск нападений разбойников снижен.")
+
+    def cmd_bribe_bandits(self, args):
+        if not args:
+            self.add_message("Укажите сумму для подкупа.")
+            return
+        try:
+            amount = int(args[0])
+        except:
+            self.add_message("Неверное число.")
+            return
+        s = self.settlement
+        if amount > s.money:
+            self.add_message("Недостаточно денег.")
+            return
+        s.money -= amount
+        self.bandit_activity = max(0.05, self.bandit_activity - 0.1)
+        self.add_message(f"🤝 Разбойники подкуплены на {amount} руб. Активность снижена.")
+
+    def cmd_send_money_to_family(self, args):
+        if not args:
+            self.add_message("Укажите сумму для отправки семье.")
+            return
+        try:
+            amount = int(args[0])
+        except:
+            self.add_message("Неверное число.")
+            return
+        s = self.settlement
+        if amount <= 0:
+            self.add_message("Сумма должна быть положительной.")
+            return
+        if amount > s.money:
+            self.add_message(f"У вас только {s.money} рублей. Не хватает.")
+            return
+        s.money -= amount
+        s.morale = min(100, s.morale + 3)
+        self.add_message(f"📨 Ты отправил {amount} рублей своей семье. Семья передаёт спасибо и очень гордится твоими успехами! ❤️")
+
+    # ================ ОСНОВАНИЕ ГОРОДА ================
+
+    def cmd_found_city(self, args):
+        s = self.settlement
+        required = 5 + len(s.cities) * 5
+        if s.charters < required:
+            self.add_message(f"❌ Для основания следующего города нужно {required} грамот, а у тебя только {s.charters}.")
+            return
+        if not args:
+            self.add_message("Укажите название города: команда 'Основать город <название>'")
+            self.set_input_callback(self.create_city_with_name, "Введите название города: ")
+            return
+        city_name = " ".join(args).strip()
+        if not city_name:
+            self.add_message("Название не может быть пустым.")
+            return
+        self._create_city(city_name)
+
+    def create_city_with_name(self, city_name):
+        if not city_name or city_name.strip() == "":
+            self.add_message("Название не может быть пустым. Попробуйте снова командой 'Основать город'.")
+            return
+        self._create_city(city_name.strip())
+
+    def _create_city(self, city_name):
+        s = self.settlement
+        required = 5 + len(s.cities) * 5
+        if s.charters < required:
+            self.add_message(f"❌ Недостаточно грамот: нужно {required}, у тебя {s.charters}.")
+            return
+        s.charters -= required
+        icons = City.ICONS
+        icon_idx = len(s.cities) % len(icons)
+        icon = icons[icon_idx]
+        city = City(city_name, icon=icon)
+        s.cities.append(city)
+        s.city_names.append(city_name)
+        self.add_message(f"{icon} Город {city_name} основан! Всего городов: {len(s.cities)}. Потрачено {required} грамот.")
+        if random.random() < 0.15:
+            s.iron_deposits.append(city_name)
+            city.has_iron_mine = True
+            self.add_message("⛏️ В окрестностях найдена железная руда! Можно построить кузницу.")
+        if random.random() < 0.08:
+            s.silver_deposits.append(city_name)
+            city.has_silver_mine = True
+            self.add_message("🥈 Обнаружено месторождение серебра! Это принесёт дополнительный доход.")
+            s.charters += 1
+            self.add_message("👑 Царь жалует грамоту за найденное серебро!")
+
+    # ================ ОСТАЛЬНЫЕ КОМАНДЫ ================
+
+    def cmd_donate_science(self, args):
+        if not args:
+            self.add_message("Укажите сумму для спонсирования научных исследований.")
+            return
+        try:
+            amount = int(args[0])
+        except:
+            self.add_message("Неверное число.")
+            return
+        s = self.settlement
+        if amount <= 0:
+            self.add_message("Сумма должна быть положительной.")
+            return
+        if amount > s.money:
+            self.add_message(f"У вас только {s.money} рублей. Не хватает.")
+            return
+        if amount < 200:
+            self.add_message("Минимальное пожертвование – 200 рублей.")
+            return
+        s.money -= amount
+        if not s.patron_of_science:
+            s.patron_of_science = True
+            self.add_message("🔬 Ты стал меценатом! Наука в Сибири получит развитие. Спасибо за твой вклад!")
+        else:
+            self.add_message("🔬 Ты уже меценат. Дополнительное пожертвование принято с благодарностью.")
+        self.add_message(f"Пожертвовано {amount} рублей на развитие науки.")
+
+    def cmd_donate_charity(self, args):
+        if not args:
+            self.add_message("Укажите сумму для пожертвования на помощь бедным.")
+            return
+        try:
+            amount = int(args[0])
+        except:
+            self.add_message("Неверное число.")
+            return
+        s = self.settlement
+        if amount <= 0:
+            self.add_message("Сумма должна быть положительной.")
+            return
+        if amount > s.money:
+            self.add_message(f"У вас только {s.money} рублей. Не хватает.")
+            return
+        s.money -= amount
+        if not s.benefactor:
+            s.benefactor = True
+            self.add_message("❤️ Твою помощь сирым и убогим будет помнить вся Сибирь!")
+        else:
+            self.add_message("❤️ Ты уже благотворитель. Дополнительное пожертвование принято с благодарностью.")
+        self.add_message(f"Пожертвовано {amount} рублей на помощь нуждающимся.")
+
+    def cmd_build_blacksmith(self, args):
+        s = self.settlement
+        if not s.cities:
+            self.add_message("Нет городов для постройки кузницы.")
+            return
+        target = None
+        for city in s.cities:
+            if city.has_iron_mine and not city.has_blacksmith:
+                target = city
+                break
+        if not target:
+            self.add_message("Нет подходящего города с железной рудой и без кузницы.")
+            return
+        if s.money < 200:
+            self.add_message("Недостаточно денег. Нужно 200 руб.")
+            return
+        s.money -= 200
+        target.has_blacksmith = True
+        self.add_message(f"⚒️ В городе {target.name} построена кузница! Теперь экипировка стоит на 50% дешевле, и её можно продавать.")
+
+    def cmd_sell_equipment(self, args):
+        s = self.settlement
+        has_blacksmith = any(c.has_blacksmith for c in s.cities)
+        if not has_blacksmith:
+            self.add_message("Нет кузницы для продажи экипировки.")
+            return
+        if not args:
+            self.add_message("Укажите количество экипировки для продажи.")
+            return
+        try:
+            amount = int(args[0])
+        except:
+            self.add_message("Неверное число.")
+            return
+        if amount <= 0:
+            self.add_message("Количество должно быть положительным.")
+            return
+        if amount > s.equipment:
+            self.add_message(f"У вас только {s.equipment} экипировки.")
+            return
+        price_per_unit = 3
+        s.equipment -= amount
+        s.money += amount * price_per_unit
+        self.add_message(f"✅ Продано {amount} экипировки за {amount * price_per_unit} рублей.")
+
+    def cmd_show_cities(self, args):
+        s = self.settlement
+        if not s.cities:
+            self.add_message("Пока нет городов.")
+            return
+        for city in s.cities:
+            lines = []
+            lines.append(f"{city.icon if city.icon else '🏙️'} {city.name} (река {city.river})")
+            lines.append(f"   Население: {city.population}")
+            amenities = []
+            if city.has_church: amenities.append("храм")
+            if city.has_hospital: amenities.append("лечебница")
+            if city.has_blacksmith: amenities.append("кузница")
+            if city.has_iron_mine: amenities.append("железная руда")
+            if city.has_silver_mine: amenities.append("серебряная копь")
+            if city.is_frontier: amenities.append("пограничная застава (чайная торговля)")
+            if amenities:
+                lines.append("   Постройки: " + ", ".join(amenities))
+            else:
+                lines.append("   Построек нет.")
+            self.add_message("\n".join(lines))
+
+    def cmd_show_leaderboard(self, args):
+        leaderboard = session.get('leaderboard', [])
+        if not leaderboard:
+            self.add_message("Таблица лидеров пуста. Стань первым!")
+            return
+        self.add_message("🏆 Таблица лидеров:")
+        for i, entry in enumerate(leaderboard[:10], 1):
+            self.add_message(f"{i}. {entry['name']} — грамот: {entry['charters']}, городов: {entry['cities']}")
+
+    def check_game_over(self):
+        s = self.settlement
+        if len(s.living_travelers()) == 0 and len(s.all_alive()) == 0:
+            self.add_message("💀 Все путешественники погибли. Игра окончена.")
+            self.running = False
+            return True
+        if s.fur <= 0 and s.equipment <= 0 and s.season == 3 and s.fish == 0 and s.pemmican == 0 and s.flour == 0:
+            self.add_message("💀 Зимой одновременно закончились все ресурсы – нечем кормить и греть людей. Все погибли от голода и холода. Игра окончена.")
+            self.running = False
+            return True
+        if s.charters >= 100:
+            self.add_message("🏙️ ВЕЛИКАЯ ПОБЕДА! Ты накопил 100 грамот, стал великим князем Сибири, и город назван в твою честь! Ты вошёл в историю как величайший первопроходец!")
+            self.running = False
+            return True
+        return False
+
+    def cmd_quit(self, args):
+        self.add_message("Выход из игры.")
+        self.running = False
+
+    def synergy_multiplier(self, count):
+        if count <= 0: return 0
+        if count == 1: return 1.0
+        if count == 2: return 2.5
+        if count == 3: return 7.5
+        return 7.5 * (1.3 ** (count - 3))
+
+    def check_debt(self):
+        s = self.settlement
+        if s.money <= -20:
+            self.add_message("\n⚠️ Твои долги достигли критической отметки (-20 рублей)! Нужно срочно найти деньги.")
+            options = []
+            if s.dogs > 0:
+                options.append("1 - Продать собаку (30 руб)")
+            if s.horses > 0:
+                options.append("2 - Продать лошадь (50 руб)")
+            if s.church:
+                options.append("3 - Обратиться в храм за помощью (случайно)")
+            if not options:
+                self.add_message("💀 У тебя нет никаких активов, чтобы расплатиться. Игра окончена.")
+                self.running = False
+                return
+            self.add_message("Выбери действие:")
+            for opt in options:
+                self.add_message("  " + opt)
+            self.set_input_callback(self.process_debt_choice, "Твой выбор: ")
+
+    def process_debt_choice(self, choice):
+        s = self.settlement
+        if choice == "1" and s.dogs > 0:
+            s.dogs -= 1
+            s.money += 30
+            self.add_message("🐕 Ты продал собаку за 30 рублей. Долг погашен.")
+        elif choice == "2" and s.horses > 0:
+            s.horses -= 1
+            s.money += 50
+            self.add_message("🐎 Ты продал лошадь за 50 рублей. Долг погашен.")
+        elif choice == "3" and s.church:
+            if random.random() < 0.5:
+                donation = random.randint(30, 60)
+                s.money += donation
+                self.add_message(f"🙏 Храм помог тебе! Ты получил {donation} рублей.")
+            else:
+                self.add_message("🙏 Храм не смог помочь, но ты можешь попробовать ещё раз позже.")
+        else:
+            self.add_message("❌ Неверный выбор. Попробуй ещё раз.")
+            self.check_debt()
+
+    def process_injuries(self):
+        s = self.settlement
+        new_injured = []
+        for entry in s.injured_travelers:
+            name, seasons_left, caretaker = entry
+            seasons_left -= 1
+            if seasons_left <= 0:
+                for t in s.travelers:
+                    if t.name == name and t.alive:
+                        t.injured_until_season = -1
+                        self.add_message(f"💚 {name} полностью оправился от травмы и вернулся в отряд!")
+                        if caretaker:
+                            for c in s.travelers:
+                                if c.name == caretaker and c.alive:
+                                    c.injured_until_season = -1
+                                    self.add_message(f"💚 {caretaker} вернулся в отряд после ухода за больным.")
+                        break
+            else:
+                new_injured.append((name, seasons_left, caretaker))
+        s.injured_travelers = new_injured
+
+    def offer_charter_choice(self):
+        s = self.settlement
+        self._charter_level = s.charters // 5
+        self.add_message(f"\n🦅 Ты достиг {s.charters} царских грамот! Теперь у тебя есть выбор:")
+        self.add_message("  1 - Основать город (потратить 5 грамот).")
+        self.add_message("  2 - Получить двух новых путешественников в отряд (грамоты останутся).")
+        self.set_input_callback(self.process_charter_choice, "Твой выбор (1 или 2): ")
+
+    def process_charter_choice(self, choice):
+        s = self.settlement
+        level = self._charter_level
+        if choice == "1":
+            if s.charters >= 5:
+                self.add_message("Введите название нового города:")
+                self.set_input_callback(self.create_city_from_charter, "Название города: ")
+            else:
+                self.add_message("❌ Что-то пошло не так: грамот недостаточно.")
+            s.last_offer_level = level
+        elif choice == "2":
+            names = ["Семён", "Демид", "Артемий", "Прокопий", "Гаврила"]
+            for _ in range(2):
+                name = random.choice(names) + " (новый)"
+                new_t = Traveler(name)
+                s.travelers.append(new_t)
+            self.add_message(f"👥 Два новых путешественника присоединились к твоему отряду! Теперь у тебя {len(s.living_travelers())} человек.")
+            s.last_offer_level = level
+        else:
+            self.add_message("❌ Неверный ввод. Попробуй ещё раз.")
+            self.offer_charter_choice()
+
+    def create_city_from_charter(self, city_name):
+        if not city_name or city_name.strip() == "":
+            self.add_message("Название не может быть пустым. Попробуй снова через команду 'Основать город'.")
+            return
+        self._create_city(city_name.strip())
+
+    def get_fur_price_modifier(self):
+        s = self.settlement
+        return max(0.5, 1 - (s.fur / 5000))
+
+    def cmd_help(self, args):
+        self.add_message(self.get_help_text())
+
+    def get_help_text(self):
+        return """
+Список команд (вводите с большой буквы или строчными — неважно):
+
+  Отправиться за пушниной [кол-во] [регион] – летняя экспедиция. По умолчанию – все здоровые на первую территорию.
+  Отправиться за пушниной новый           – исследовать новую землю.
+  Продать пушнину <кол-во>             – продать пушнину (только осенью). Цена зависит от запасов.
+  Послать пушнину в царскую казну <кол-во> – 100 пушнины = 1 грамота.
+  Купить экипировку <кол-во>           – купить экипировку (цена зависит от кузницы).
+  Купить собаку [кол-во]               – купить собак (50 руб/шт).
+  Купить лошадь [кол-во]               – купить лошадей (50 руб/шт).
+  Построить храм                       – построить храм в текущем городе (500 руб).
+  Построить частокол                   – защита от разбойников (100 руб).
+  Построить кузницу                    – если есть железная руда в городе (200 руб).
+  Подкупить разбойников <сумма>        – снизить активность.
+  Послать деньги семье <сумма>         – отправить деньги семье.
+  Основать город <название>            – требуется 5+5*число_городов грамот.
+  Спонсировать научные исследования <сумма> – стать меценатом (≥200 руб).
+  Пожертвовать сирым <сумма>           – стать благотворителем (любая сумма >0).
+  Показать статус                      – показать состояние.
+  Следующий сезон                      – перейти к следующему сезону.
+  Переждать до следующей весны         – пропустить год (50 руб + 2 кг провизии).
+  Города                               – показать информацию о городах.
+  Лидеры                               – таблица лидеров.
+  Карта                                – показать карту земель.
+  Открытия                             – показать географические открытия.
+  Основать поселение                   – основать казацкое поселение.
+  Помощь                               – показать эту справку.
+  Выход                                – выйти.
+
+Новые возможности:
+  - Ясак: доход от земель (5 руб./земля за сезон).
+  - Золотые монеты от царя за новые земли.
+  - Казацкие поселения (до 3) дают доход и случайное поощрение.
+  - Географические открытия с названиями и пояснениями.
+  - Трудности: снежная слепота, гангрена, сибирская язва, паразиты, подмоченный товар, ясак, падеж животных, мерячение, осквернение святынь, бунт.
+  - Титулы: дворянин, барон, граф (за 15 городов).
+"""
+
+    def cmd_status(self, args):
+        self.display_status()
+
+    def display_status(self):
+        self.add_message(self.get_status_text())
+
+    def get_status_text(self):
+        s = self.settlement
+        season_names = ["🌸 Весна", "☀️ Лето", "🍂 Осень", "❄️ Зима"]
+        lines = []
+        lines.append(f"Год {s.year}, сезон: {season_names[s.season]}")
+        lines.append(f"Путешественников: {len(s.living_travelers())} (всего {len(s.all_alive())})")
+        if s.count_scurvy() > 0:
+            lines.append(f"   (Цинга: {s.count_scurvy()} больных)")
+        lines.append(f"Пушнина: {s.fur} | Экипировка: {s.equipment} | Деньги: {s.money} руб.")
+        lines.append(f"Собаки/лошади: {s.dogs}/{s.horses} (всего {s.total_animals()})")
+        lines.append(f"Открытые земли: {s.lands} | Царские грамоты: {s.charters}")
+        if s.cities:
+            lines.append(f"Городов: {len(s.cities)}")
+        if s.settlements:
+            lines.append(f"Казацких поселений: {len(s.settlements)} (доход: {len(s.settlements)*10} руб./сезон)")
+        lines.append(f"🍞 Мука: {s.flour} кг | 🐟 Рыба: {s.fish} кг | 🥩 Пеммикан: {s.pemmican} кг")
+        lines.append(f"🍒 Клюква (мороженая): {s.cranberries} кг")
+        lines.append(f"💵 Ясак: {s.yasak_income} руб./сезон")
+        lines.append(f"❤️ Мораль: {s.morale}%")
+        if s.has_ancient_maps:
+            lines.append("🗺️ У тебя есть древние карты (+1 к открытию новых земель)")
+        if s.maps_created > 0:
+            lines.append(f"🗺️ Составлено карт: {s.maps_created} (каждые 3 дают грамоту)")
+        if s.noble_title:
+            lines.append(f"👑 Титул: {s.noble_title}")
+        if s.court_access:
+            lines.append("🏛️ Доступ к царскому двору")
+        if s.patron_of_science:
+            lines.append("🔬 Меценат")
+        if s.benefactor:
+            lines.append("❤️ Благотворитель")
+        if s.penalty_next_season > 0:
+            lines.append(f"⚠️ Штраф к добыче: -{s.penalty_next_season}%")
+        if s.season == 2:
+            price_mod = self.get_fur_price_modifier()
+            lines.append(f"💰 Цена пушнины у купцов: {self.merchant_price * price_mod:.1f} руб./ед. (можно продавать)")
+        return "\n".join(lines)
+
+    def cmd_skip(self, args):
+        self.advance_season()
+        if self.running:
+            self.check_game_over()
+
+    def cmd_skip_year(self, args):
+        s = self.settlement
+        if s.money < 50:
+            self.add_message("❌ Недостаточно денег для пропуска года (нужно 50 руб.).")
+            return
+        s.money -= 50
+        if s.fish >= 2:
+            s.fish -= 2
+            self.add_message("🥬 Потрачено 2 кг рыбы на пропитание.")
+        elif s.pemmican >= 2:
+            s.pemmican -= 2
+            self.add_message("🥩 Потрачено 2 кг пеммикана.")
+        else:
+            self.add_message("⚠️ Нет провизии для пропуска года, но ты переживаешь, хотя и голодным.")
+        for t in s.living_travelers():
+            t.endurance = max(1, t.endurance - 1)
+        s.penalty_next_season = 0
+        s.year += 1
+        s.season = 0
+        self.merchant_price = random.randint(2, 10)
+        self.add_message(f"⏩ Ты переждал до следующей весны! Теперь год {s.year}, сезон Весна.")
+        self.add_message(f"🎉 Поздравляем! Ты занимаешься освоением Сибири в течение уже {s.year} лет. За это время тебе на самом высочайшем уровне пожаловали {s.total_charters_earned} грамот.")
+        if self.running:
+            self.check_game_over()
+
+    def cmd_sell(self, args):
+        if self.settlement.season != 2:
+            self.add_message("❌ Продавать пушнину можно только осенью!")
+            return
+        if not args:
+            self.add_message("Укажите количество пушнины для продажи.")
+            return
+        try:
+            amount = int(args[0])
+        except:
+            self.add_message("Неверное число.")
+            return
+        s = self.settlement
+        if amount <= 0:
+            self.add_message("Количество должно быть положительным.")
+            return
+        if amount > s.fur:
+            self.add_message(f"У вас только {s.fur} пушнины.")
+            return
+        s.fur -= amount
+        price_mod = self.get_fur_price_modifier()
+        revenue = int(amount * self.merchant_price * price_mod)
+        bonus = 1 + 0.1 * s.charters
+        revenue = int(revenue * bonus)
+        s.money += revenue
+        self.add_message(f"✅ Продано {amount} пушнины за {revenue} рублей.")
+
+    def cmd_give_to_tsar(self, args):
+        if not args:
+            self.add_message("Укажите количество пушнины для отправки в царскую казну.")
+            return
+        try:
+            amount = int(args[0])
+        except:
+            self.add_message("Неверное число.")
+            return
+        s = self.settlement
+        if amount <= 0:
+            self.add_message("Количество должно быть положительным.")
+            return
+        if amount > s.fur:
+            self.add_message(f"У вас только {s.fur} пушнины.")
+            return
+        earned = amount // 100
+        if earned == 0:
+            self.add_message("Нужно как минимум 100 пушнины для получения грамоты.")
+            return
+        s.fur -= amount
+        s.charters += earned
+        s.total_charters_earned += earned
+        s.total_fur_sent_to_tsar += amount
+        self.add_message(f"👑 Отправлено {amount} пушнины в царскую казну. Царь пожаловал тебе {earned} грамот! Всего грамот: {s.charters}.")
+
+    def process_bandit_choice(self, choice):
+        s = self.settlement
+        count = self._bandit_count
+        living = self._bandit_living
+        fur_gained = self._bandit_fur_gained
+        fight = False
+        if choice == "2":
+            ransom = random.randint(30, 100)
+            if s.money >= ransom:
+                s.money -= ransom
+                self.add_message(f"💰 Ты заплатил {ransom} рублей. Разбойники приняли плату и ушли.")
+                fight = False
+            else:
+                self.add_message(f"😤 У тебя всего {s.money} рублей, а нужно {ransom}. Денег не хватает – придётся драться!")
+                fight = True
+        elif choice == "1":
+            fight = True
+        else:
+            self.add_message("❌ Неверный ввод. Попробуй ещё раз.")
+            self.add_message("Что будешь делать?")
+            self.add_message("  1 - Вступить в бой")
+            self.add_message("  2 - Откупиться")
+            self.set_input_callback(self.process_bandit_choice, "Твой выбор (1 или 2): ")
+            return
+        if fight:
+            self.add_message("⚔️ Ты вступаешь в бой с разбойниками!")
+            killed_in_battle = 0
+            stolen = 0
+            for t in living[:count]:
+                loss = random.randint(1, 2)
+                t.endurance = max(1, t.endurance - loss)
+            self.add_message("💪 Путешественники потеряли часть выносливости в бою.")
+            if s.dogs > 0 or s.horses > 0:
+                if random.random() < 0.3:
+                    if s.horses > 0:
+                        s.horses -= 1
+                        self.add_message("🐎 Разбойники убили одну лошадь.")
+                    elif s.dogs > 0:
+                        s.dogs -= 1
+                        self.add_message("🐕 Разбойники убили одну собаку.")
+            if random.random() < 0.2:
+                stolen = fur_gained // 3
+                if stolen > 0:
+                    fur_gained -= stolen
+                    self.add_message(f"🏴 Разбойники украли {stolen} пушнины.")
+            if random.random() < 0.1:
+                victims = random.sample(living[:count], min(1, count))
+                for v in victims:
+                    v.alive = False
+                killed_in_battle = len(victims)
+                self.add_message(f"⚔️ Разбойники убили {killed_in_battle} путешественника(ов).")
+                s.remove_dead()
+            self.add_message("✅ Бой окончен. Отряд продолжает путь.")
+            if killed_in_battle == 0 and stolen == 0:
+                self.add_message("Разбойники ушли ни с чем.")
+            elif killed_in_battle > 0:
+                self.add_message(f"⚔️ В бою погибло {killed_in_battle} путешественников.")
+        s.fur += fur_gained
+        self.add_message(f"🦊 Добыто {fur_gained} пушнины.")
+        s.penalty_next_season = 0
+
+
+# =================================================================
+# МЕНЕДЖЕР СОБЫТИЙ (добавлены новые трудности)
+# =================================================================
+
+class EventManager:
+    def __init__(self, game):
+        self.game = game
+
+    def random_event(self):
+        if random.random() > 0.3:
+            return
+        s = self.game.settlement
+        events = [
+            self.event_find_fur,
+            self.event_find_equipment,
+            self.event_merchant_cheat,
+            self.event_blizzard,
+            self.event_animal_rampage,
+            self.event_ancient_maps,
+            self.event_iron_deposit,
+            self.event_silver_deposit,
+            self.event_tribe_shaman,
+            self.event_tribe_marriage,
+            self.event_china_border,
+            self.event_poison_berry,
+            self.event_healer_visit,
+            # Новые трудности (вызываются с разной вероятностью)
+            self.event_blindness,
+            self.event_gangrene,
+            self.event_siberian_plague,
+            self.event_parasites,
+            self.event_wet_goods,
+            self.event_yasak_tribute,
+            self.event_animal_death,
+            self.event_meriachenie,
+            self.event_desecration,
+            # self.event_mutiny – вызывается отдельно при низкой морали
+        ]
+        choice = random.choice(events)
+        choice()
+
+    def random_event_after_expedition(self, participants):
+        if random.random() < 0.08:
+            self.event_injury(participants)
+
+    # ================ СТАНДАРТНЫЕ СОБЫТИЯ ================
+
+    def event_find_fur(self):
+        bonus = random.randint(10, 40)
+        self.game.settlement.fur += bonus
+        self.game.add_message(f"🎉 Случайная находка: обнаружено богатое соболиное гнездо! +{bonus} пушнины.")
+
+    def event_find_equipment(self):
+        bonus = random.randint(5, 20)
+        self.game.settlement.equipment += bonus
+        self.game.add_message(f"🎉 Найдена старая кладовая! +{bonus} экипировки.")
+
+    def event_merchant_cheat(self):
+        if self.game.settlement.money > 20:
+            loss = random.randint(10, 50)
+            self.game.settlement.money -= loss
+            self.game.add_message(f"😤 Купец обвесил вас! Потеряно {loss} рублей.")
+        else:
+            self.game.add_message("Купец попытался обмануть, но у вас слишком мало денег – он ушёл ни с чем.")
+
+    def event_blizzard(self):
+        if self.game.settlement.season == 3:
+            loss = random.randint(5, 15)
+            self.game.settlement.equipment = max(0, self.game.settlement.equipment - loss)
+            self.game.add_message(f"❄️ Снежная буря! Потеряно {loss} экипировки.")
+
+    def event_animal_rampage(self):
+        s = self.game.settlement
+        if s.total_animals() > 0:
+            loss = random.randint(1, min(3, s.total_animals()))
+            for _ in range(loss):
+                if s.dogs > 0:
+                    s.dogs -= 1
+                elif s.horses > 0:
+                    s.horses -= 1
+            self.game.add_message(f"🐾 Животные взбесились! Потеряно {loss} голов скота.")
+
+    def event_ancient_maps(self):
+        if not self.game.settlement.has_ancient_maps:
+            self.game.settlement.has_ancient_maps = True
+            self.game.settlement.map_bonus = 1
+            self.game.add_message("🗺️ Вы нашли тайник с древними картами! Теперь открытие новых земель облегчено (+1 земля за экспедицию).")
+
+    def event_iron_deposit(self):
+        s = self.game.settlement
+        if s.cities:
+            city = random.choice(s.cities)
+            if not city.has_iron_mine:
+                city.has_iron_mine = True
+                s.iron_deposits.append(city.name)
+                self.game.add_message(f"⛏️ В окрестностях города {city.name} найдена железная руда! Можно построить кузницу.")
+
+    def event_silver_deposit(self):
+        s = self.game.settlement
+        if s.cities:
+            city = random.choice(s.cities)
+            if not city.has_silver_mine:
+                city.has_silver_mine = True
+                s.silver_deposits.append(city.name)
+                self.game.add_message(f"🥈 В окрестностях города {city.name} найдено месторождение серебра! Царь жалует грамоту!")
+                s.charters += 1
+                s.total_charters_earned += 1
+
+    def event_tribe_shaman(self):
+        self.game.add_message("👣 Вы встретили местное племя. Шаман предлагает провести обряд охотничьей удачи.")
+        self.game.add_message("Что будешь делать?")
+        self.game.add_message("  1 - Отказаться")
+        self.game.add_message("  2 - Попытаться обратить шамана в православие")
+        self.game.set_input_callback(self.process_shaman_choice, "Твой выбор (1 или 2): ")
+
+    def process_shaman_choice(self, choice):
+        if choice == "1":
+            self.game.add_message("Вы вежливо отказались. Шаман не обиделся.")
+            return
+        elif choice == "2":
+            if random.random() < 0.5:
+                self.game.add_message("🙏 Шаман принял православие! В благодарность он дарит вам экипировку и указывает места, богатые пушниной.")
+                bonus_equip = random.randint(10, 30)
+                self.game.settlement.equipment += bonus_equip
+                self.game.add_message(f"Получено {bonus_equip} экипировки.")
+                self.game.hunting_boost = True
+                self.game.hunting_boost_multiplier = random.uniform(1.5, 2.0)
+                self.game.add_message("Следующая экспедиция принесёт значительно больше пушнины!")
+            else:
+                self.game.add_message("Шаман не поддался на уговоры, но предложил вам обменяться дарами.")
+                gift = random.randint(5, 15)
+                self.game.settlement.fur += gift
+                self.game.add_message(f"Вы получили {gift} пушнины в качестве дара.")
+        else:
+            self.game.add_message("Неверный ввод. Попробуй ещё раз.")
+            self.event_tribe_shaman()
+
+    def event_tribe_marriage(self):
+        s = self.game.settlement
+        living = s.living_travelers()
+        if len(living) < 2:
+            return
+        groom = random.choice(living)
+        s.travelers.remove(groom)
+        self.game.add_message(f"💒 {groom.name} женился на местной девушке и решил остаться в племени. Он покидает отряд.")
+        gift = random.randint(10, 30)
+        s.money += gift
+        self.game.add_message(f"Племя дарит вам {gift} рублей в качестве приданого.")
+
+    def event_injury(self, participants):
+        s = self.game.settlement
+        if not participants:
+            return
+        victim = random.choice(participants)
+        doctor = None
+        for t in participants:
+            if t.is_doctor and t != victim and t.alive and t.injured_until_season == -1:
+                doctor = t
+                break
+        if doctor:
+            caretaker = doctor
+        else:
+            others = [t for t in s.living_travelers() if t != victim]
+            if not others:
+                return
+            caretaker = random.choice(others)
+        victim.injured_until_season = 2
+        caretaker.injured_until_season = 2
+        s.injured_travelers.append((victim.name, 2, caretaker.name))
+        self.game.add_message(f"🦴 {victim.name} сломал ногу во время похода. {caretaker.name} остаётся с ним на два сезона.")
+
+    def event_china_border(self):
+        s = self.game.settlement
+        if s.lands >= 5 and not self.game.china_discovered and random.random() < 0.04:
+            self.game.china_discovered = True
+            city = City("Пограничная застава")
+            city.is_frontier = True
+            city.trade_bonus = 10
+            s.cities.append(city)
+            s.city_names.append("Пограничная застава")
+            self.game.add_message("🇨🇳 Ваш отряд достиг границы с Китаем! Основана пограничная застава. Теперь купцы могут торговать чаем, принося дополнительный доход.")
+
+    def event_poison_berry(self):
+        s = self.game.settlement
+        if s.season != 1 and s.season != 2:
+            return
+        living = s.living_travelers()
+        if not living:
+            return
+        if random.random() > 0.08:
+            return
+        victim = random.choice(living)
+        if victim.poisoned_until_season != -1:
+            return
+        victim.poisoned_until_season = (s.season + 1) % 4
+        self.game.add_message(f"🫐 {victim.name} попробовал незнакомую ягоду и отравился. Он не сможет участвовать в делах отряда в течение следующего сезона.")
+
+    def event_healer_visit(self):
+        s = self.game.settlement
+        sick = [t for t in s.all_alive() if t.scurvy and not t.scurvy_healer_offered]
+        if not sick:
+            return
+        patient = random.choice(sick)
+        self.game.offer_healer_scurvy_treatment(patient)
+
+    # ================ НОВЫЕ ТРУДНОСТИ (обёртки) ================
+
+    def event_blindness(self):
+        if self.game.settlement.season == 0 or self.game.settlement.season == 3:  # весна или зима
+            self.game.event_blindness()
+
+    def event_gangrene(self):
+        if self.game.settlement.season == 3:  # зима
+            self.game.event_gangrene()
+
+    def event_siberian_plague(self):
+        # может случиться в любой сезон, но редко
+        self.game.event_siberian_plague()
+
+    def event_parasites(self):
+        if self.game.settlement.fish < 10 and self.game.settlement.pemmican < 10:
+            self.game.event_parasites()
+
+    def event_wet_goods(self):
+        if self.game.settlement.season == 1 and random.random() < 0.15:  # летом при переправах
+            self.game.event_wet_goods()
+
+    def event_yasak_tribute(self):
+        # при контакте с племенами
+        if random.random() < 0.1:
+            self.game.event_yasak_tribute()
+
+    def event_animal_death(self):
+        if self.game.settlement.total_animals() > 0:
+            self.game.event_animal_death()
+
+    def event_meriachenie(self):
+        if self.game.settlement.season == 3 and self.game.settlement.morale < 70:
+            self.game.event_meriachenie()
+
+    def event_desecration(self):
+        if self.game.settlement.fish < 10 and self.game.settlement.pemmican < 10:
+            self.game.event_desecration()
+
+    # event_mutiny не вызывается здесь, т.к. он обрабатывается в after_action при падении морали ниже 0
+
+
+# =================================================================
+# FLASK ПРИЛОЖЕНИЕ
+# =================================================================
+
+app = Flask(__name__)
+app.secret_key = 'your-secret-key-change-in-production'
+
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    if request.method == 'POST' and 'start_game' in request.form:
+        name = request.form.get('player_name', '')
+        email = request.form.get('player_email', '')
+        session['player_name'] = name
+        session['player_email'] = email
+        game = Game()
+        session['game_state'] = pickle.dumps(game)
+        if 'leaderboard' not in session:
+            session['leaderboard'] = []
+        return redirect(url_for('index'))
+
+    if 'game_state' in session:
+        game = pickle.loads(session['game_state'])
+        game.ensure_attributes()
+
+        if request.method == 'POST' and 'command' in request.form:
+            command = request.form.get('command', '').strip().lower()
+            if command:
+                game.process_command(command)
+                session['game_state'] = pickle.dumps(game)
+
+        status = game.get_status_text()
+        messages = game.messages[-50:]
+        image_index = game.current_image_index
+        cities = game.settlement.cities
+        achievements = game.achievements.completed
+        noble_title = game.settlement.noble_title
+        leaderboard = session.get('leaderboard', [])
+        settlements = game.settlement.settlements
+        discoveries = game.achievements.discoveries
+        return render_template('index.html',
+                               status=status,
+                               messages=messages,
+                               image_index=image_index,
+                               cities=cities,
+                               achievements=achievements,
+                               noble_title=noble_title,
+                               leaderboard=leaderboard,
+                               settlements=settlements,
+                               discoveries=discoveries)
+
+    return render_template('start.html')
+
+@app.route('/reset')
+def reset():
+    session.pop('game_state', None)
+    return redirect(url_for('index'))
+
+@app.route('/add_leaderboard', methods=['POST'])
+def add_leaderboard():
+    data = request.get_json()
+    name = data.get('name', '')
+    charters = data.get('charters', 0)
+    cities = data.get('cities', 0)
+    leaderboard = session.get('leaderboard', [])
+    leaderboard.append({'name': name, 'charters': charters, 'cities': cities})
+    leaderboard.sort(key=lambda x: x['charters'], reverse=True)
+    session['leaderboard'] = leaderboard[:10]
+    return {'status': 'ok'}
+
+if __name__ == '__main__':
+    app.run(debug=True)

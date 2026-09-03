@@ -401,19 +401,6 @@ class Game:
         self._reinforcement_coming = False
         self._reinforcement_seasons = 0
 
-    def __getstate__(self):
-        state = self.__dict__.copy()
-        state.pop('input_callback', None)
-        state.pop('awaiting_input', None)
-        state.pop('input_prompt', None)
-        return state
-
-    def __setstate__(self, state):
-        self.__dict__.update(state)
-        self.input_callback = None
-        self.awaiting_input = False
-        self.input_prompt = ""
-
     def get_healing_level_name(self):
         names = {1: "Ученик", 2: "Подмастерье", 3: "Лекарь", 4: "Мастер-травник", 5: "Искусный целитель"}
         return names.get(self.healing_skill_level, "Ученик")
@@ -695,12 +682,10 @@ class Game:
     # ================ ОБРАБОТКА КОМАНД ================
 
     def process_command(self, cmd):
-        # Валидация команды: безопасные символы и длина
+        # Валидация команды
         if not cmd or len(cmd) > 200:
             self.add_message("Команда слишком длинная или пустая.")
             return self.messages
-
-        # Дополнительная проверка на недопустимые символы (разрешены буквы, цифры, пробелы, знаки препинания)
         allowed_chars = set("абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 .,!?-()\"'")
         if any(c not in allowed_chars for c in cmd):
             self.add_message("Команда содержит недопустимые символы.")
@@ -1480,7 +1465,6 @@ class Game:
             self.set_input_callback(self.create_city_with_name, "Введите название города: ")
             return
         city_name = " ".join(args).strip()
-        # Валидация названия города: не пустое, длина от 1 до 30 символов, только буквы, цифры, пробелы и дефисы
         if not city_name or len(city_name) > 30:
             self.add_message("Название города должно быть от 1 до 30 символов.")
             return
@@ -1830,7 +1814,7 @@ class Game:
         if amount <= 0:
             self.add_message("Количество должно быть положительным.")
             return
-        if amount > 1000:  # ограничение на случайный ввод
+        if amount > 1000:
             self.add_message("Слишком большое количество.")
             return
         price_per_unit = 5
@@ -1853,7 +1837,7 @@ class Game:
         if count <= 0:
             self.add_message("Количество должно быть положительным.")
             return
-        if count > 20:  # ограничение
+        if count > 20:
             self.add_message("Слишком много собак.")
             return
         total_cost = count * 50
@@ -2589,4 +2573,58 @@ class Game:
                 self.add_morale(5)
                 s.drunkard_handled = True
             else:
-                self.event
+                self.event_drunkard()
+        elif choice == "2":
+            target = None
+            for city in s.cities:
+                if not city.has_church:
+                    target = city
+                    break
+            if target and s.money >= 500:
+                s.money -= 500
+                target.has_church = True
+                self.add_message("🏛️ Храм построен.")
+                s.drunkard_handled = True
+            elif s.church and s.money >= 100:
+                s.money -= 100
+                self.add_message("🙏 Молебны проведены.")
+                s.drunkard_handled = True
+            else:
+                self.event_drunkard()
+        elif choice == "3":
+            if s.money >= 100:
+                s.money -= 100
+                self.add_morale(3)
+                self.add_message("📨 Деньги семьям.")
+                s.drunkard_handled = True
+            else:
+                self.event_drunkard()
+        elif choice == "4":
+            self.add_message("Дисциплинарные меры:")
+            self.add_message("  1 - Монастырь (нужен храм, 2 чел. на 2 сезона)")
+            self.add_message("  2 - Лечебница (нужна лечебница, 1 чел. на 1 сезон)")
+            self.add_message("  3 - Штраф (200 руб, -мораль)")
+            self.set_input_callback(self.process_discipline_choice, "Выбор (1-3): ")
+        elif choice == "5":
+            s.money -= 500
+            if s.charters > 0:
+                s.charters -= 1
+                self.add_message(f"😤 Потеря грамоты, осталось {s.charters}.")
+            else:
+                for t in s.all_alive():
+                    t.endurance = max(1, t.endurance - 1)
+                self.add_message("😤 Потеря выносливости.")
+            s.drunkard_handled = True
+        else:
+            self.event_drunkard()
+
+    def process_discipline_choice(self, subchoice):
+        s = self.settlement
+        if subchoice == "1":
+            if any(c.has_church for c in s.cities):
+                living = s.living_travelers()
+                if len(living) >= 3:
+                    victims = random.sample(living, 2)
+                    for v in victims:
+                        v.injured_until
+

@@ -2627,4 +2627,6 @@ class Game:
                     victims = random.sample(living, 2)
                     for v in victims:
                         v.injured_until
+if __name__ == '__main__':
+    app.run(debug=True)
 

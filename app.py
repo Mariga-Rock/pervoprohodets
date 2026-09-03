@@ -16,14 +16,14 @@ class Traveler:
         self.scurvy = False
         self.is_doctor = random.random() < 0.1
         self.is_scientist = random.random() < 0.1
-        self.injured_until_season = -1
-        self.injured_with = None
-        self.poisoned_until_season = -1
+        self.injured_until_season = -1      # временная травма (счётчик сезонов)
+        self.poisoned_until_season = -1     # отравление (счётчик сезонов)
         self.scurvy_treatment_offered = False
         self.scurvy_healer_offered = False
-        self.wound_level = 0
-        self.wound_heal_seasons = 0
+        self.wound_level = 0                # тяжесть ранения (0 – нет)
+        self.wound_heal_seasons = 0         # сколько сезонов осталось лечить
 
+    # ensure_attributes оставлен для совместимости со старыми сохранениями
     def ensure_attributes(self):
         if not hasattr(self, 'is_doctor'):
             self.is_doctor = random.random() < 0.1
@@ -31,8 +31,6 @@ class Traveler:
             self.is_scientist = random.random() < 0.1
         if not hasattr(self, 'injured_until_season'):
             self.injured_until_season = -1
-        if not hasattr(self, 'injured_with'):
-            self.injured_with = None
         if not hasattr(self, 'poisoned_until_season'):
             self.poisoned_until_season = -1
         if not hasattr(self, 'scurvy_treatment_offered'):
@@ -62,7 +60,7 @@ class City:
         self.has_silver_mine = False
         self.is_frontier = False
         self.trade_bonus = 0
-        self.icon = icon
+        self.icon = icon or random.choice(self.ICONS)
 
     def ensure_attributes(self):
         if not hasattr(self, 'icon') or self.icon is None:
@@ -178,7 +176,6 @@ class Settlement:
         self.bandit_modifier = 1.0
         self.court_access = False
         self.noble_title = None
-        self.injured_travelers = []
         self.tutorial_step = 0
         self.difficulty_modifier = 1.0
         self.leaderboard = []
@@ -191,7 +188,7 @@ class Settlement:
         self.pine_needles = 0
         self.wild_garlic = 0
         self.herbs = 0
-        self.bandages = 0
+        self.bandages = 0          # добавлено
         self.honeysuckle_oil = 0
         self.stroganov_relation = 0
         self.discipline = 50
@@ -259,8 +256,6 @@ class Settlement:
             self.court_access = False
         if not hasattr(self, 'noble_title'):
             self.noble_title = None
-        if not hasattr(self, 'injured_travelers'):
-            self.injured_travelers = []
         if not hasattr(self, 'tutorial_step'):
             self.tutorial_step = 0
         if not hasattr(self, 'difficulty_modifier'):
@@ -363,6 +358,7 @@ class Game:
         self.awaiting_input = False
         self.input_prompt = ""
         self.input_callback = None
+        self.input_callback_name = None
         self.pending_command = None
         self._charter_level = 0
         self._bandit_count = 0
@@ -399,19 +395,35 @@ class Game:
         self.epidemic_handled = False
         self._reinforcement_coming = False
         self._reinforcement_seasons = 0
+        # Вызов ensure_attributes для инициализации всех возможных новых полей
+        self.ensure_attributes()
 
     def __getstate__(self):
         state = self.__dict__.copy()
+        # Удаляем только колбэк, но сохраняем всё остальное
         state.pop('input_callback', None)
-        state.pop('awaiting_input', None)
-        state.pop('input_prompt', None)
+        # await_input и input_prompt теперь сохраняются
         return state
 
     def __setstate__(self, state):
         self.__dict__.update(state)
+        # Восстанавливаем колбэк по имени, если ожидается ввод
         self.input_callback = None
-        self.awaiting_input = False
-        self.input_prompt = ""
+        if self.awaiting_input and self.input_callback_name:
+            # Ищем метод с таким именем в текущем объекте
+            callback = getattr(self, self.input_callback_name, None)
+            if callable(callback):
+                self.input_callback = callback
+            else:
+                # Если метод не найден – сбрасываем ожидание
+                self.awaiting_input = False
+                self.input_prompt = ""
+                self.input_callback_name = None
+        elif self.awaiting_input:
+            # Если имя не сохранено, но флаг true – сбрасываем
+            self.awaiting_input = False
+            self.input_prompt = ""
+            self.input_callback_name = None
 
     def get_healing_level_name(self):
         names = {1: "Ученик", 2: "Подмастерье", 3: "Лекарь", 4: "Мастер-травник", 5: "Искусный целитель"}
@@ -424,8 +436,12 @@ class Game:
         self.awaiting_input = True
         self.input_prompt = prompt
         self.input_callback = callback
+        # Сохраняем имя метода, если это метод текущего объекта
+        if hasattr(callback, '__self__') and callback.__self__ is self:
+            self.input_callback_name = callback.__name__
+        else:
+            self.input_callback_name = None
         self.add_message(prompt)
-
     def advance_image(self):
         self.current_image_index = (self.current_image_index % 3) + 1
 
@@ -500,10 +516,12 @@ class Game:
             self._reinforcement_seasons = 0
         if not hasattr(self, 'epidemic_handled'):
             self.epidemic_handled = False
+        if not hasattr(self, 'input_callback_name'):
+            self.input_callback_name = None
         self.achievements.ensure_attributes()
         self.settlement.ensure_attributes()
 
-    # ================ МЕТОДЫ ДЛЯ НАВЫКА ЛЕЧЕНИЯ ================
+    # ================ НАВЫК ЛЕЧЕНИЯ ================
 
     def add_healing_xp(self, amount):
         self.healing_xp += amount
@@ -534,7 +552,7 @@ class Game:
         self.chronicle.append(entry)
         self.add_message(f"📖 Летопись: {entry}")
 
-    # ================ МЕТОДЫ ДЛЯ РЕК И ПУТЕШЕСТВИЯ ================
+    # ================ РЕКИ И ПУТЕШЕСТВИЯ ================
 
     def process_river_event(self):
         if self.phase == 0:
@@ -707,6 +725,7 @@ class Game:
             self.advance_image()
             return self.messages
 
+        # Синонимы команд
         if cmd.startswith('отправиться за пушниной'):
             cmd = 'отправить' + cmd[len('отправиться за пушниной'):]
         if cmd.startswith('спонсировать научные исследования'):
@@ -776,14 +795,37 @@ class Game:
         else:
             self.add_message("Неизвестная команда. Введите 'помощь'.")
 
-        self.after_action()
+        # После обработки команды, если не ожидаем ввод, выполняем последействия
+        if not self.awaiting_input:
+            self.after_action()
         self.advance_image()
         return self.messages
 
     def after_action(self):
-        self.check_debt()
-        s = self.settlement
+        # Если ожидается ввод, не выполняем никаких действий, чтобы избежать конфликтов
+        if self.awaiting_input:
+            return
 
+        s = self.settlement
+        self.check_debt()
+
+        # Обработка временных травм и отравлений (единый механизм)
+        for t in s.all_alive():
+            if t.injured_until_season > 0:
+                t.injured_until_season -= 1
+                if t.injured_until_season == 0:
+                    t.injured_until_season = -1
+                    self.add_message(f"💚 {t.name} оправился от травмы.")
+            if t.poisoned_until_season > 0:
+                t.poisoned_until_season -= 1
+                if t.poisoned_until_season == 0:
+                    t.poisoned_until_season = -1
+                    self.add_message(f"💚 {t.name} оправился от отравления.")
+
+        # Обработка боевых ран (отдельный механизм)
+        self.process_wounds()
+
+        # Прочие события
         if not s.drunkard_handled:
             threshold = 3000 if s.church else 2000
             if s.money > threshold:
@@ -795,8 +837,6 @@ class Game:
                 self.offer_initial_scurvy_treatment(t)
                 break
 
-        self.process_wounds()
-
         for city in s.cities:
             if city.is_frontier:
                 s.money += city.trade_bonus
@@ -805,7 +845,7 @@ class Game:
             s.money += s.yasak_income
         s.money += len(s.settlements) * 10
 
-        # Обработка подкреплений
+        # Подкрепления
         if self._reinforcement_coming:
             self._reinforcement_seasons -= 1
             if self._reinforcement_seasons <= 0:
@@ -814,7 +854,7 @@ class Game:
                 for _ in range(2):
                     name = random.choice(names) + " (подкрепление)"
                     new_t = Traveler(name)
-                    self.settlement.travelers.append(new_t)
+                    s.travelers.append(new_t)
                 self.add_message("🆕 Подкрепление прибыло! Два новых бойца присоединились к отряду.")
                 self.add_chronical("Подкрепление прибыло из Москвы.")
 
@@ -822,10 +862,9 @@ class Game:
             self.event_mutiny()
 
         self.achievements.check_and_reward(self)
-
         self.tutorial_advice()
         self.adjust_difficulty()
-        self.process_injuries()
+
         for city in s.cities:
             city.population += random.randint(0, 3)
 
@@ -1058,7 +1097,7 @@ class Game:
                 self.add_chronical("Посольство Ивана Кольцо в Москву, гнев царя смягчён.")
                 for t in s.travelers:
                     if t.name == "Иван Кольцо" and t.alive:
-                        t.injured_until_season = 1
+                        t.injured_until_season = 2   # временная травма (обработается в after_action)
                         break
             else:
                 self.add_message("❌ Иван Кольцо отсутствует в отряде. Придётся писать письмо.")
@@ -1167,7 +1206,7 @@ class Game:
         self.add_message(f"📨 {messenger.name} отправлен в Москву с 50 пушниной.")
         self.add_tsar_favor(20)
         self.add_chronical(f"Посольство во главе с {messenger.name} отправлено в Москву.")
-        messenger.injured_until_season = 2
+        messenger.injured_until_season = 2   # временная травма
 
     def cmd_trade_bukhara(self, args):
         s = self.settlement
@@ -1191,7 +1230,7 @@ class Game:
             return
         scouts = random.sample(living, 3)
         for t in scouts:
-            t.injured_until_season = 1
+            t.injured_until_season = 1   # временная травма
         if random.random() < 0.6:
             self.add_message("🕵️ Разведчики вернулись с ценными сведениями.")
             self.bandit_activity = max(0.05, self.bandit_activity - 0.1)
@@ -2521,7 +2560,7 @@ class Game:
             lines.append(f"💰 Цена пушнины: {self.merchant_price * price_mod:.1f} руб./ед.")
         return "\n".join(lines)
 
-    # ================ СОБЫТИЯ ПЬЯНСТВА, МУТИНИ, ДОЛГИ ================
+    # ================ СОБЫТИЯ ПЬЯНСТВА, БУНТЫ, ДОЛГИ ================
 
     def event_drunkard(self):
         s = self.settlement
@@ -2707,27 +2746,6 @@ class Game:
         else:
             self.add_message("❌ Неверный выбор.")
             self.check_debt()
-
-    def process_injuries(self):
-        s = self.settlement
-        new_injured = []
-        for entry in s.injured_travelers:
-            name, seasons_left, caretaker = entry
-            seasons_left -= 1
-            if seasons_left <= 0:
-                for t in s.travelers:
-                    if t.name == name and t.alive:
-                        t.injured_until_season = -1
-                        self.add_message(f"💚 {name} вернулся.")
-                        if caretaker:
-                            for c in s.travelers:
-                                if c.name == caretaker and c.alive:
-                                    c.injured_until_season = -1
-                                    self.add_message(f"💚 {caretaker} вернулся.")
-                        break
-            else:
-                new_injured.append((name, seasons_left, caretaker))
-        s.injured_travelers = new_injured
 
 
 # =================================================================
@@ -3037,9 +3055,9 @@ class EventManager:
             if not others:
                 return
             caretaker = random.choice(others)
+        # Оба получают временную травму
         victim.injured_until_season = 2
         caretaker.injured_until_season = 2
-        s.injured_travelers.append((victim.name, 2, caretaker.name))
         self.game.add_message(f"🦴 {victim.name} сломал ногу во время похода. {caretaker.name} остаётся с ним на два сезона.")
 
 

@@ -1,7 +1,13 @@
 import random
-import pickle
 import json
+import os
+import secrets
+import re
 from flask import Flask, request, render_template, session, redirect, url_for
+from flask_wtf import FlaskForm
+from wtforms import StringField, SubmitField
+from wtforms.validators import DataRequired, Length
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 # =================================================================
 # КЛАССЫ
@@ -38,6 +44,38 @@ class Traveler:
         if not hasattr(self, 'scurvy_healer_offered'):
             self.scurvy_healer_offered = False
 
+    def to_dict(self):
+        return {
+            'name': self.name,
+            'hunting': self.hunting,
+            'endurance': self.endurance,
+            'alive': self.alive,
+            'scurvy': self.scurvy,
+            'is_doctor': self.is_doctor,
+            'is_scientist': self.is_scientist,
+            'injured_until_season': self.injured_until_season,
+            'injured_with': self.injured_with,
+            'poisoned_until_season': self.poisoned_until_season,
+            'scurvy_treatment_offered': self.scurvy_treatment_offered,
+            'scurvy_healer_offered': self.scurvy_healer_offered
+        }
+
+    @classmethod
+    def from_dict(cls, data):
+        t = cls(data['name'])
+        t.hunting = data['hunting']
+        t.endurance = data['endurance']
+        t.alive = data['alive']
+        t.scurvy = data['scurvy']
+        t.is_doctor = data['is_doctor']
+        t.is_scientist = data['is_scientist']
+        t.injured_until_season = data['injured_until_season']
+        t.injured_with = data['injured_with']
+        t.poisoned_until_season = data['poisoned_until_season']
+        t.scurvy_treatment_offered = data['scurvy_treatment_offered']
+        t.scurvy_healer_offered = data['scurvy_healer_offered']
+        return t
+
 
 class City:
     ICONS = [
@@ -62,6 +100,35 @@ class City:
         if not hasattr(self, 'icon') or self.icon is None:
             self.icon = random.choice(self.ICONS)
 
+    def to_dict(self):
+        return {
+            'name': self.name,
+            'river': self.river,
+            'population': self.population,
+            'has_church': self.has_church,
+            'has_hospital': self.has_hospital,
+            'has_blacksmith': self.has_blacksmith,
+            'has_iron_mine': self.has_iron_mine,
+            'has_silver_mine': self.has_silver_mine,
+            'is_frontier': self.is_frontier,
+            'trade_bonus': self.trade_bonus,
+            'icon': self.icon
+        }
+
+    @classmethod
+    def from_dict(cls, data):
+        city = cls(data['name'], river=data['river'], icon=data.get('icon'))
+        city.population = data['population']
+        city.has_church = data['has_church']
+        city.has_hospital = data['has_hospital']
+        city.has_blacksmith = data['has_blacksmith']
+        city.has_iron_mine = data['has_iron_mine']
+        city.has_silver_mine = data['has_silver_mine']
+        city.is_frontier = data['is_frontier']
+        city.trade_bonus = data['trade_bonus']
+        city.ensure_attributes()
+        return city
+
 
 class Achievement:
     GOALS = [
@@ -73,6 +140,15 @@ class Achievement:
 
     def __init__(self):
         self.completed = set()
+
+    def to_dict(self):
+        return {'completed': list(self.completed)}
+
+    @classmethod
+    def from_dict(cls, data):
+        ach = cls()
+        ach.completed = set(data.get('completed', []))
+        return ach
 
     def check_and_reward(self, game):
         s = game.settlement
@@ -229,6 +305,289 @@ class Settlement:
                 city.icon = icons[idx % len(icons)]
             city.ensure_attributes()
 
+    def to_dict(self):
+        return {
+            'travelers': [t.to_dict() for t in self.travelers],
+            'fur': self.fur,
+            'equipment': self.equipment,
+            'money': self.money,
+            'dogs': self.dogs,
+            'horses': self.horses,
+            'lands': self.lands,
+            'charters': self.charters,
+            'total_charters_earned': self.total_charters_earned,
+            'cabbage': self.cabbage,
+            'flour': self.flour,
+            'fish': self.fish,
+            'pemmican': self.pemmican,
+            'cranberries': self.cranberries,
+            'is_first_winter': self.is_first_winter,
+            'church': self.church,
+            'palisade': self.palisade,
+            'year': self.year,
+            'season': self.season,
+            'total_fur_sent_to_tsar': self.total_fur_sent_to_tsar,
+            'penalty_next_season': self.penalty_next_season,
+            'turn': self.turn,
+            'city_names': self.city_names,
+            'last_offer_level': self.last_offer_level,
+            'patron_of_science': self.patron_of_science,
+            'benefactor': self.benefactor,
+            'cities': [c.to_dict() for c in self.cities],
+            'iron_deposits': self.iron_deposits,
+            'silver_deposits': self.silver_deposits,
+            'has_ancient_maps': self.has_ancient_maps,
+            'map_bonus': self.map_bonus,
+            'maps_created': self.maps_created,
+            'artifacts_found': self.artifacts_found,
+            'hunting_bonus_permanent': self.hunting_bonus_permanent,
+            'morale_bonus': self.morale_bonus,
+            'bandit_modifier': self.bandit_modifier,
+            'court_access': self.court_access,
+            'noble_title': self.noble_title,
+            'injured_travelers': self.injured_travelers,
+            'tutorial_step': self.tutorial_step,
+            'difficulty_modifier': self.difficulty_modifier,
+            'drunkard_handled': self.drunkard_handled
+        }
+
+    @classmethod
+    def from_dict(cls, data):
+        s = cls()
+        s.travelers = [Traveler.from_dict(td) for td in data['travelers']]
+        s.fur = data['fur']
+        s.equipment = data['equipment']
+        s.money = data['money']
+        s.dogs = data['dogs']
+        s.horses = data['horses']
+        s.lands = data['lands']
+        s.charters = data['charters']
+        s.total_charters_earned = data['total_charters_earned']
+        s.cabbage = data.get('cabbage', 0)
+        s.flour = data.get('flour', 200)
+        s.fish = data.get('fish', 0)
+        s.pemmican = data.get('pemmican', 0)
+        s.cranberries = data.get('cranberries', 0)
+        s.is_first_winter = data.get('is_first_winter', True)
+        s.church = data['church']
+        s.palisade = data['palisade']
+        s.year = data['year']
+        s.season = data['season']
+        s.total_fur_sent_to_tsar = data['total_fur_sent_to_tsar']
+        s.penalty_next_season = data['penalty_next_season']
+        s.turn = data['turn']
+        s.city_names = data['city_names']
+        s.last_offer_level = data['last_offer_level']
+        s.patron_of_science = data['patron_of_science']
+        s.benefactor = data['benefactor']
+        s.cities = [City.from_dict(cd) for cd in data['cities']]
+        s.iron_deposits = data['iron_deposits']
+        s.silver_deposits = data['silver_deposits']
+        s.has_ancient_maps = data['has_ancient_maps']
+        s.map_bonus = data['map_bonus']
+        s.maps_created = data['maps_created']
+        s.artifacts_found = data['artifacts_found']
+        s.hunting_bonus_permanent = data['hunting_bonus_permanent']
+        s.morale_bonus = data['morale_bonus']
+        s.bandit_modifier = data['bandit_modifier']
+        s.court_access = data['court_access']
+        s.noble_title = data['noble_title']
+        s.injured_travelers = data['injured_travelers']
+        s.tutorial_step = data['tutorial_step']
+        s.difficulty_modifier = data['difficulty_modifier']
+        s.drunkard_handled = data.get('drunkard_handled', False)
+        s.ensure_attributes()
+        return s
+
+
+class EventManager:
+    def __init__(self, game):
+        self.game = game
+
+    def random_event(self):
+        if random.random() > 0.3:
+            return
+        s = self.game.settlement
+        events = [
+            self.event_find_fur,
+            self.event_find_equipment,
+            self.event_merchant_cheat,
+            self.event_blizzard,
+            self.event_animal_rampage,
+            self.event_ancient_maps,
+            self.event_iron_deposit,
+            self.event_silver_deposit,
+            self.event_tribe_shaman,
+            self.event_tribe_marriage,
+            self.event_china_border,
+            self.event_poison_berry,
+            self.event_healer_visit,
+        ]
+        choice = random.choice(events)
+        choice()
+
+    def random_event_after_expedition(self, participants):
+        if random.random() < 0.08:
+            self.event_injury(participants)
+
+    def event_find_fur(self):
+        bonus = random.randint(10, 40)
+        self.game.settlement.fur += bonus
+        self.game.add_message(f"🎉 Случайная находка: обнаружено богатое соболиное гнездо! +{bonus} пушнины.")
+
+    def event_find_equipment(self):
+        bonus = random.randint(5, 20)
+        self.game.settlement.equipment += bonus
+        self.game.add_message(f"🎉 Найдена старая кладовая! +{bonus} экипировки.")
+
+    def event_merchant_cheat(self):
+        if self.game.settlement.money > 20:
+            loss = random.randint(10, 50)
+            self.game.settlement.money -= loss
+            self.game.add_message(f"😤 Купец обвесил вас! Потеряно {loss} рублей.")
+        else:
+            self.game.add_message("Купец попытался обмануть, но у вас слишком мало денег – он ушёл ни с чем.")
+
+    def event_blizzard(self):
+        if self.game.settlement.season == 3:
+            loss = random.randint(5, 15)
+            self.game.settlement.equipment = max(0, self.game.settlement.equipment - loss)
+            self.game.add_message(f"❄️ Снежная буря! Потеряно {loss} экипировки.")
+
+    def event_animal_rampage(self):
+        s = self.game.settlement
+        if s.total_animals() > 0:
+            loss = random.randint(1, min(3, s.total_animals()))
+            for _ in range(loss):
+                if s.dogs > 0:
+                    s.dogs -= 1
+                elif s.horses > 0:
+                    s.horses -= 1
+            self.game.add_message(f"🐾 Животные взбесились! Потеряно {loss} голов скота.")
+
+    def event_ancient_maps(self):
+        if not self.game.settlement.has_ancient_maps:
+            self.game.settlement.has_ancient_maps = True
+            self.game.settlement.map_bonus = 1
+            self.game.add_message("🗺️ Вы нашли тайник с древними картами! Теперь открытие новых земель облегчено (+1 земля за экспедицию).")
+
+    def event_iron_deposit(self):
+        s = self.game.settlement
+        if s.cities:
+            city = random.choice(s.cities)
+            if not city.has_iron_mine:
+                city.has_iron_mine = True
+                s.iron_deposits.append(city.name)
+                self.game.add_message(f"⛏️ В окрестностях города {city.name} найдена железная руда! Можно построить кузницу.")
+
+    def event_silver_deposit(self):
+        s = self.game.settlement
+        if s.cities:
+            city = random.choice(s.cities)
+            if not city.has_silver_mine:
+                city.has_silver_mine = True
+                s.silver_deposits.append(city.name)
+                self.game.add_message(f"🥈 В окрестностях города {city.name} найдено месторождение серебра! Царь жалует грамоту!")
+                s.charters += 1
+                s.total_charters_earned += 1
+
+    def event_tribe_shaman(self):
+        self.game.add_message("👣 Вы встретили местное племя. Шаман предлагает провести обряд охотничьей удачи.")
+        self.game.add_message("Что будешь делать?")
+        self.game.add_message("  1 - Отказаться")
+        self.game.add_message("  2 - Попытаться обратить шамана в православие")
+        self.game.set_input_callback(self.process_shaman_choice, "Твой выбор (1 или 2): ")
+
+    def process_shaman_choice(self, choice):
+        if choice == "1":
+            self.game.add_message("Вы вежливо отказались. Шаман не обиделся.")
+            return
+        elif choice == "2":
+            if random.random() < 0.5:
+                self.game.add_message("🙏 Шаман принял православие! В благодарность он дарит вам экипировку и указывает места, богатые пушниной.")
+                bonus_equip = random.randint(10, 30)
+                self.game.settlement.equipment += bonus_equip
+                self.game.add_message(f"Получено {bonus_equip} экипировки.")
+                self.game.hunting_boost = True
+                self.game.hunting_boost_multiplier = random.uniform(1.5, 2.0)
+                self.game.add_message("Следующая экспедиция принесёт значительно больше пушнины!")
+            else:
+                self.game.add_message("Шаман не поддался на уговоры, но предложил вам обменяться дарами.")
+                gift = random.randint(5, 15)
+                self.game.settlement.fur += gift
+                self.game.add_message(f"Вы получили {gift} пушнины в качестве дара.")
+        else:
+            self.game.add_message("Неверный ввод. Попробуй ещё раз.")
+            self.event_tribe_shaman()
+
+    def event_tribe_marriage(self):
+        s = self.game.settlement
+        living = s.living_travelers()
+        if len(living) < 2:
+            return
+        groom = random.choice(living)
+        s.travelers.remove(groom)
+        self.game.add_message(f"💒 {groom.name} женился на местной девушке и решил остаться в племени. Он покидает отряд.")
+        gift = random.randint(10, 30)
+        s.money += gift
+        self.game.add_message(f"Племя дарит вам {gift} рублей в качестве приданого.")
+
+    def event_injury(self, participants):
+        s = self.game.settlement
+        if not participants:
+            return
+        victim = random.choice(participants)
+        doctor = None
+        for t in participants:
+            if t.is_doctor and t != victim and t.alive and t.injured_until_season == -1:
+                doctor = t
+                break
+        if doctor:
+            caretaker = doctor
+        else:
+            others = [t for t in s.living_travelers() if t != victim]
+            if not others:
+                return
+            caretaker = random.choice(others)
+        victim.injured_until_season = 2
+        caretaker.injured_until_season = 2
+        s.injured_travelers.append((victim.name, 2, caretaker.name))
+        self.game.add_message(f"🦴 {victim.name} сломал ногу во время похода. {caretaker.name} остаётся с ним на два сезона.")
+
+    def event_china_border(self):
+        s = self.game.settlement
+        if s.lands >= 5 and not self.game.china_discovered and random.random() < 0.04:
+            self.game.china_discovered = True
+            city = City("Пограничная застава")
+            city.is_frontier = True
+            city.trade_bonus = 10
+            s.cities.append(city)
+            s.city_names.append("Пограничная застава")
+            self.game.add_message("🇨🇳 Ваш отряд достиг границы с Китаем! Основана пограничная застава. Теперь купцы могут торговать чаем, принося дополнительный доход.")
+
+    def event_poison_berry(self):
+        s = self.game.settlement
+        if s.season != 1 and s.season != 2:
+            return
+        living = s.living_travelers()
+        if not living:
+            return
+        if random.random() > 0.08:
+            return
+        victim = random.choice(living)
+        if victim.poisoned_until_season != -1:
+            return
+        victim.poisoned_until_season = (s.season + 1) % 4
+        self.game.add_message(f"🫐 {victim.name} попробовал незнакомую ягоду и отравился. Он не сможет участвовать в делах отряда в течение следующего сезона.")
+
+    def event_healer_visit(self):
+        s = self.game.settlement
+        sick = [t for t in s.all_alive() if t.scurvy and not t.scurvy_healer_offered]
+        if not sick:
+            return
+        patient = random.choice(sick)
+        self.game.offer_healer_scurvy_treatment(patient)
+
 
 class Game:
     def __init__(self):
@@ -255,6 +614,61 @@ class Game:
         self.tutorial_messages_shown = set()
         self.difficulty_adaptation_counter = 0
         self.china_discovered = False
+
+    def trim_messages(self, limit=100):
+        if len(self.messages) > limit:
+            self.messages = self.messages[-limit:]
+
+    def to_dict(self):
+        return {
+            'settlement': self.settlement.to_dict(),
+            'running': self.running,
+            'merchant_price': self.merchant_price,
+            'bandit_activity': self.bandit_activity,
+            'messages': self.messages,
+            'awaiting_input': self.awaiting_input,
+            'input_prompt': self.input_prompt,
+            'pending_command': self.pending_command,
+            '_charter_level': self._charter_level,
+            '_bandit_count': self._bandit_count,
+            '_bandit_fur_gained': self._bandit_fur_gained,
+            'current_image_index': self.current_image_index,
+            'achievements': self.achievements.to_dict(),
+            'court_access': self.court_access,
+            'total_cases_scurvy': self.total_cases_scurvy,
+            'hunting_boost': self.hunting_boost,
+            'hunting_boost_multiplier': self.hunting_boost_multiplier,
+            'tutorial_messages_shown': list(self.tutorial_messages_shown),
+            'difficulty_adaptation_counter': self.difficulty_adaptation_counter,
+            'china_discovered': self.china_discovered
+        }
+
+    @classmethod
+    def from_dict(cls, data):
+        g = cls()
+        g.settlement = Settlement.from_dict(data['settlement'])
+        g.running = data['running']
+        g.merchant_price = data['merchant_price']
+        g.bandit_activity = data['bandit_activity']
+        g.messages = data['messages']
+        g.awaiting_input = data['awaiting_input']
+        g.input_prompt = data['input_prompt']
+        g.pending_command = data['pending_command']
+        g._charter_level = data['_charter_level']
+        g._bandit_count = data['_bandit_count']
+        g._bandit_fur_gained = data['_bandit_fur_gained']
+        g.current_image_index = data['current_image_index']
+        g.achievements = Achievement.from_dict(data['achievements'])
+        g.court_access = data['court_access']
+        g.total_cases_scurvy = data['total_cases_scurvy']
+        g.hunting_boost = data['hunting_boost']
+        g.hunting_boost_multiplier = data['hunting_boost_multiplier']
+        g.tutorial_messages_shown = set(data['tutorial_messages_shown'])
+        g.difficulty_adaptation_counter = data['difficulty_adaptation_counter']
+        g.china_discovered = data['china_discovered']
+        g.event_manager = EventManager(g)
+        g.ensure_attributes()
+        return g
 
     def add_message(self, text):
         self.messages.append(text)
@@ -285,8 +699,6 @@ class Game:
             self.current_image_index = random.randint(1, 3)
         self.settlement.ensure_attributes()
 
-    # ================ ДИНАМИЧЕСКАЯ СЛОЖНОСТЬ ================
-
     def adjust_difficulty(self):
         s = self.settlement
         if len([t for t in s.travelers if not t.alive]) > 2:
@@ -296,8 +708,6 @@ class Game:
         if s.charters > 10 and s.lands > 5:
             s.difficulty_modifier = min(1.3, s.difficulty_modifier + 0.05)
         s.difficulty_modifier = max(0.6, min(1.4, s.difficulty_modifier))
-
-    # ================ ПОДСКАЗКИ ================
 
     def tutorial_advice(self):
         s = self.settlement
@@ -330,8 +740,6 @@ class Game:
     def mark_tutorial_shown(self, key):
         self.tutorial_messages_shown.add(key)
 
-    # ================ ОБРАБОТКА КОМАНД ================
-
     def process_command(self, cmd):
         self.messages = []
         if self.awaiting_input:
@@ -346,6 +754,7 @@ class Game:
             self.advance_image()
             return self.messages
 
+        # Нормализация команд
         if cmd.startswith('отправиться за пушниной'):
             cmd = 'отправить' + cmd[len('отправиться за пушниной'):]
         if cmd.startswith('спонсировать научные исследования'):
@@ -414,13 +823,11 @@ class Game:
                 self.event_drunkard()
                 s.drunkard_handled = True
 
-        # Лечение цинги
         for t in s.all_alive():
             if t.scurvy and not t.scurvy_treatment_offered:
                 self.offer_initial_scurvy_treatment(t)
                 break
 
-        # Доход от чая
         for city in s.cities:
             if city.is_frontier:
                 s.money += city.trade_bonus
@@ -441,8 +848,7 @@ class Game:
         if s.total_fur_sent_to_tsar >= 10000 and s.noble_title != 'вельможа':
             s.noble_title = 'вельможа'
             self.add_message("👑 Великая честь! Ты стал вельможей! Но помни: с большим богатством приходит и большая ответственность.")
-
-    # ================ СОБЫТИЕ ПЬЯНСТВА ================
+        self.trim_messages(100)  # ограничение размера сообщений
 
     def event_drunkard(self):
         s = self.settlement
@@ -486,8 +892,6 @@ class Game:
             self.event_drunkard()
             return
         s.drunkard_handled = True
-
-    # ================ ЛЕЧЕНИЕ ЦИНГИ ================
 
     def offer_initial_scurvy_treatment(self, traveler):
         s = self.settlement
@@ -547,8 +951,6 @@ class Game:
             self.add_message("❌ Неверный выбор. Попробуй ещё раз.")
             self.offer_healer_scurvy_treatment(traveler)
 
-    # ================ НОВЫЕ КОМАНДЫ ================
-
     def cmd_gather_cranberries(self, args):
         s = self.settlement
         if s.season != 2:
@@ -606,8 +1008,6 @@ class Game:
     def cmd_make_pemmican(self, args):
         self.add_message("ℹ️ Охота уже даёт пеммикан напрямую. Используй команду 'Охота'.")
 
-    # ================ СЕЗОН И ЗИМА (с увеличенной частотой цинги) ================
-
     def advance_season(self):
         s = self.settlement
         s.drunkard_handled = False
@@ -615,7 +1015,6 @@ class Game:
         old_season = s.season
         s.season = (s.season + 1) % 4
 
-        # Летом – излечение от цинги
         if s.season == 1:
             healed_count = 0
             for t in s.living_travelers():
@@ -627,19 +1026,16 @@ class Game:
             else:
                 self.add_message("☀️ Наступило лето. Все здоровы.")
 
-        # Зимой – расход провизии и повышенный риск цинги
         if s.season == 3:
             self.winter_consumption()
 
-        # В остальные сезоны (весна, осень) – небольшой шанс заболевания цингой (5%)
-        if s.season != 3 and s.season != 1:  # не зима и не лето
+        if s.season != 3 and s.season != 1:
             healthy = [t for t in s.all_alive() if not t.scurvy]
             if healthy and random.random() < 0.05:
                 victim = random.choice(healthy)
                 victim.scurvy = True
                 self.add_message(f"🫐 Весной/осенью {victim.name} заболел цингой из-за нехватки витаминов!")
 
-        # Новый год
         if s.season == 0:
             s.year += 1
             self.merchant_price = random.randint(2, 10)
@@ -653,7 +1049,6 @@ class Game:
         if not living:
             return
 
-        # 1. Расход муки (только первая зима)
         if s.is_first_winter and s.flour > 0:
             need = len(living) * 30
             if s.flour >= need:
@@ -665,7 +1060,6 @@ class Game:
                 s.flour = 0
                 s.is_first_winter = False
 
-        # 2. Расход рыбы и пеммикана
         need = len(living) * 10
         total_food = s.fish + s.pemmican
         if total_food >= need:
@@ -690,13 +1084,11 @@ class Game:
             s.fish = 0
             s.pemmican = 0
 
-        # 3. Расход клюквы и цинга (частота увеличена вдвое)
         if s.cranberries > 0:
             cran_need = len(living)
             if s.cranberries >= cran_need:
                 s.cranberries -= cran_need
                 self.add_message(f"🍒 Зимой съедено {cran_need} кг клюквы. Осталось {s.cranberries} кг.")
-                # Даже при достаточной клюкве есть 10% шанс заболевания цингой
                 healthy = [t for t in s.all_alive() if not t.scurvy]
                 if healthy and random.random() < 0.10:
                     victim = random.choice(healthy)
@@ -705,7 +1097,6 @@ class Game:
             else:
                 self.add_message(f"🍒 Клюквы было {s.cranberries} кг, но нужно {cran_need} кг. Вся клюква съедена, но её не хватило.")
                 s.cranberries = 0
-                # Нехватка клюквы: заболевает 1-2 человека
                 healthy = [t for t in s.all_alive() if not t.scurvy]
                 if healthy:
                     count = min(random.randint(1, 2), len(healthy))
@@ -714,7 +1105,6 @@ class Game:
                         v.scurvy = True
                     self.add_message(f"🫐 Из-за нехватки клюквы заболели цингой {count} человек.")
         else:
-            # Клюквы нет – заболевает 1-2 человека
             healthy = [t for t in s.all_alive() if not t.scurvy]
             if healthy:
                 count = min(random.randint(1, 2), len(healthy))
@@ -722,8 +1112,6 @@ class Game:
                 for v in victims:
                     v.scurvy = True
                 self.add_message(f"🫐 Из-за отсутствия клюквы заболели цингой {count} человек.")
-
-    # ================ ОСТАЛЬНЫЕ МЕТОДЫ ================
 
     def get_status_text(self):
         s = self.settlement
@@ -1082,6 +1470,9 @@ class Game:
             self.add_message("Неверное число.")
             return
         s = self.settlement
+        if amount <= 0:
+            self.add_message("Количество должно быть положительным.")
+            return
         price_per_unit = 5
         if any(c.has_blacksmith for c in s.cities):
             price_per_unit = 2
@@ -1095,10 +1486,9 @@ class Game:
 
     def cmd_buy_dog(self, args):
         s = self.settlement
+        count = 1
         if args and args[0].isdigit():
             count = int(args[0])
-        else:
-            count = 1
         if count <= 0:
             self.add_message("Количество должно быть положительным.")
             return
@@ -1112,10 +1502,9 @@ class Game:
 
     def cmd_buy_horse(self, args):
         s = self.settlement
+        count = 1
         if args and args[0].isdigit():
             count = int(args[0])
-        else:
-            count = 1
         if count <= 0:
             self.add_message("Количество должно быть положительным.")
             return
@@ -1166,6 +1555,9 @@ class Game:
             self.add_message("Неверное число.")
             return
         s = self.settlement
+        if amount <= 0:
+            self.add_message("Сумма должна быть положительной.")
+            return
         if amount > s.money:
             self.add_message("Недостаточно денег.")
             return
@@ -1192,8 +1584,6 @@ class Game:
         s.money -= amount
         self.add_message(f"📨 Ты отправил {amount} рублей своей семье. Семья передаёт спасибо и очень гордится твоими успехами! ❤️")
 
-    # ================ ОСНОВАНИЕ ГОРОДА ================
-
     def cmd_found_city(self, args):
         s = self.settlement
         required = 5 + len(s.cities) * 5
@@ -1205,16 +1595,19 @@ class Game:
             self.set_input_callback(self.create_city_with_name, "Введите название города: ")
             return
         city_name = " ".join(args).strip()
+        # Санитайзинг названия города
+        city_name = sanitize_input(city_name)
         if not city_name:
-            self.add_message("Название не может быть пустым.")
+            self.add_message("Название не может быть пустым или содержать запрещённые символы.")
             return
         self._create_city(city_name)
 
     def create_city_with_name(self, city_name):
-        if not city_name or city_name.strip() == "":
-            self.add_message("Название не может быть пустым. Попробуйте снова командой 'Основать город'.")
+        city_name = sanitize_input(city_name.strip())
+        if not city_name:
+            self.add_message("Название не может быть пустым или содержать запрещённые символы. Попробуйте снова командой 'Основать город'.")
             return
-        self._create_city(city_name.strip())
+        self._create_city(city_name)
 
     def _create_city(self, city_name):
         s = self.settlement
@@ -1240,8 +1633,6 @@ class Game:
             self.add_message("🥈 Обнаружено месторождение серебра! Это принесёт дополнительный доход.")
             s.charters += 1
             self.add_message("👑 Царь жалует грамоту за найденное серебро!")
-
-    # ================ ОСТАЛЬНЫЕ КОМАНДЫ ================
 
     def cmd_donate_science(self, args):
         if not args:
@@ -1490,10 +1881,11 @@ class Game:
             self.offer_charter_choice()
 
     def create_city_from_charter(self, city_name):
-        if not city_name or city_name.strip() == "":
-            self.add_message("Название не может быть пустым. Попробуй снова через команду 'Основать город'.")
+        city_name = sanitize_input(city_name.strip())
+        if not city_name:
+            self.add_message("Название не может быть пустым или содержать запрещённые символы. Попробуй снова через команду 'Основать город'.")
             return
-        self._create_city(city_name.strip())
+        self._create_city(city_name)
 
     def get_fur_price_modifier(self):
         s = self.settlement
@@ -1501,196 +1893,23 @@ class Game:
 
 
 # =================================================================
-# МЕНЕДЖЕР СОБЫТИЙ (без изменений)
+# Функция санитайзинга (глобальная)
 # =================================================================
+def sanitize_input(text):
+    if not text:
+        return ''
+    # Удаляем потенциально опасные теги и символы
+    text = re.sub(r'[<>]', '', text)
+    # Ограничиваем длину
+    return text[:100]
 
-class EventManager:
-    def __init__(self, game):
-        self.game = game
 
-    def random_event(self):
-        if random.random() > 0.3:
-            return
-        s = self.game.settlement
-        events = [
-            self.event_find_fur,
-            self.event_find_equipment,
-            self.event_merchant_cheat,
-            self.event_blizzard,
-            self.event_animal_rampage,
-            self.event_ancient_maps,
-            self.event_iron_deposit,
-            self.event_silver_deposit,
-            self.event_tribe_shaman,
-            self.event_tribe_marriage,
-            self.event_china_border,
-            self.event_poison_berry,
-            self.event_healer_visit,
-        ]
-        choice = random.choice(events)
-        choice()
-
-    def random_event_after_expedition(self, participants):
-        if random.random() < 0.08:
-            self.event_injury(participants)
-
-    def event_find_fur(self):
-        bonus = random.randint(10, 40)
-        self.game.settlement.fur += bonus
-        self.game.add_message(f"🎉 Случайная находка: обнаружено богатое соболиное гнездо! +{bonus} пушнины.")
-
-    def event_find_equipment(self):
-        bonus = random.randint(5, 20)
-        self.game.settlement.equipment += bonus
-        self.game.add_message(f"🎉 Найдена старая кладовая! +{bonus} экипировки.")
-
-    def event_merchant_cheat(self):
-        if self.game.settlement.money > 20:
-            loss = random.randint(10, 50)
-            self.game.settlement.money -= loss
-            self.game.add_message(f"😤 Купец обвесил вас! Потеряно {loss} рублей.")
-        else:
-            self.game.add_message("Купец попытался обмануть, но у вас слишком мало денег – он ушёл ни с чем.")
-
-    def event_blizzard(self):
-        if self.game.settlement.season == 3:
-            loss = random.randint(5, 15)
-            self.game.settlement.equipment = max(0, self.game.settlement.equipment - loss)
-            self.game.add_message(f"❄️ Снежная буря! Потеряно {loss} экипировки.")
-
-    def event_animal_rampage(self):
-        s = self.game.settlement
-        if s.total_animals() > 0:
-            loss = random.randint(1, min(3, s.total_animals()))
-            for _ in range(loss):
-                if s.dogs > 0:
-                    s.dogs -= 1
-                elif s.horses > 0:
-                    s.horses -= 1
-            self.game.add_message(f"🐾 Животные взбесились! Потеряно {loss} голов скота.")
-
-    def event_ancient_maps(self):
-        if not self.game.settlement.has_ancient_maps:
-            self.game.settlement.has_ancient_maps = True
-            self.game.settlement.map_bonus = 1
-            self.game.add_message("🗺️ Вы нашли тайник с древними картами! Теперь открытие новых земель облегчено (+1 земля за экспедицию).")
-
-    def event_iron_deposit(self):
-        s = self.game.settlement
-        if s.cities:
-            city = random.choice(s.cities)
-            if not city.has_iron_mine:
-                city.has_iron_mine = True
-                s.iron_deposits.append(city.name)
-                self.game.add_message(f"⛏️ В окрестностях города {city.name} найдена железная руда! Можно построить кузницу.")
-
-    def event_silver_deposit(self):
-        s = self.game.settlement
-        if s.cities:
-            city = random.choice(s.cities)
-            if not city.has_silver_mine:
-                city.has_silver_mine = True
-                s.silver_deposits.append(city.name)
-                self.game.add_message(f"🥈 В окрестностях города {city.name} найдено месторождение серебра! Царь жалует грамоту!")
-                s.charters += 1
-                s.total_charters_earned += 1
-
-    def event_tribe_shaman(self):
-        self.game.add_message("👣 Вы встретили местное племя. Шаман предлагает провести обряд охотничьей удачи.")
-        self.game.add_message("Что будешь делать?")
-        self.game.add_message("  1 - Отказаться")
-        self.game.add_message("  2 - Попытаться обратить шамана в православие")
-        self.game.set_input_callback(self.process_shaman_choice, "Твой выбор (1 или 2): ")
-
-    def process_shaman_choice(self, choice):
-        if choice == "1":
-            self.game.add_message("Вы вежливо отказались. Шаман не обиделся.")
-            return
-        elif choice == "2":
-            if random.random() < 0.5:
-                self.game.add_message("🙏 Шаман принял православие! В благодарность он дарит вам экипировку и указывает места, богатые пушниной.")
-                bonus_equip = random.randint(10, 30)
-                self.game.settlement.equipment += bonus_equip
-                self.game.add_message(f"Получено {bonus_equip} экипировки.")
-                self.game.hunting_boost = True
-                self.game.hunting_boost_multiplier = random.uniform(1.5, 2.0)
-                self.game.add_message("Следующая экспедиция принесёт значительно больше пушнины!")
-            else:
-                self.game.add_message("Шаман не поддался на уговоры, но предложил вам обменяться дарами.")
-                gift = random.randint(5, 15)
-                self.game.settlement.fur += gift
-                self.game.add_message(f"Вы получили {gift} пушнины в качестве дара.")
-        else:
-            self.game.add_message("Неверный ввод. Попробуй ещё раз.")
-            self.event_tribe_shaman()
-
-    def event_tribe_marriage(self):
-        s = self.game.settlement
-        living = s.living_travelers()
-        if len(living) < 2:
-            return
-        groom = random.choice(living)
-        s.travelers.remove(groom)
-        self.game.add_message(f"💒 {groom.name} женился на местной девушке и решил остаться в племени. Он покидает отряд.")
-        gift = random.randint(10, 30)
-        s.money += gift
-        self.game.add_message(f"Племя дарит вам {gift} рублей в качестве приданого.")
-
-    def event_injury(self, participants):
-        s = self.game.settlement
-        if not participants:
-            return
-        victim = random.choice(participants)
-        doctor = None
-        for t in participants:
-            if t.is_doctor and t != victim and t.alive and t.injured_until_season == -1:
-                doctor = t
-                break
-        if doctor:
-            caretaker = doctor
-        else:
-            others = [t for t in s.living_travelers() if t != victim]
-            if not others:
-                return
-            caretaker = random.choice(others)
-        victim.injured_until_season = 2
-        caretaker.injured_until_season = 2
-        s.injured_travelers.append((victim.name, 2, caretaker.name))
-        self.game.add_message(f"🦴 {victim.name} сломал ногу во время похода. {caretaker.name} остаётся с ним на два сезона.")
-
-    def event_china_border(self):
-        s = self.game.settlement
-        if s.lands >= 5 and not self.game.china_discovered and random.random() < 0.04:
-            self.game.china_discovered = True
-            city = City("Пограничная застава")
-            city.is_frontier = True
-            city.trade_bonus = 10
-            s.cities.append(city)
-            s.city_names.append("Пограничная застава")
-            self.game.add_message("🇨🇳 Ваш отряд достиг границы с Китаем! Основана пограничная застава. Теперь купцы могут торговать чаем, принося дополнительный доход.")
-
-    def event_poison_berry(self):
-        s = self.game.settlement
-        if s.season != 1 and s.season != 2:
-            return
-        living = s.living_travelers()
-        if not living:
-            return
-        if random.random() > 0.08:
-            return
-        victim = random.choice(living)
-        if victim.poisoned_until_season != -1:
-            return
-        victim.poisoned_until_season = (s.season + 1) % 4
-        self.game.add_message(f"🫐 {victim.name} попробовал незнакомую ягоду и отравился. Он не сможет участвовать в делах отряда в течение следующего сезона.")
-
-    def event_healer_visit(self):
-        s = self.game.settlement
-        sick = [t for t in s.all_alive() if t.scurvy and not t.scurvy_healer_offered]
-        if not sick:
-            return
-        patient = random.choice(sick)
-        self.game.offer_healer_scurvy_treatment(patient)
+# =================================================================
+# ФОРМА ДЛЯ CSRF
+# =================================================================
+class CommandForm(FlaskForm):
+    command = StringField('Команда', validators=[DataRequired(), Length(max=200)])
+    submit = SubmitField('Отправить')
 
 
 # =================================================================
@@ -1698,31 +1917,66 @@ class EventManager:
 # =================================================================
 
 app = Flask(__name__)
-app.secret_key = 'your-secret-key-change-in-production'
+
+# ---- Секретный ключ ----
+app.secret_key = os.environ.get('SECRET_KEY') or secrets.token_hex(32)
+
+# ---- Настройка CSRF ----
+app.config['WTF_CSRF_ENABLED'] = True
+app.config['WTF_CSRF_SECRET_KEY'] = os.environ.get('WTF_CSRF_SECRET_KEY') or secrets.token_hex(32)
+
+# ---- Принудительный HTTPS (для продакшена) ----
+if os.environ.get('FORCE_HTTPS', 'false').lower() == 'true':
+    try:
+        from flask_talisman import Talisman
+        Talisman(app, force_https=True)
+    except ImportError:
+        print("Flask-Talisman не установлен, HTTPS не принудителен.")
+
+# ---- Прокси для корректной работы HTTPS за reverse-proxy ----
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+
+
+# =================================================================
+# МАРШРУТЫ
+# =================================================================
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
+    form = CommandForm()
+
+    # Обработка старта новой игры
     if request.method == 'POST' and 'start_game' in request.form:
-        name = request.form.get('player_name', '')
-        email = request.form.get('player_email', '')
+        name = sanitize_input(request.form.get('player_name', ''))
+        email = sanitize_input(request.form.get('player_email', ''))
         session['player_name'] = name
         session['player_email'] = email
         game = Game()
-        session['game_state'] = pickle.dumps(game)
+        session['game_data'] = json.dumps(game.to_dict())
         if 'leaderboard' not in session:
             session['leaderboard'] = []
         return redirect(url_for('index'))
 
-    if 'game_state' in session:
-        game = pickle.loads(session['game_state'])
-        game.ensure_attributes()
+    # Проверяем наличие сохранённой игры
+    if 'game_data' in session:
+        try:
+            game_dict = json.loads(session['game_data'])
+            game = Game.from_dict(game_dict)
+        except Exception as e:
+            # Если данные повреждены – сбрасываем
+            session.pop('game_data', None)
+            return redirect(url_for('index'))
 
-        if request.method == 'POST' and 'command' in request.form:
-            command = request.form.get('command', '').strip().lower()
+        # Обработка команды (только если форма прошла CSRF-проверку)
+        if form.validate_on_submit():
+            command = form.command.data.strip().lower()
             if command:
+                command = sanitize_input(command)
                 game.process_command(command)
-                session['game_state'] = pickle.dumps(game)
+                game.trim_messages(100)
+                session['game_data'] = json.dumps(game.to_dict())
 
+        # Подготовка данных для шаблона
         status = game.get_status_text()
         messages = game.messages[-50:]
         image_index = game.current_image_index
@@ -1730,7 +1984,9 @@ def index():
         achievements = game.achievements.completed
         noble_title = game.settlement.noble_title
         leaderboard = session.get('leaderboard', [])
+
         return render_template('index.html',
+                               form=form,
                                status=status,
                                messages=messages,
                                image_index=image_index,
@@ -1739,24 +1995,36 @@ def index():
                                noble_title=noble_title,
                                leaderboard=leaderboard)
 
+    # Если нет игры – показываем страницу старта
     return render_template('start.html')
+
 
 @app.route('/reset')
 def reset():
-    session.pop('game_state', None)
+    session.pop('game_data', None)
     return redirect(url_for('index'))
+
 
 @app.route('/add_leaderboard', methods=['POST'])
 def add_leaderboard():
     data = request.get_json()
-    name = data.get('name', '')
-    charters = data.get('charters', 0)
-    cities = data.get('cities', 0)
+    if not data:
+        return {'status': 'error'}, 400
+    name = sanitize_input(data.get('name', ''))
+    try:
+        charters = int(data.get('charters', 0))
+        cities_count = int(data.get('cities', 0))
+    except (TypeError, ValueError):
+        return {'status': 'error'}, 400
+    charters = max(0, min(charters, 10000))
+    cities_count = max(0, min(cities_count, 1000))
     leaderboard = session.get('leaderboard', [])
-    leaderboard.append({'name': name, 'charters': charters, 'cities': cities})
+    leaderboard.append({'name': name, 'charters': charters, 'cities': cities_count})
     leaderboard.sort(key=lambda x: x['charters'], reverse=True)
     session['leaderboard'] = leaderboard[:10]
     return {'status': 'ok'}
 
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    debug_mode = os.environ.get('FLASK_DEBUG', 'false').lower() == 'true'
+    app.run(debug=debug_mode)
